@@ -404,11 +404,6 @@ export function showAllDevices() {
 // ================================================
 // HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL MULTIHOJA
 // ================================================
-// Mantener igual que tu código anterior, sin cambios (solo incluir los nuevos campos si quieres exportarlos).
-
-// ================================================
-// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL MULTIHOJA
-// ================================================
 export function showHistoricalPage(deviceId) {
   const root = document.getElementById("root");
   root.innerHTML = `
