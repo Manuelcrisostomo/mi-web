@@ -93,10 +93,10 @@ export function showAdminDashboard() {
         <label>Nombre de estación:</label><input type="text" id="humanEstacion" value="${data.nombreEstacion || ""}" />
 
         <h4>Datos Técnicos (Sistema/Mapa)</h4>
-        <label>Latitud:</label><input type="number" step="0.000001" id="techLat" value="${data.latitude ?? 0}" />
-        <label>Longitud:</label><input type="number" step="0.000001" id="techLng" value="${data.longitude ?? 0}" />
-        <label>Altitud (m):</label><input type="number" step="0.1" id="techAlt" value="${data.altitude ?? 0}" />
-        <label>Precisión (m):</label><input type="number" step="0.01" id="techPrecision" value="${data.precision ?? 0}" />
+        <label>Latitud:</label><input type="number" step="0.000001" id="techLat" value="${data.latitude ?? data.latitud ?? 0}" />
+        <label>Longitud:</label><input type="number" step="0.000001" id="techLng" value="${data.longitude ?? data.longitud ?? 0}" />
+        <label>Altitud (m):</label><input type="number" step="0.1" id="techAlt" value="${data.altitude ?? data.altitud ?? 0}" />
+        <label>Precisión (m):</label><input type="number" step="0.01" id="techPrecision" value="${data.precision ?? data.precision_m ?? 0}" />
         <label>EPSG/WGS84:</label><input type="text" id="techEPSG" value="${data.EPSG ?? "WGS84"}" />
 
         <h4>Datos Geográficos / Empresariales</h4>
@@ -105,6 +105,8 @@ export function showAdminDashboard() {
         <label>Comuna:</label><input type="text" id="geoComuna" value="${data.comuna || ""}" />
         <label>Nombre de mina:</label><input type="text" id="geoMina" value="${data.nombreMina || ""}" />
         <label>Nombre de empresa:</label><input type="text" id="geoEmpresa" value="${data.nombreEmpresa || ""}" />
+
+        <label>ID del Dispositivo:</label><input type="text" id="deviceId" value="${data.deviceId || ""}" />
 
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="cancelEdit">Cancelar</button>
@@ -139,16 +141,20 @@ export function showAdminDashboard() {
       const nombreMina = document.getElementById("geoMina").value.trim();
       const nombreEmpresa = document.getElementById("geoEmpresa").value.trim();
 
+      const deviceId = document.getElementById("deviceId").value.trim();
+
       const updatedUserData = {
         ...data, nombre, telefono, direccion, isAdmin,
         zona, rampa, galeria, sector, nombreEstacion,
         latitude, longitude, altitude, precision, EPSG,
-        pais, region, comuna, nombreMina, nombreEmpresa
+        pais, region, comuna, nombreMina, nombreEmpresa,
+        deviceId
       };
 
       try {
-        await setDoc(userDocRef, updatedUserData, { merge: true });
+        await setDoc(doc(firestore, "users", uid), updatedUserData, { merge: true });
         await update(ref(db, `usuarios/${uid}`), updatedUserData);
+        if (deviceId) await update(ref(db, `dispositivos/${deviceId}`), updatedUserData);
         alert("Usuario y ubicación actualizados ✅");
         container.innerHTML = "";
       } catch (err) {
@@ -270,10 +276,10 @@ export function showUserDashboard() {
       document.getElementById("humanSector").value = data.sector || "";
       document.getElementById("humanEstacion").value = data.nombreEstacion || "";
 
-      document.getElementById("editLatitude").value = data.latitude ?? "";
-      document.getElementById("editLongitude").value = data.longitude ?? "";
-      document.getElementById("editAltitude").value = data.altitude ?? "";
-      document.getElementById("editPrecision").value = data.precision ?? "";
+      document.getElementById("editLatitude").value = data.latitude ?? data.latitud ?? "";
+      document.getElementById("editLongitude").value = data.longitude ?? data.longitud ?? "";
+      document.getElementById("editAltitude").value = data.altitude ?? data.altitud ?? "";
+      document.getElementById("editPrecision").value = data.precision ?? data.precision_m ?? "";
       document.getElementById("editEPSG").value = data.EPSG ?? "WGS84";
 
       document.getElementById("geoPais").value = data.pais || "";
@@ -349,10 +355,10 @@ export function showUserDashboard() {
         if (!d) return container.innerHTML = `<p>No se encontró el dispositivo ${deviceId}</p>`;
         container.innerHTML = `
           <h4>Dispositivo: ${deviceId}</h4>
-          <p>Latitud: ${d.latitude ?? userData.latitude ?? ""}</p>
-          <p>Longitud: ${d.longitude ?? userData.longitude ?? ""}</p>
-          <p>Altitud (m): ${d.altitude ?? userData.altitude ?? ""}</p>
-          <p>Precisión (m): ${d.precision ?? userData.precision ?? ""}</p>
+          <p>Latitud: ${d.latitude ?? d.latitud ?? userData.latitude ?? ""}</p>
+          <p>Longitud: ${d.longitude ?? d.longitud ?? userData.longitude ?? ""}</p>
+          <p>Altitud (m): ${d.altitude ?? d.altitud ?? userData.altitude ?? ""}</p>
+          <p>Precisión (m): ${d.precision ?? d.precision_m ?? userData.precision ?? ""}</p>
           <p>EPSG/WGS84: ${d.EPSG ?? userData.EPSG ?? "WGS84"}</p>
           <p>Zona: ${d.zona ?? userData.zona ?? ""}</p>
           <p>Rampa: ${d.rampa ?? userData.rampa ?? ""}</p>
