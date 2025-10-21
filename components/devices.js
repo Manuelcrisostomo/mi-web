@@ -1,8 +1,6 @@
 // ================================================
-// device.js - Gestión de usuarios, dispositivos e historial
-// ================================================
-
 // Firebase y Navegación
+// ================================================
 import {
   auth, db, firestore, ref, onValue, get, remove, onAuthStateChanged
 } from "../firebaseConfig.js";
@@ -24,6 +22,7 @@ export function showAdminDashboard() {
     <div class="dashboard">
       <h2>Panel del Administrador</h2>
       <div id="users"></div>
+
       <div class="actions">
         <button id="historyBtn">📜 Historial General</button>
         <button id="nuevoBtnAdmin">✨ Nuevo Botón</button>
@@ -60,7 +59,6 @@ export function showAdminDashboard() {
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
 
-  // Funciones globales para editar y borrar usuarios (solo admin)
   window.editUser = async (uid) => {
     const userDocRef = doc(firestore, "users", uid);
     const snap = await get(userDocRef);
@@ -70,27 +68,10 @@ export function showAdminDashboard() {
     const nombre = prompt("Nombre:", data.nombre || "");
     const telefono = prompt("Teléfono:", data.telefono || "");
     const direccion = prompt("Dirección:", data.direccion || "");
-    const deviceId = prompt("ID del Dispositivo:", data.deviceId || "");
-    const latitude = parseFloat(prompt("Latitud:", data.latitude ?? 0));
-    const longitude = parseFloat(prompt("Longitud:", data.longitude ?? 0));
-    const altitude = parseFloat(prompt("Altitud:", data.altitude ?? 0));
-    const siteZone = prompt("Zona Minera:", data.siteZone || "");
-    const installationPoint = prompt("Punto de Instalación:", data.installationPoint || "");
     const isAdmin = confirm("¿Es Administrador? (OK = Sí, Cancel = No)");
 
-    const newUserData = { nombre, telefono, direccion, deviceId, latitude, longitude, altitude, siteZone, installationPoint, isAdmin };
-
-    await setDoc(userDocRef, { ...data, ...newUserData }, { merge: true });
-    await update(ref(db, `usuarios/${uid}`), newUserData);
-
-    if (deviceId) {
-      const deviceRef = ref(db, `dispositivos/${deviceId}`);
-      const deviceSnap = await get(deviceRef);
-      if (deviceSnap.exists()) {
-        await update(deviceRef, { latitude, longitude, altitude, siteZone, installationPoint, userEmail: data.email });
-      }
-    }
-
+    await setDoc(userDocRef, { ...data, nombre, telefono, direccion, isAdmin }, { merge: true });
+    await update(ref(db, `usuarios/${uid}`), { nombre, telefono, direccion, isAdmin });
     alert("Usuario actualizado ✅");
   };
 
@@ -108,7 +89,7 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO
+// DASHBOARD USUARIO / ADMINISTRADOR
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
@@ -119,15 +100,24 @@ export function showUserDashboard() {
 
       <h3>Editar Datos y Ubicación del Dispositivo</h3>
       <form id="editForm" class="card">
-        <label>Nombre:</label><input type="text" id="nombre" />
-        <label>Teléfono:</label><input type="text" id="telefono" />
-        <label>Dirección:</label><input type="text" id="direccion" />
-        <label>ID del Dispositivo:</label><input type="text" id="deviceId" />
-        <label>Latitud:</label><input type="text" id="latitude" />
-        <label>Longitud:</label><input type="text" id="longitude" />
-        <label>Altitud (m):</label><input type="text" id="altitude" />
-        <label>Zona Minera:</label><input type="text" id="siteZone" />
-        <label>Punto de Instalación:</label><input type="text" id="installationPoint" />
+        <label>Nombre:</label>
+        <input type="text" id="nombre" placeholder="Nombre completo" />
+        <label>Teléfono:</label>
+        <input type="text" id="telefono" placeholder="Teléfono" />
+        <label>Dirección:</label>
+        <input type="text" id="direccion" placeholder="Dirección" />
+        <label>ID del Dispositivo:</label>
+        <input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
+        <label>Latitud:</label>
+        <input type="text" id="latitude" placeholder="-23.456789" />
+        <label>Longitud:</label>
+        <input type="text" id="longitude" placeholder="-70.123456" />
+        <label>Altitud (m):</label>
+        <input type="text" id="altitude" placeholder="1280" />
+        <label>Zona Minera:</label>
+        <input type="text" id="siteZone" placeholder="Sector Oeste" />
+        <label>Punto de Instalación:</label>
+        <input type="text" id="installationPoint" placeholder="Estación 12" />
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -149,14 +139,16 @@ export function showUserDashboard() {
 
   // Botones de navegación
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
-  document.getElementById("devicesBtn").onclick = () => showAllDevices();
+  document.getElementById("devicesBtn").onclick = () => navigate("devices");
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnUser").onclick = () => showNewHistoryPage();
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
-  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
+  document.getElementById("logoutBtn").onclick = async () => {
+    await auth.signOut();
+    navigate("login");
+  };
 
-  // Obtener datos del usuario
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
     const userId = user.uid;
@@ -165,13 +157,14 @@ export function showUserDashboard() {
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
-      // Mostrar perfil
+
+      // Mostrar datos del perfil
       document.getElementById("userProfile").innerHTML = `
-        <p><b>Nombre:</b> ${data.nombre || "-"}</p>
+        <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
         <p><b>Correo:</b> ${userEmail}</p>
         <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
-        <p><b>ID del Dispositivo:</b> ${data.deviceId || "-"}</p>
+        <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
         <p><b>Latitud:</b> ${data.latitude ?? "-"}</p>
         <p><b>Longitud:</b> ${data.longitude ?? "-"}</p>
         <p><b>Altitud:</b> ${data.altitude ?? "-"}</p>
@@ -180,42 +173,60 @@ export function showUserDashboard() {
       `;
 
       // Llenar formulario
-      ["nombre","telefono","direccion","deviceId","latitude","longitude","altitude","siteZone","installationPoint"].forEach(id => {
-        document.getElementById(id).value = data[id] ?? "";
-      });
+      document.getElementById("nombre").value = data.nombre || "";
+      document.getElementById("telefono").value = data.telefono || "";
+      document.getElementById("direccion").value = data.direccion || "";
+      document.getElementById("deviceId").value = data.deviceId || "";
+      document.getElementById("latitude").value = data.latitude ?? "";
+      document.getElementById("longitude").value = data.longitude ?? "";
+      document.getElementById("altitude").value = data.altitude ?? "";
+      document.getElementById("siteZone").value = data.siteZone || "";
+      document.getElementById("installationPoint").value = data.installationPoint || "";
 
+      // Mostrar dispositivo si existe
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // Guardar cambios
+    // Editar datos del usuario y ubicación del dispositivo
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nombre = document.getElementById("nombre").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const direccion = document.getElementById("direccion").value.trim();
       const deviceId = document.getElementById("deviceId").value.trim();
-      const latitude = parseFloat(document.getElementById("latitude").value) || 0;
-      const longitude = parseFloat(document.getElementById("longitude").value) || 0;
-      const altitude = parseFloat(document.getElementById("altitude").value) || 0;
+      const latitude = parseFloat(document.getElementById("latitude").value);
+      const longitude = parseFloat(document.getElementById("longitude").value);
+      const altitude = parseFloat(document.getElementById("altitude").value);
       const siteZone = document.getElementById("siteZone").value.trim();
       const installationPoint = document.getElementById("installationPoint").value.trim();
 
-      const newUserData = { nombre, telefono, direccion, deviceId, latitude, longitude, altitude, siteZone, installationPoint, email: userEmail, updatedAt: new Date().toISOString() };
+      if (isNaN(latitude) || isNaN(longitude)) return alert("Latitud o longitud inválida");
+      if (!deviceId) return alert("Debe asignar un ID de dispositivo válido");
+
+      const newUserData = {
+        nombre, telefono, direccion, deviceId,
+        latitude, longitude, altitude, siteZone, installationPoint,
+        email: userEmail, updatedAt: new Date().toISOString()
+      };
 
       try {
+        // Actualizar datos del usuario
         await setDoc(doc(firestore, "users", userId), newUserData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), newUserData);
 
-        if (deviceId) {
-          const deviceRef = ref(db, `dispositivos/${deviceId}`);
-          const deviceSnap = await get(deviceRef);
-          if (deviceSnap.exists()) {
-            await update(deviceRef, { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
-          } else alert(`⚠️ El dispositivo "${deviceId}" no existe.`);
+        // Actualizar ubicación y datos del dispositivo
+        const deviceRef = ref(db, `dispositivos/${deviceId}`);
+        const deviceSnap = await get(deviceRef);
+        if (deviceSnap.exists()) {
+          await update(deviceRef, {
+            latitude, longitude, altitude, siteZone, installationPoint, userEmail
+          });
+        } else {
+          alert(`⚠️ El dispositivo "${deviceId}" no existe.`);
         }
 
         alert("✅ Datos actualizados correctamente.");
-        if (deviceId) mostrarDatosDispositivo(deviceId);
+        mostrarDatosDispositivo(deviceId);
       } catch (error) {
         console.error(error);
         alert(`❌ Error al guardar: ${error.message}`);
@@ -236,21 +247,25 @@ export function showUserDashboard() {
       }
     };
 
-    // Mostrar dispositivo
+    // Mostrar dispositivo con filtrado de valores inválidos
     function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snapshot) => {
         const d = snapshot.val();
-        if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`);
+        if (!d) return container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`;
+
+        const humedad = (d.humedad >= 0 && d.humedad <= 100) ? d.humedad : "-";
+        const temperatura = (d.temperatura !== null && d.temperatura !== undefined) ? d.temperatura : "-";
+
         container.innerHTML = `
           <p><b>ID:</b> ${deviceId}</p>
-          <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
+          <p><b>Nombre del dispositivo:</b> ${d.name || "Desconocido"}</p>
           <p>CO: ${d.CO ?? 0} ppm</p>
           <p>CO₂: ${d.CO2 ?? 0} ppm</p>
           <p>PM10: ${d.PM10 ?? 0} µg/m³</p>
           <p>PM2.5: ${d.PM2_5 ?? 0} µg/m³</p>
-          <p>Humedad: ${d.humedad ?? 0}%</p>
-          <p>Temperatura: ${d.temperatura ?? 0} °C</p>
+          <p>Humedad: ${humedad}%</p>
+          <p>Temperatura: ${temperatura} °C</p>
           <p>Latitud: ${d.latitude ?? "-"}</p>
           <p>Longitud: ${d.longitude ?? "-"}</p>
           <p>Altitud: ${d.altitude ?? "-"}</p>
