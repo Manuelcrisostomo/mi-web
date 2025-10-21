@@ -133,11 +133,6 @@ export function showUserDashboard() {
         <input type="text" id="siteZone" placeholder="Sector Oeste" />
         <label>Punto de Instalación:</label>
         <input type="text" id="installationPoint" placeholder="Estación 12" />
-        <label>Rol:</label>
-        <select id="isAdmin">
-          <option value="false">Usuario Normal</option>
-          <option value="true">Administrador</option>
-        </select>
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -178,8 +173,6 @@ export function showUserDashboard() {
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
-      const esAdmin = data.isAdmin;
-      const rolTexto = esAdmin ? "Administrador" : "Usuario Normal";
 
       // Mostrar datos del perfil
       document.getElementById("userProfile").innerHTML = `
@@ -187,7 +180,6 @@ export function showUserDashboard() {
         <p><b>Correo:</b> ${userEmail}</p>
         <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
-        <p><b>Rol:</b> ${rolTexto}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
         <p><b>Latitud:</b> ${data.latitude ?? "-"}</p>
         <p><b>Longitud:</b> ${data.longitude ?? "-"}</p>
@@ -206,7 +198,6 @@ export function showUserDashboard() {
       document.getElementById("altitude").value = data.altitude ?? "";
       document.getElementById("siteZone").value = data.siteZone || "";
       document.getElementById("installationPoint").value = data.installationPoint || "";
-      document.getElementById("isAdmin").value = data.isAdmin ? "true" : "false";
 
       // Mostrar dispositivo si existe
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
@@ -224,10 +215,9 @@ export function showUserDashboard() {
       const altitude = parseFloat(document.getElementById("altitude").value) || 0;
       const siteZone = document.getElementById("siteZone").value.trim();
       const installationPoint = document.getElementById("installationPoint").value.trim();
-      const isAdmin = document.getElementById("isAdmin").value === "true";
 
       const newUserData = {
-        nombre, telefono, direccion, deviceId, isAdmin,
+        nombre, telefono, direccion, deviceId,
         latitude, longitude, altitude, siteZone, installationPoint,
         email: userEmail, updatedAt: new Date().toISOString()
       };
@@ -295,6 +285,7 @@ export function showUserDashboard() {
     }
   });
 }
+
 
 function mostrarHistorialCarrusel(deviceId) {
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
