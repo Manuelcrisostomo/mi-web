@@ -108,16 +108,6 @@ export function showUserDashboard() {
         <input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label>
         <input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-        <label>Latitud:</label>
-        <input type="text" id="latitude" placeholder="-23.456789" />
-        <label>Longitud:</label>
-        <input type="text" id="longitude" placeholder="-70.123456" />
-        <label>Altitud (m):</label>
-        <input type="text" id="altitude" placeholder="1280" />
-        <label>Zona Minera:</label>
-        <input type="text" id="siteZone" placeholder="Sector Oeste" />
-        <label>Punto de Instalación:</label>
-        <input type="text" id="installationPoint" placeholder="Estación 12" />
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -165,68 +155,36 @@ export function showUserDashboard() {
         <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
-        <p><b>Latitud:</b> ${data.latitude ?? "-"}</p>
-        <p><b>Longitud:</b> ${data.longitude ?? "-"}</p>
-        <p><b>Altitud:</b> ${data.altitude ?? "-"}</p>
-        <p><b>Zona:</b> ${data.siteZone || "-"}</p>
-        <p><b>Punto de Instalación:</b> ${data.installationPoint || "-"}</p>
       `;
 
-      // Llenar formulario
+      // Llenar formulario usuario
       document.getElementById("nombre").value = data.nombre || "";
       document.getElementById("telefono").value = data.telefono || "";
       document.getElementById("direccion").value = data.direccion || "";
       document.getElementById("deviceId").value = data.deviceId || "";
-      document.getElementById("latitude").value = data.latitude ?? "";
-      document.getElementById("longitude").value = data.longitude ?? "";
-      document.getElementById("altitude").value = data.altitude ?? "";
-      document.getElementById("siteZone").value = data.siteZone || "";
-      document.getElementById("installationPoint").value = data.installationPoint || "";
 
-      // Mostrar dispositivo si existe
-      if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
+      // Mostrar dispositivo editable si existe
+      if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
-    // Editar datos del usuario y ubicación del dispositivo
+    // Editar datos del usuario
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nombre = document.getElementById("nombre").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const direccion = document.getElementById("direccion").value.trim();
       const deviceId = document.getElementById("deviceId").value.trim();
-      const latitude = parseFloat(document.getElementById("latitude").value);
-      const longitude = parseFloat(document.getElementById("longitude").value);
-      const altitude = parseFloat(document.getElementById("altitude").value);
-      const siteZone = document.getElementById("siteZone").value.trim();
-      const installationPoint = document.getElementById("installationPoint").value.trim();
 
-      if (isNaN(latitude) || isNaN(longitude)) return alert("Latitud o longitud inválida");
       if (!deviceId) return alert("Debe asignar un ID de dispositivo válido");
 
-      const newUserData = {
-        nombre, telefono, direccion, deviceId,
-        latitude, longitude, altitude, siteZone, installationPoint,
-        email: userEmail, updatedAt: new Date().toISOString()
-      };
+      const newUserData = { nombre, telefono, direccion, deviceId, email: userEmail, updatedAt: new Date().toISOString() };
 
       try {
-        // Actualizar datos del usuario
         await setDoc(doc(firestore, "users", userId), newUserData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), newUserData);
+        alert("✅ Datos de usuario actualizados correctamente.");
 
-        // Actualizar ubicación y datos del dispositivo
-        const deviceRef = ref(db, `dispositivos/${deviceId}`);
-        const deviceSnap = await get(deviceRef);
-        if (deviceSnap.exists()) {
-          await update(deviceRef, {
-            latitude, longitude, altitude, siteZone, installationPoint, userEmail
-          });
-        } else {
-          alert(`⚠️ El dispositivo "${deviceId}" no existe.`);
-        }
-
-        alert("✅ Datos actualizados correctamente.");
-        mostrarDatosDispositivo(deviceId);
+        if (deviceId) mostrarDatosDispositivo(deviceId);
       } catch (error) {
         console.error(error);
         alert(`❌ Error al guardar: ${error.message}`);
@@ -247,31 +205,44 @@ export function showUserDashboard() {
       }
     };
 
-    // Mostrar dispositivo con filtrado de valores inválidos
-    function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
+    // Función para mostrar y editar dispositivo
+    function mostrarDatosDispositivo(deviceId, userData = {}) {
+      const container = document.getElementById("deviceData");
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snapshot) => {
         const d = snapshot.val();
         if (!d) return container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`;
 
-        const humedad = (d.humedad >= 0 && d.humedad <= 100) ? d.humedad : "-";
-        const temperatura = (d.temperatura !== null && d.temperatura !== undefined) ? d.temperatura : "-";
-
         container.innerHTML = `
-          <p><b>ID:</b> ${deviceId}</p>
-          <p><b>Nombre del dispositivo:</b> ${d.name || "Desconocido"}</p>
-          <p>CO: ${d.CO ?? 0} ppm</p>
-          <p>CO₂: ${d.CO2 ?? 0} ppm</p>
-          <p>PM10: ${d.PM10 ?? 0} µg/m³</p>
-          <p>PM2.5: ${d.PM2_5 ?? 0} µg/m³</p>
-          <p>Humedad: ${humedad}%</p>
-          <p>Temperatura: ${temperatura} °C</p>
-          <p>Latitud: ${d.latitude ?? "-"}</p>
-          <p>Longitud: ${d.longitude ?? "-"}</p>
-          <p>Altitud: ${d.altitude ?? "-"}</p>
-          <p>Zona: ${d.siteZone || "-"}</p>
-          <p>Punto de Instalación: ${d.installationPoint || "-"}</p>
+          <h4>Dispositivo: ${deviceId}</h4>
+          <label>Latitud:</label>
+          <input type="text" id="editLatitude" value="${d.latitude ?? userData.latitude ?? ""}" />
+          <label>Longitud:</label>
+          <input type="text" id="editLongitude" value="${d.longitude ?? userData.longitude ?? ""}" />
+          <label>Altitud (m):</label>
+          <input type="text" id="editAltitude" value="${d.altitude ?? userData.altitude ?? ""}" />
+          <label>Zona:</label>
+          <input type="text" id="editSiteZone" value="${d.siteZone ?? userData.siteZone ?? ""}" />
+          <label>Punto de Instalación:</label>
+          <input type="text" id="editInstallationPoint" value="${d.installationPoint ?? userData.installationPoint ?? ""}" />
+          <button id="saveDeviceBtn">💾 Guardar Ubicación</button>
         `;
+
+        document.getElementById("saveDeviceBtn").onclick = async () => {
+          const latitude = parseFloat(document.getElementById("editLatitude").value) || 0;
+          const longitude = parseFloat(document.getElementById("editLongitude").value) || 0;
+          const altitude = parseFloat(document.getElementById("editAltitude").value) || 0;
+          const siteZone = document.getElementById("editSiteZone").value.trim();
+          const installationPoint = document.getElementById("editInstallationPoint").value.trim();
+
+          try {
+            await update(deviceRef, { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
+            alert("✅ Ubicación del dispositivo actualizada correctamente.");
+          } catch (error) {
+            console.error(error);
+            alert(`❌ Error al actualizar dispositivo: ${error.message}`);
+          }
+        };
       });
     }
   });
