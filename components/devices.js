@@ -62,96 +62,91 @@ export function showAdminDashboard() {
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
 
-// ================================================
-// EDITAR USUARIO (Formulario Visual)
-// ================================================
-// ================================================
-// EDITAR USUARIO Y UBICACIÓN DEL DISPOSITIVO
-// ================================================
-window.editUser = async (uid) => {
-  const userDocRef = doc(firestore, "users", uid);
-  const snap = await get(userDocRef);
-  if (!snap.exists()) return alert("Usuario no encontrado");
-  const data = snap.data();
+  // ================================================
+  // EDITAR USUARIO Y UBICACIÓN DEL DISPOSITIVO
+  // ================================================
+  window.editUser = async (uid) => {
+    const userDocRef = doc(firestore, "users", uid);
+    const snap = await get(userDocRef);
+    if (!snap.exists()) return alert("Usuario no encontrado");
+    const data = snap.data();
 
-  const container = document.getElementById("editUserFormContainer");
-  container.innerHTML = `
-    <h3>Editar Datos del Usuario</h3>
-    <form id="adminEditForm" class="card">
-      <label>Nombre:</label>
-      <input type="text" id="adminNombre" value="${data.nombre || ""}" />
-      <label>Teléfono:</label>
-      <input type="text" id="adminTelefono" value="${data.telefono || ""}" />
-      <label>Dirección:</label>
-      <input type="text" id="adminDireccion" value="${data.direccion || ""}" />
-      <label>Rol:</label>
-      <select id="adminRol">
-        <option value="false" ${!data.isAdmin ? "selected" : ""}>Usuario</option>
-        <option value="true" ${data.isAdmin ? "selected" : ""}>Administrador</option>
-      </select>
+    const container = document.getElementById("editUserFormContainer");
+    container.innerHTML = `
+      <h3>Editar Datos del Usuario</h3>
+      <form id="adminEditForm" class="card">
+        <label>Nombre:</label>
+        <input type="text" id="adminNombre" value="${data.nombre || ""}" />
+        <label>Teléfono:</label>
+        <input type="text" id="adminTelefono" value="${data.telefono || ""}" />
+        <label>Dirección:</label>
+        <input type="text" id="adminDireccion" value="${data.direccion || ""}" />
+        <label>Rol:</label>
+        <select id="adminRol">
+          <option value="false" ${!data.isAdmin ? "selected" : ""}>Usuario</option>
+          <option value="true" ${data.isAdmin ? "selected" : ""}>Administrador</option>
+        </select>
 
-      <h4>Datos de Ubicación del Dispositivo</h4>
-      <label>Latitud:</label><input type="number" step="0.000001" id="adminLat"/>
-      <label>Longitud:</label><input type="number" step="0.000001" id="adminLng"/>
-      <label>Altitud (m):</label><input type="number" step="0.1" id="adminAlt"/>
-      <label>Zona:</label><input type="text" id="adminZone"/>
-      <label>Punto de Instalación:</label><input type="text" id="adminPoint"/>
-      <button type="submit">💾 Guardar Cambios</button>
-      <button type="button" id="cancelEdit">Cancelar</button>
-    </form>
-  `;
+        <h4>Datos de Ubicación del Dispositivo</h4>
+        <label>Latitud:</label><input type="number" step="0.000001" id="adminLat"/>
+        <label>Longitud:</label><input type="number" step="0.000001" id="adminLng"/>
+        <label>Altitud (m):</label><input type="number" step="0.1" id="adminAlt"/>
+        <label>Zona:</label><input type="text" id="adminZone"/>
+        <label>Punto de Instalación:</label><input type="text" id="adminPoint"/>
+        <button type="submit">💾 Guardar Cambios</button>
+        <button type="button" id="cancelEdit">Cancelar</button>
+      </form>
+    `;
 
-  document.getElementById("cancelEdit").onclick = () => { container.innerHTML = ""; };
+    document.getElementById("cancelEdit").onclick = () => { container.innerHTML = ""; };
 
-  // 🔹 Cargar datos actuales del dispositivo
-  let deviceData = {};
-  if (data.deviceId) {
-    const deviceSnap = await get(ref(db, `dispositivos/${data.deviceId}`));
-    deviceData = deviceSnap.exists() ? deviceSnap.val() : {};
-  }
-
-  document.getElementById("adminLat").value = deviceData.latitude ?? data.latitude ?? 0;
-  document.getElementById("adminLng").value = deviceData.longitude ?? data.longitude ?? 0;
-  document.getElementById("adminAlt").value = deviceData.altitude ?? data.altitude ?? 0;
-  document.getElementById("adminZone").value = deviceData.siteZone ?? data.siteZone ?? "";
-  document.getElementById("adminPoint").value = deviceData.installationPoint ?? data.installationPoint ?? "";
-
-  // 🔹 Guardar cambios
-  document.getElementById("adminEditForm").onsubmit = async (e) => {
-    e.preventDefault();
-    const nombre = document.getElementById("adminNombre").value.trim();
-    const telefono = document.getElementById("adminTelefono").value.trim();
-    const direccion = document.getElementById("adminDireccion").value.trim();
-    const isAdmin = document.getElementById("adminRol").value === "true";
-    const latitude = parseFloat(document.getElementById("adminLat").value) || 0;
-    const longitude = parseFloat(document.getElementById("adminLng").value) || 0;
-    const altitude = parseFloat(document.getElementById("adminAlt").value) || 0;
-    const siteZone = document.getElementById("adminZone").value.trim();
-    const installationPoint = document.getElementById("adminPoint").value.trim();
-
-    const updatedUserData = { ...data, nombre, telefono, direccion, isAdmin };
-    const updatedDeviceData = { latitude, longitude, altitude, siteZone, installationPoint };
-
-    try {
-      // 🔹 Actualizar usuario Firestore + Realtime Database
-      await setDoc(userDocRef, updatedUserData, { merge: true });
-      await update(ref(db, `usuarios/${uid}`), updatedUserData);
-
-      // 🔹 Actualizar datos de ubicación del dispositivo si existe
-      if (data.deviceId) {
-        await update(ref(db, `dispositivos/${data.deviceId}`), { ...updatedDeviceData, userEmail: data.email });
-      }
-
-      alert("Usuario y ubicación actualizados ✅");
-      container.innerHTML = "";
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error al actualizar: " + err.message);
+    // Cargar datos actuales del dispositivo
+    let deviceData = {};
+    if (data.deviceId) {
+      const deviceSnap = await get(ref(db, `dispositivos/${data.deviceId}`));
+      deviceData = deviceSnap.exists() ? deviceSnap.val() : {};
     }
+
+    document.getElementById("adminLat").value = deviceData.latitude ?? data.latitude ?? 0;
+    document.getElementById("adminLng").value = deviceData.longitude ?? data.longitude ?? 0;
+    document.getElementById("adminAlt").value = deviceData.altitude ?? data.altitude ?? 0;
+    document.getElementById("adminZone").value = deviceData.siteZone ?? data.siteZone ?? "";
+    document.getElementById("adminPoint").value = deviceData.installationPoint ?? data.installationPoint ?? "";
+
+    // Guardar cambios
+    document.getElementById("adminEditForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("adminNombre").value.trim();
+      const telefono = document.getElementById("adminTelefono").value.trim();
+      const direccion = document.getElementById("adminDireccion").value.trim();
+      const isAdmin = document.getElementById("adminRol").value === "true";
+      const latitude = parseFloat(document.getElementById("adminLat").value) || 0;
+      const longitude = parseFloat(document.getElementById("adminLng").value) || 0;
+      const altitude = parseFloat(document.getElementById("adminAlt").value) || 0;
+      const siteZone = document.getElementById("adminZone").value.trim();
+      const installationPoint = document.getElementById("adminPoint").value.trim();
+
+      const updatedUserData = { ...data, nombre, telefono, direccion, isAdmin };
+      const updatedDeviceData = { latitude, longitude, altitude, siteZone, installationPoint };
+
+      try {
+        // Actualizar usuario
+        await setDoc(userDocRef, updatedUserData, { merge: true });
+        await update(ref(db, `usuarios/${uid}`), updatedUserData);
+
+        // Actualizar dispositivo
+        if (data.deviceId) {
+          await update(ref(db, `dispositivos/${data.deviceId}`), { ...updatedDeviceData, userEmail: data.email });
+        }
+
+        alert("Usuario y ubicación actualizados ✅");
+        container.innerHTML = "";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error al actualizar: " + err.message);
+      }
+    };
   };
-};
-
-
 
   // ================================================
   // ELIMINAR USUARIO
