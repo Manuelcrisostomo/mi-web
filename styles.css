@@ -1,3 +1,18 @@
+.card-header {
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  border-radius: 6px 6px 0 0;
+}
+.card {
+  border-radius: 8px;
+}
+.card-body {
+  border-radius: 0 0 8px 8px;
+}
+input.form-control {
+  border-radius: 6px;
+}
+
 /* =============================
    Reset básico y body
 ============================= */
