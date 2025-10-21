@@ -1,7 +1,6 @@
 // ================================================
-// device.js - Gestión de Usuarios, Dispositivos y Perfil con Diseño Bootstrap
+// IMPORTACIONES Y CONFIGURACIÓN
 // ================================================
-
 import {
   auth, db, firestore, ref, onValue, get, remove, onAuthStateChanged
 } from "../firebaseConfig.js";
@@ -9,232 +8,325 @@ import {
 import { doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { navigate } from "../app.js";
-import { showHistoryManagerPage } from "./historyManager.js";
+import { showHistoryUtilsPage } from "./historyUtils.js";
+import { showNewHistoryPage } from "./Histors.js";
 import { showPagina1, showPagina2 } from "./paginas.js";
+import { showHistoryManagerPage } from "./historyManager.js";
 
-// =====================================================
-// DASHBOARD USUARIO (con diseño Bootstrap integrado)
-// =====================================================
+// ================================================
+// PANEL ADMINISTRADOR
+// ================================================
+export function showAdminDashboard() {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="dashboard">
+      <h2>Panel del Administrador</h2>
+      <div id="users"></div>
+      <div class="actions">
+        <button id="historyBtn">📜 Historial General</button>
+        <button id="nuevoBtnAdmin">✨ Nuevo Botón</button>
+        <button id="pagina1Btn">📄 Página 1</button>
+        <button id="pagina2Btn">📄 Página 2</button>
+        <button id="logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  `;
+
+  const usersRef = ref(db, "usuarios");
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    const container = document.getElementById("users");
+    container.innerHTML = "<h3>Usuarios Registrados:</h3>";
+    for (let id in data) {
+      const user = data[id];
+      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email})</p>`;
+    }
+  });
+
+  document.getElementById("logout").onclick = async () => {
+    await auth.signOut();
+    navigate("login");
+  };
+  document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
+  document.getElementById("nuevoBtnAdmin").onclick = () => showNewHistoryPage();
+  document.getElementById("pagina1Btn").onclick = () => showPagina1();
+  document.getElementById("pagina2Btn").onclick = () => showPagina2();
+  document.getElementById("manualPageBtn")?.onclick = () => showHistoryManagerPage();
+}
+
+// ================================================
+// DASHBOARD USUARIO COMPLETO
+// ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
   root.innerHTML = `
-  <div class="container py-4">
-    <div class="text-center mb-4">
-      <h2>Minesafe 2</h2>
-      <h5>Perfil del Usuario</h5>
-    </div>
+    <div class="dashboard">
+      <h2>Perfil del Usuario</h2>
 
-    <!-- Info Usuario -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-body" id="userInfo">
-        <p><strong>Nombre correo:</strong> Cargando...</p>
-        <p><strong>Teléfono:</strong> Cargando...</p>
-        <p><strong>Estación de trabajo:</strong> PC</p>
-        <p><strong>RUT:</strong> -</p>
-        <p><strong>Dato Diagnóstico:</strong> -</p>
-      </div>
-    </div>
+      <div id="userProfile" class="card">Cargando datos...</div>
 
-    <!-- Editor Datos del Usuario -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h6 class="mb-0">Editor Datos del Usuario</h6>
-      </div>
-      <div class="card-body">
-        <form id="editForm">
-          <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" id="nombre" class="form-control" placeholder="Nombre" />
-          </div>
-          <div class="mb-3">
-            <label for="telefono" class="form-label">Teléfono</label>
-            <input type="text" id="telefono" class="form-control" placeholder="Teléfono" />
-          </div>
-          <div class="mb-3">
-            <label for="rut" class="form-label">RUT</label>
-            <input type="text" id="rut" class="form-control" placeholder="Rut" />
-          </div>
-          <div class="mb-3">
-            <label for="datoDiagnostico" class="form-label">Dato Diagnóstico</label>
-            <input type="text" id="datoDiagnostico" class="form-control" placeholder="Dato Diagnóstico" />
-          </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="checkEstado" />
-            <label for="checkEstado" class="form-check-label">Activo</label>
-          </div>
-          <button type="submit" class="btn btn-primary">Guardar Usuario</button>
-          <button type="button" id="deleteUser" class="btn btn-danger ms-2">Eliminar Usuario</button>
-        </form>
-      </div>
-    </div>
+      <form id="editForm" class="card">
+        <h3>Datos Personales</h3>
+        <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" />
+        <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
+        <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
+        <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
+        <label>Rol:</label>
+        <select id="isAdmin">
+          <option value="false">Usuario Normal</option>
+          <option value="true">Administrador</option>
+        </select>
 
-    <!-- Datos Ocupacionales -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-secondary text-white">
-        <h6 class="mb-0">Datos Usuario Ocupación</h6>
-      </div>
-      <div class="card-body">
-        <form>
-          <div class="mb-3">
-            <label for="zona" class="form-label">Zona</label>
-            <input type="text" id="zona" class="form-control" placeholder="Zona" />
-          </div>
-          <div class="mb-3">
-            <label for="empresa" class="form-label">Empresa</label>
-            <input type="text" id="empresa" class="form-control" placeholder="Empresa" />
-          </div>
-          <div class="mb-3">
-            <label for="gremio" class="form-label">Gremio</label>
-            <input type="text" id="gremio" class="form-control" placeholder="Gremio" />
-          </div>
-          <div class="mb-3">
-            <label for="cargo" class="form-label">Cargo</label>
-            <input type="text" id="cargo" class="form-control" placeholder="Cargo" />
-          </div>
-          <div class="mb-3">
-            <label for="experiencia" class="form-label">Tiempo de experiencia</label>
-            <input type="text" id="experiencia" class="form-control" placeholder="Tiempo de experiencia" />
-          </div>
-        </form>
+        <h3>Datos Humanos (Operador)</h3>
+        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+        <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
+        <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
+        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+        <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />
+
+        <h3>Datos Técnicos (Mapas/Sistema)</h3>
+        <label>Latitud:</label><input type="number" id="latitude" step="any" placeholder="0" />
+        <label>Longitud:</label><input type="number" id="longitude" step="any" placeholder="0" />
+        <label>Altitud (m):</label><input type="number" id="altitude" step="any" placeholder="0" />
+        <label>Precisión (m):</label><input type="number" id="precision" step="any" placeholder="0" />
+        <label>EPSG/WGS84:</label><input type="text" id="EPSG" placeholder="WGS84" />
+
+        <h3>Datos Geográficos / Empresariales</h3>
+        <label>País:</label><input type="text" id="pais" placeholder="País" />
+        <label>Región:</label><input type="text" id="region" placeholder="Región" />
+        <label>Comuna:</label><input type="text" id="comuna" placeholder="Comuna" />
+        <label>Nombre de la mina:</label><input type="text" id="nombreMina" placeholder="Nombre de la mina" />
+        <label>Nombre de la empresa:</label><input type="text" id="nombreEmpresa" placeholder="Nombre de la empresa" />
+
+        <button type="submit">💾 Guardar Cambios</button>
+        <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
+      </form>
+
+      <h3>Dispositivo Asignado</h3>
+      <div id="deviceData" class="card">Cargando dispositivo...</div>
+
+      <div class="actions">
+        <button id="alertsBtn">Ver Alertas</button>
+        <button id="devicesBtn">Ver Dispositivos</button>
+        <button id="historyBtn">📜 Ver Historial</button>
+        <button id="nuevoBtnUser">✨ Nuevo Botón</button>
+        <button id="pagina1Btn">📄 Página 1</button>
+        <button id="pagina2Btn">📄 Página 2</button>
+        <button id="logoutBtn">Cerrar Sesión</button>
       </div>
     </div>
-
-    <!-- Datos Técnicos -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-info text-white">
-        <h6 class="mb-0">Datos Técnicos (Operadores)</h6>
-      </div>
-      <div class="card-body" id="deviceData">
-        Cargando datos del dispositivo...
-      </div>
-    </div>
-
-    <!-- Datos Geográficos -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-warning text-dark">
-        <h6 class="mb-0">Datos Geográficos (Explotación)</h6>
-      </div>
-      <div class="card-body">
-        <form>
-          <div class="mb-3">
-            <label for="region" class="form-label">Región</label>
-            <input type="text" id="region" class="form-control" placeholder="Región" />
-          </div>
-          <div class="mb-3">
-            <label for="comuna" class="form-label">Comuna</label>
-            <input type="text" id="comuna" class="form-control" placeholder="Comuna" />
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <footer class="text-center py-3 text-muted">
-      &copy; 2024 Minesafe 2
-    </footer>
-  </div>
   `;
 
-  // =====================================================
-  // Carga de datos desde Firebase
-  // =====================================================
+  // Navegación
+  document.getElementById("alertsBtn").onclick = () => navigate("alerts");
+  document.getElementById("devicesBtn").onclick = () => navigate("devices");
+  document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
+  document.getElementById("nuevoBtnUser").onclick = () => showNewHistoryPage();
+  document.getElementById("pagina1Btn").onclick = () => showPagina1();
+  document.getElementById("pagina2Btn").onclick = () => showPagina2();
+  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
+
   onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
+    if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
     const userId = user.uid;
     const userEmail = user.email;
     const userDocRef = doc(firestore, "users", userId);
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
+      const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
 
-      // Actualiza la información principal
-      document.getElementById("userInfo").innerHTML = `
-        <p><strong>Nombre correo:</strong> ${userEmail}</p>
-        <p><strong>Teléfono:</strong> ${data.telefono || "-"}</p>
-        <p><strong>Estación de trabajo:</strong> PC</p>
-        <p><strong>RUT:</strong> ${data.rut || "-"}</p>
-        <p><strong>Dato Diagnóstico:</strong> ${data.datoDiagnostico || "-"}</p>
+      document.getElementById("userProfile").innerHTML = `
+        <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
+        <p><b>Correo:</b> ${userEmail}</p>
+        <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
+        <p><b>Dirección:</b> ${data.direccion || "-"}</p>
+        <p><b>Rol:</b> ${rolTexto}</p>
+        <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Llena el formulario de edición
-      document.getElementById("nombre").value = data.nombre || "";
-      document.getElementById("telefono").value = data.telefono || "";
-      document.getElementById("rut").value = data.rut || "";
-      document.getElementById("datoDiagnostico").value = data.datoDiagnostico || "";
-      document.getElementById("checkEstado").checked = data.activo || false;
+      // Rellenar formulario
+      const fields = [
+        "nombre","telefono","direccion","deviceId","isAdmin",
+        "zona","rampa","galeria","sector","nombreEstacion",
+        "latitude","longitude","altitude","precision","EPSG",
+        "pais","region","comuna","nombreMina","nombreEmpresa"
+      ];
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (!el) return;
+        if (f === "isAdmin") el.value = data.isAdmin ? "true" : "false";
+        else if (["latitude","longitude","altitude","precision"].includes(f)) el.value = data[f] ?? 0;
+        else el.value = data[f] || "";
+      });
 
-      // Carga de dispositivo asociado
-      if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
+      if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // =====================================================
-    // GUARDAR DATOS USUARIO
-    // =====================================================
-    document.getElementById("editForm").onsubmit = async (e) => {
+    // Guardar cambios
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const updatedData = {
-        nombre: document.getElementById("nombre").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        rut: document.getElementById("rut").value.trim(),
-        datoDiagnostico: document.getElementById("datoDiagnostico").value.trim(),
-        activo: document.getElementById("checkEstado").checked,
-        email: userEmail,
-        updatedAt: new Date().toISOString(),
-      };
+      const newData = {};
+      const fields = [
+        "nombre","telefono","direccion","deviceId","isAdmin",
+        "zona","rampa","galeria","sector","nombreEstacion",
+        "latitude","longitude","altitude","precision","EPSG",
+        "pais","region","comuna","nombreMina","nombreEmpresa"
+      ];
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (!el) return;
+        if (f === "isAdmin") newData[f] = el.value === "true";
+        else if (["latitude","longitude","altitude","precision"].includes(f)) newData[f] = parseFloat(el.value) || 0;
+        else newData[f] = el.value.trim();
+      });
+      newData.email = userEmail;
+      newData.updatedAt = new Date().toISOString();
 
       try {
-        await setDoc(doc(firestore, "users", userId), updatedData, { merge: true });
-        await update(ref(db, `usuarios/${userId}`), updatedData);
-        alert("✅ Datos actualizados correctamente");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Error al guardar: " + err.message);
+        await setDoc(doc(firestore, "users", userId), newData, { merge: true });
+        await update(ref(db, `usuarios/${userId}`), newData);
+        if (newData.deviceId) mostrarDatosDispositivo(newData.deviceId);
+        alert("✅ Datos actualizados correctamente.");
+      } catch (error) {
+        console.error(error);
+        alert(`❌ Error al guardar: ${error.message}`);
       }
-    };
+    });
 
-    // =====================================================
-    // ELIMINAR USUARIO
-    // =====================================================
+    // Borrar usuario
     document.getElementById("deleteUser").onclick = async () => {
-      if (!confirm("¿Desea eliminar este usuario?")) return;
+      if (!confirm("¿Seguro que deseas borrar este usuario?")) return;
       try {
         await deleteDoc(doc(firestore, "users", userId));
         await remove(ref(db, `usuarios/${userId}`));
-        alert("Usuario eliminado correctamente");
+        alert("🗑️ Usuario eliminado correctamente.");
         navigate("login");
-      } catch (err) {
-        console.error(err);
-        alert("Error al eliminar: " + err.message);
+      } catch (error) {
+        console.error(error);
+        alert(`❌ No se pudo borrar el usuario: ${error.message}`);
       }
     };
-  });
 
-  // =====================================================
-  // FUNCIÓN PARA MOSTRAR DATOS DE DISPOSITIVO
-  // =====================================================
-  function mostrarDatosDispositivo(deviceId, userData = {}) {
-    const deviceRef = ref(db, `dispositivos/${deviceId}`);
-    const deviceContainer = document.getElementById("deviceData");
-    onValue(deviceRef, (snapshot) => {
-      const d = snapshot.val();
-      if (!d) return deviceContainer.innerHTML = `<p>No se encontró el dispositivo ${deviceId}</p>`;
-      deviceContainer.innerHTML = `
-        <p><strong>ID:</strong> ${deviceId}</p>
-        <p><strong>Latitud:</strong> ${d.latitude ?? userData.latitude ?? "-"}</p>
-        <p><strong>Longitud:</strong> ${d.longitude ?? userData.longitude ?? "-"}</p>
-        <p><strong>Altitud:</strong> ${d.altitude ?? userData.altitude ?? "-"}</p>
-        <p><strong>Precisión:</strong> ${d.precision ?? userData.precision ?? "-"}</p>
-        <p><strong>Zona:</strong> ${d.zona ?? userData.zona ?? "-"}</p>
-        <p><strong>Región:</strong> ${d.region ?? userData.region ?? "-"}</p>
-        <p><strong>Comuna:</strong> ${d.comuna ?? userData.comuna ?? "-"}</p>
-      `;
-    });
-  }
+    // Mostrar datos del dispositivo
+    function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
+      const deviceRef = ref(db, `dispositivos/${deviceId}`);
+      onValue(deviceRef, (snapshot) => {
+        const d = snapshot.val();
+        if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`);
+        container.innerHTML = `
+          <p><b>ID:</b> ${deviceId}</p>
+          <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
+          <p><b>Usuario:</b> ${d.userEmail || "Sin asignar"}</p>
+          <p><b>Latitud:</b> ${d.latitude ?? 0}</p>
+          <p><b>Longitud:</b> ${d.longitude ?? 0}</p>
+          <p><b>Altitud (m):</b> ${d.altitude ?? 0}</p>
+          <p><b>Precisión (m):</b> ${d.precision ?? 0}</p>
+          <button id="verHistorialBtn2">📜 Ver historial completo</button>
+        `;
+        document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
+      });
+    }
+  });
 }
+
+// ================================================
+// Resto de funciones de dispositivos, historial y exportación
+// ================================================
+// Puedes reutilizar funciones existentes: showHistoricalPage(deviceId), showHistoryUtilsPage(), etc.
 
 
 // ================================================
-// MOSTRAR TODOS LOS DISPOSITIVOS
+// DISPOSITIVOS
+// ================================================
+export function showDevices() {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="dashboard">
+      <h2>Dispositivo Asignado</h2>
+      <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
+      <div class="actions">
+        <button id="verTodosBtn">Ver todos los dispositivos</button>
+        <button id="nuevoBtnDispositivo">✨ Nuevo Botón</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("verTodosBtn").onclick = () => showAllDevices();
+  document.getElementById("nuevoBtnDispositivo").onclick = () => showNewHistoryPage();
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) return (document.getElementById("deviceData").innerHTML = "<p>No hay usuario autenticado.</p>");
+
+    const userRef = ref(db, `usuarios/${user.uid}`);
+    onValue(userRef, (snapshot) => {
+      const userData = snapshot.val();
+      if (!userData || !userData.deviceId)
+        return (document.getElementById("deviceData").innerHTML = "<p>No tienes dispositivos asignados.</p>");
+      mostrarDatosDispositivo(userData.deviceId, document.getElementById("deviceData"));
+    });
+  });
+}
+
+// ================================================
+// FUNCIONES DE DISPOSITIVOS E HISTORIALES
+// ================================================
+function mostrarDatosDispositivo(deviceId, container) {
+  const deviceRef = ref(db, `dispositivos/${deviceId}`);
+  onValue(deviceRef, (snapshot) => {
+    const d = snapshot.val();
+    if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo: <b>${deviceId}</b></p>`);
+
+    container.innerHTML = `
+      <p><b>ID:</b> ${deviceId}</p>
+      <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
+      <p><b>Usuario:</b> ${d.userEmail || "Sin asignar"}</p>
+      <p>CO: ${d.CO ?? 0} ppm</p>
+      <p>CO₂: ${d.CO2 ?? 0} ppm</p>
+      <p>PM10: ${d.PM10 ?? 0} µg/m³</p>
+      <p>PM2.5: ${d.PM2_5 ?? 0} µg/m³</p>
+      <p>Humedad: ${d.humedad ?? 0}%</p>
+      <p>Temperatura: ${d.temperatura ?? 0} °C</p>
+      <h4>📜 Últimos registros históricos</h4>
+      <div id="historialCarrusel" class="historialCarrusel">Cargando...</div>
+      <button id="verHistorialCompletoBtn">📄 Ver historial completo</button>
+    `;
+    mostrarHistorialCarrusel(deviceId);
+    document.getElementById("verHistorialCompletoBtn").onclick = () => showHistoricalPage(deviceId);
+  });
+}
+
+function mostrarHistorialCarrusel(deviceId) {
+  const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
+  onValue(historialRef, (snapshot) => {
+    const historial = snapshot.val();
+    const carrusel = document.getElementById("historialCarrusel");
+    carrusel.innerHTML = "";
+
+    if (!historial) return (carrusel.innerHTML = "<p>No hay datos históricos.</p>");
+
+    Object.entries(historial)
+      .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))
+      .slice(0, 12)
+      .forEach(([ts, datos]) => {
+        const card = document.createElement("div");
+        card.className = "historialCard";
+        card.innerHTML = `
+          <p><b>${new Date(parseInt(ts)).toLocaleString()}</b></p>
+          <p>CO: ${datos.CO ?? "—"} ppm</p>
+          <p>CO₂: ${datos.CO2 ?? "—"} ppm</p>
+          <p>PM10: ${datos.PM10 ?? "—"} µg/m³</p>
+          <p>PM2.5: ${datos.PM2_5 ?? "—"} µg/m³</p>
+          <p>Humedad: ${datos.humedad ?? "—"}%</p>
+          <p>Temperatura: ${datos.temperatura ?? "—"} °C</p>
+        `;
+        carrusel.appendChild(card);
+      });
+  });
+}
+
+// ================================================
+// TODOS LOS DISPOSITIVOS
 // ================================================
 export function showAllDevices() {
   const root = document.getElementById("root");
@@ -245,42 +337,45 @@ export function showAllDevices() {
       <button id="backBtn">Volver</button>
     </div>
   `;
-  document.getElementById("backBtn").onclick = () => showUserDashboard();
+  document.getElementById("backBtn").onclick = () => showDevices();
 
   const devicesRef = ref(db, "dispositivos");
   onValue(devicesRef, (snapshot) => {
-    const devices = snapshot.val() || {};
+    const devices = snapshot.val();
     const listDiv = document.getElementById("deviceList");
+    if (!devices) return (listDiv.innerHTML = "<p>No hay dispositivos en la base de datos.</p>");
     listDiv.innerHTML = "<ul>";
     for (const id in devices) {
       const name = devices[id].name || `Dispositivo ${id}`;
       listDiv.innerHTML += `
         <li>${name} (ID: ${id})
           <button onclick="showHistoricalPage('${id}')">📜 Ver historial</button>
-        </li>
-      `;
+        </li>`;
     }
     listDiv.innerHTML += "</ul>";
   });
 }
 
 // ================================================
-// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL MULTIHOJA
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL
+// ================================================
+// ================================================
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL
 // ================================================
 export function showHistoricalPage(deviceId) {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
-      <h2>Historial del Dispositivo</h2>
+      <h2>Historial Completo del Dispositivo</h2>
       <p><b>ID:</b> ${deviceId}</p>
       <div class="actions">
         <button id="exportExcelBtn" disabled>💾 Exportar a Excel</button>
-        <button id="backBtn">Volver</button>
+        <button id="backToDeviceBtn">Volver</button>
       </div>
       <h3>Historial del dispositivo</h3>
-      <div id="historialContainer" class="historialGrid">Cargando...</div>
+      <div id="historialContainer" class="historialGrid">Cargando historial...</div>
       <h3>Historial global</h3>
-      <div id="historialGlobalContainer" class="historialGrid">Cargando...</div>
+      <div id="historialGlobalContainer" class="historialGrid">Cargando historial global...</div>
     </div>
   `;
 
@@ -288,80 +383,238 @@ export function showHistoricalPage(deviceId) {
   const historialGlobalDiv = document.getElementById("historialGlobalContainer");
   const exportExcelBtn = document.getElementById("exportExcelBtn");
 
-  document.getElementById("backBtn").onclick = () => showAllDevices();
+  document.getElementById("backToDeviceBtn").onclick = () => showDevices();
+
+  // --- Historial del dispositivo ---
+  const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
+  onValue(historialRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    historialDiv.innerHTML = "";
+    const registros = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
+
+    registros.forEach(([ts, valores]) => {
+      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
+      const card = document.createElement("div");
+      card.className = "historialCard";
+      card.innerHTML = `
+        <h4>${fecha}</h4>
+        <p>CO: ${valores.CO ?? "—"} ppm</p>
+        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
+        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
+        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
+        <p>Humedad: ${valores.humedad ?? "—"}%</p>
+        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
+      `;
+      historialDiv.appendChild(card);
+    });
+
+    exportExcelBtn.disabled = registros.length === 0;
+    exportExcelBtn.onclick = () => exportToExcel(deviceId, registros);
+  });
+
+  // --- Historial global ---
+  const historialGlobalRef = ref(db, `dispositivos/${deviceId}/historial_global`);
+  onValue(historialGlobalRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    historialGlobalDiv.innerHTML = "";
+    const registrosGlobal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
+
+    registrosGlobal.forEach(([ts, valores]) => {
+      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
+      const card = document.createElement("div");
+      card.className = "historialCard";
+      card.innerHTML = `
+        <h4>${fecha}</h4>
+        <p>CO: ${valores.CO ?? "—"} ppm</p>
+        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
+        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
+        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
+        <p>Humedad: ${valores.humedad ?? "—"}%</p>
+        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
+      `;
+      historialGlobalDiv.appendChild(card);
+    });
+  });
+}
+
+// ================================================
+// FUNCIONES AUXILIARES: EXPORTAR HISTORIAL A EXCEL
+// ================================================
+async function exportToExcel(deviceId, registros) {
+  // Obtener email del usuario asignado
+  let userEmail = "Sin asignar";
+  try {
+    const snapshot = await get(ref(db, "usuarios"));
+    const usuarios = snapshot.val() || {};
+    for (let uid in usuarios) {
+      if (usuarios[uid].deviceId === deviceId) {
+        userEmail = usuarios[uid].email || userEmail;
+        break;
+      }
+    }
+  } catch (err) {
+    console.error("Error al obtener usuario:", err);
+  }
+
+  // Construir CSV
+  let csv = "Fecha,CO,CO2,PM10,PM2.5,Humedad,Temperatura,Usuario,Dispositivo\n";
+  registros.forEach(([ts, valores]) => {
+    const fecha = new Date(parseInt(ts)).toLocaleString("es-CL");
+    csv += `"${fecha}",${valores.CO ?? ""},${valores.CO2 ?? ""},${valores.PM10 ?? ""},${valores.PM2_5 ?? ""},${valores.humedad ?? ""},${valores.temperatura ?? ""},"${userEmail}","${deviceId}"\n`;
+  });
+
+  // Descargar CSV
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `historial_${deviceId}.csv`);
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+// ================================================
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL CON DOS HOJAS
+// ================================================
+export function showHistoricalPage(deviceId) {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="dashboard">
+      <h2>Historial Completo del Dispositivo</h2>
+      <p><b>ID:</b> ${deviceId}</p>
+      <div class="actions">
+        <button id="exportExcelBtn" disabled>💾 Exportar a Excel</button>
+        <button id="backToDeviceBtn">Volver</button>
+      </div>
+      <h3>Historial del dispositivo</h3>
+      <div id="historialContainer" class="historialGrid">Cargando historial...</div>
+      <h3>Historial global</h3>
+      <div id="historialGlobalContainer" class="historialGrid">Cargando historial global...</div>
+    </div>
+  `;
+
+  const historialDiv = document.getElementById("historialContainer");
+  const historialGlobalDiv = document.getElementById("historialGlobalContainer");
+  const exportExcelBtn = document.getElementById("exportExcelBtn");
+
+  document.getElementById("backToDeviceBtn").onclick = () => showDevices();
 
   let registrosLocal = [];
   let registrosGlobal = [];
 
+  // --- Historial del dispositivo ---
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
-  onValue(historialRef, (snap) => {
-    const data = snap.val() || {};
+  onValue(historialRef, (snapshot) => {
+    const data = snapshot.val() || {};
     historialDiv.innerHTML = "";
-    registrosLocal = Object.entries(data).sort((a,b)=>parseInt(b[0])-parseInt(a[0]));
-    registrosLocal.forEach(([ts,val]) => {
-      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL",{dateStyle:"short",timeStyle:"medium"});
-      const card = document.createElement("div"); card.className="historialCard";
-      card.innerHTML = `<h4>${fecha}</h4>
-        <p>CO: ${val.CO ?? "—"} ppm</p>
-        <p>CO₂: ${val.CO2 ?? "—"} ppm</p>
-        <p>PM10: ${val.PM10 ?? "—"} µg/m³</p>
-        <p>PM2.5: ${val.PM2_5 ?? "—"} µg/m³</p>
-        <p>Humedad: ${val.humedad ?? "—"}%</p>
-        <p>Temperatura: ${val.temperatura ?? "—"} °C</p>`;
+    registrosLocal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
+
+    registrosLocal.forEach(([ts, valores]) => {
+      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
+      const card = document.createElement("div");
+      card.className = "historialCard";
+      card.innerHTML = `
+        <h4>${fecha}</h4>
+        <p>CO: ${valores.CO ?? "—"} ppm</p>
+        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
+        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
+        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
+        <p>Humedad: ${valores.humedad ?? "—"}%</p>
+        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
+      `;
       historialDiv.appendChild(card);
     });
-    exportExcelBtn.disabled = registrosLocal.length===0 && registrosGlobal.length===0;
+
+    exportExcelBtn.disabled = registrosLocal.length === 0 && registrosGlobal.length === 0;
   });
 
+  // --- Historial global ---
   const historialGlobalRef = ref(db, `dispositivos/${deviceId}/historial_global`);
-  onValue(historialGlobalRef, (snap) => {
-    const data = snap.val() || {};
+  onValue(historialGlobalRef, (snapshot) => {
+    const data = snapshot.val() || {};
     historialGlobalDiv.innerHTML = "";
-    registrosGlobal = Object.entries(data).sort((a,b)=>parseInt(b[0])-parseInt(a[0]));
-    registrosGlobal.forEach(([ts,val])=>{
-      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL",{dateStyle:"short",timeStyle:"medium"});
-      const card = document.createElement("div"); card.className="historialCard";
-      card.innerHTML = `<h4>${fecha}</h4>
-        <p>CO: ${val.CO ?? "—"} ppm</p>
-        <p>CO₂: ${val.CO2 ?? "—"} ppm</p>
-        <p>PM10: ${val.PM10 ?? "—"} µg/m³</p>
-        <p>PM2.5: ${val.PM2_5 ?? "—"} µg/m³</p>
-        <p>Humedad: ${val.humedad ?? "—"}%</p>
-        <p>Temperatura: ${val.temperatura ?? "—"} °C</p>`;
+    registrosGlobal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
+
+    registrosGlobal.forEach(([ts, valores]) => {
+      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
+      const card = document.createElement("div");
+      card.className = "historialCard";
+      card.innerHTML = `
+        <h4>${fecha}</h4>
+        <p>CO: ${valores.CO ?? "—"} ppm</p>
+        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
+        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
+        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
+        <p>Humedad: ${valores.humedad ?? "—"}%</p>
+        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
+      `;
       historialGlobalDiv.appendChild(card);
     });
-    exportExcelBtn.disabled = registrosLocal.length===0 && registrosGlobal.length===0;
+
+    exportExcelBtn.disabled = registrosLocal.length === 0 && registrosGlobal.length === 0;
   });
 
   exportExcelBtn.onclick = () => exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal);
 }
 
 // ================================================
-// FUNCIONES AUXILIARES
+// FUNCIONES AUXILIARES: EXPORTAR HISTORIAL A EXCEL MULTIHOJA
 // ================================================
-async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal){
+async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal) {
+  // Obtener email del usuario asignado
   let userEmail = "Sin asignar";
-  try{
-    const snap = await get(ref(db,"usuarios"));
-    const usuarios = snap.val()||{};
-    for(let uid in usuarios){
-      if(usuarios[uid].deviceId===deviceId){userEmail=usuarios[uid].email||userEmail; break;}
+  try {
+    const snapshot = await get(ref(db, "usuarios"));
+    const usuarios = snapshot.val() || {};
+    for (let uid in usuarios) {
+      if (usuarios[uid].deviceId === deviceId) {
+        userEmail = usuarios[uid].email || userEmail;
+        break;
+      }
     }
-  }catch(e){console.error(e);}
-  const hojaLocal=[["Fecha","CO","CO2","PM10","PM2.5","Humedad","Temperatura","Usuario","Dispositivo"]];
-  registrosLocal.forEach(([ts,val])=>hojaLocal.push([
-    new Date(parseInt(ts)).toLocaleString("es-CL"),
-    val.CO ?? "", val.CO2 ?? "", val.PM10 ?? "", val.PM2_5 ?? "",
-    val.humedad ?? "", val.temperatura ?? "", userEmail, deviceId
-  ]));
-  const hojaGlobal=[["Fecha","CO","CO2","PM10","PM2.5","Humedad","Temperatura","Usuario","Dispositivo"]];
-  registrosGlobal.forEach(([ts,val])=>hojaGlobal.push([
-    new Date(parseInt(ts)).toLocaleString("es-CL"),
-    val.CO ?? "", val.CO2 ?? "", val.PM10 ?? "", val.PM2_5 ?? "",
-    val.humedad ?? "", val.temperatura ?? "", userEmail, deviceId
-  ]));
+  } catch (err) {
+    console.error("Error al obtener usuario:", err);
+  }
+
+  // Crear arrays de datos para hojas
+  const hojaLocal = [["Fecha", "CO", "CO2", "PM10", "PM2.5", "Humedad", "Temperatura", "Usuario", "Dispositivo"]];
+  registrosLocal.forEach(([ts, valores]) => {
+    hojaLocal.push([
+      new Date(parseInt(ts)).toLocaleString("es-CL"),
+      valores.CO ?? "",
+      valores.CO2 ?? "",
+      valores.PM10 ?? "",
+      valores.PM2_5 ?? "",
+      valores.humedad ?? "",
+      valores.temperatura ?? "",
+      userEmail,
+      deviceId
+    ]);
+  });
+
+  const hojaGlobal = [["Fecha", "CO", "CO2", "PM10", "PM2.5", "Humedad", "Temperatura", "Usuario", "Dispositivo"]];
+  registrosGlobal.forEach(([ts, valores]) => {
+    hojaGlobal.push([
+      new Date(parseInt(ts)).toLocaleString("es-CL"),
+      valores.CO ?? "",
+      valores.CO2 ?? "",
+      valores.PM10 ?? "",
+      valores.PM2_5 ?? "",
+      valores.humedad ?? "",
+      valores.temperatura ?? "",
+      userEmail,
+      deviceId
+    ]);
+  });
+
+  // Crear libro de Excel
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaLocal),"Historial Local");
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaGlobal),"Historial Global");
+  const wsLocal = XLSX.utils.aoa_to_sheet(hojaLocal);
+  const wsGlobal = XLSX.utils.aoa_to_sheet(hojaGlobal);
+  XLSX.utils.book_append_sheet(wb, wsLocal, "Historial Local");
+  XLSX.utils.book_append_sheet(wb, wsGlobal, "Historial Global");
+
+  // Descargar Excel
   XLSX.writeFile(wb, `historial_${deviceId}.xlsx`);
 }
