@@ -65,6 +65,9 @@ export function showAdminDashboard() {
 // ================================================
 // EDITAR USUARIO (Formulario Visual)
 // ================================================
+// ================================================
+// EDITAR USUARIO Y UBICACIÓN DEL DISPOSITIVO
+// ================================================
 window.editUser = async (uid) => {
   const userDocRef = doc(firestore, "users", uid);
   const snap = await get(userDocRef);
@@ -88,16 +91,11 @@ window.editUser = async (uid) => {
       </select>
 
       <h4>Datos de Ubicación del Dispositivo</h4>
-      <label>Latitud:</label>
-      <input type="number" step="0.000001" id="adminLat" />
-      <label>Longitud:</label>
-      <input type="number" step="0.000001" id="adminLng" />
-      <label>Altitud (m):</label>
-      <input type="number" step="0.1" id="adminAlt" />
-      <label>Zona:</label>
-      <input type="text" id="adminZone" />
-      <label>Punto de Instalación:</label>
-      <input type="text" id="adminPoint" />
+      <label>Latitud:</label><input type="number" step="0.000001" id="adminLat"/>
+      <label>Longitud:</label><input type="number" step="0.000001" id="adminLng"/>
+      <label>Altitud (m):</label><input type="number" step="0.1" id="adminAlt"/>
+      <label>Zona:</label><input type="text" id="adminZone"/>
+      <label>Punto de Instalación:</label><input type="text" id="adminPoint"/>
       <button type="submit">💾 Guardar Cambios</button>
       <button type="button" id="cancelEdit">Cancelar</button>
     </form>
@@ -105,19 +103,20 @@ window.editUser = async (uid) => {
 
   document.getElementById("cancelEdit").onclick = () => { container.innerHTML = ""; };
 
-  // Cargar datos del dispositivo si existe
+  // 🔹 Cargar datos actuales del dispositivo
   let deviceData = {};
   if (data.deviceId) {
     const deviceSnap = await get(ref(db, `dispositivos/${data.deviceId}`));
     deviceData = deviceSnap.exists() ? deviceSnap.val() : {};
   }
 
-  document.getElementById("adminLat").value = deviceData.latitude ?? 0;
-  document.getElementById("adminLng").value = deviceData.longitude ?? 0;
-  document.getElementById("adminAlt").value = deviceData.altitude ?? 0;
-  document.getElementById("adminZone").value = deviceData.siteZone ?? "";
-  document.getElementById("adminPoint").value = deviceData.installationPoint ?? "";
+  document.getElementById("adminLat").value = deviceData.latitude ?? data.latitude ?? 0;
+  document.getElementById("adminLng").value = deviceData.longitude ?? data.longitude ?? 0;
+  document.getElementById("adminAlt").value = deviceData.altitude ?? data.altitude ?? 0;
+  document.getElementById("adminZone").value = deviceData.siteZone ?? data.siteZone ?? "";
+  document.getElementById("adminPoint").value = deviceData.installationPoint ?? data.installationPoint ?? "";
 
+  // 🔹 Guardar cambios
   document.getElementById("adminEditForm").onsubmit = async (e) => {
     e.preventDefault();
     const nombre = document.getElementById("adminNombre").value.trim();
@@ -130,17 +129,17 @@ window.editUser = async (uid) => {
     const siteZone = document.getElementById("adminZone").value.trim();
     const installationPoint = document.getElementById("adminPoint").value.trim();
 
-    const updatedData = { ...data, nombre, telefono, direccion, isAdmin };
+    const updatedUserData = { ...data, nombre, telefono, direccion, isAdmin };
     const updatedDeviceData = { latitude, longitude, altitude, siteZone, installationPoint };
 
     try {
-      // Actualizar usuario
-      await setDoc(userDocRef, updatedData, { merge: true });
-      await update(ref(db, `usuarios/${uid}`), updatedData);
+      // 🔹 Actualizar usuario Firestore + Realtime Database
+      await setDoc(userDocRef, updatedUserData, { merge: true });
+      await update(ref(db, `usuarios/${uid}`), updatedUserData);
 
-      // Actualizar dispositivo
+      // 🔹 Actualizar datos de ubicación del dispositivo si existe
       if (data.deviceId) {
-        await update(ref(db, `dispositivos/${data.deviceId}`), updatedDeviceData);
+        await update(ref(db, `dispositivos/${data.deviceId}`), { ...updatedDeviceData, userEmail: data.email });
       }
 
       alert("Usuario y ubicación actualizados ✅");
@@ -151,6 +150,7 @@ window.editUser = async (uid) => {
     }
   };
 };
+
 
 
   // ================================================
