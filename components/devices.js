@@ -22,7 +22,7 @@ export function showAdminDashboard() {
     <div class="dashboard">
       <h2>Panel del Administrador</h2>
       <div id="users"></div>
-
+      <div id="editUserFormContainer"></div>
       <div class="actions">
         <button id="historyBtn">📜 Historial General</button>
         <button id="nuevoBtnAdmin">✨ Nuevo Botón</button>
@@ -38,7 +38,6 @@ export function showAdminDashboard() {
     const data = snapshot.val();
     const container = document.getElementById("users");
     container.innerHTML = "<h3>Usuarios Registrados:</h3>";
-
     for (let id in data) {
       const user = data[id];
       container.innerHTML += `
@@ -59,22 +58,77 @@ export function showAdminDashboard() {
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
 
+  // ================================================
+  // EDITAR USUARIO (Formulario Visual)
+  // ================================================
   window.editUser = async (uid) => {
     const userDocRef = doc(firestore, "users", uid);
     const snap = await get(userDocRef);
     if (!snap.exists()) return alert("Usuario no encontrado");
     const data = snap.data();
 
-    const nombre = prompt("Nombre:", data.nombre || "");
-    const telefono = prompt("Teléfono:", data.telefono || "");
-    const direccion = prompt("Dirección:", data.direccion || "");
-    const isAdmin = confirm("¿Es Administrador? (OK = Sí, Cancel = No)");
+    const container = document.getElementById("editUserFormContainer");
+    container.innerHTML = `
+      <h3>Editar Datos del Usuario</h3>
+      <form id="adminEditForm" class="card">
+        <label>Nombre:</label>
+        <input type="text" id="adminNombre" value="${data.nombre || ""}" />
+        <label>Teléfono:</label>
+        <input type="text" id="adminTelefono" value="${data.telefono || ""}" />
+        <label>Dirección:</label>
+        <input type="text" id="adminDireccion" value="${data.direccion || ""}" />
+        <label>Rol:</label>
+        <select id="adminRol">
+          <option value="false" ${!data.isAdmin ? "selected" : ""}>Usuario</option>
+          <option value="true" ${data.isAdmin ? "selected" : ""}>Administrador</option>
+        </select>
+        <h4>Datos de Ubicación del Dispositivo</h4>
+        <label>Latitud:</label>
+        <input type="number" step="0.000001" id="adminLat" value="${data.latitude ?? 0}" />
+        <label>Longitud:</label>
+        <input type="number" step="0.000001" id="adminLng" value="${data.longitude ?? 0}" />
+        <label>Altitud (m):</label>
+        <input type="number" step="0.1" id="adminAlt" value="${data.altitude ?? 0}" />
+        <label>Zona:</label>
+        <input type="text" id="adminZone" value="${data.siteZone ?? ""}" />
+        <label>Punto de Instalación:</label>
+        <input type="text" id="adminPoint" value="${data.installationPoint ?? ""}" />
+        <button type="submit">💾 Guardar Cambios</button>
+        <button type="button" id="cancelEdit">Cancelar</button>
+      </form>
+    `;
 
-    await setDoc(userDocRef, { ...data, nombre, telefono, direccion, isAdmin }, { merge: true });
-    await update(ref(db, `usuarios/${uid}`), { nombre, telefono, direccion, isAdmin });
-    alert("Usuario actualizado ✅");
+    document.getElementById("cancelEdit").onclick = () => { container.innerHTML = ""; };
+
+    document.getElementById("adminEditForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("adminNombre").value.trim();
+      const telefono = document.getElementById("adminTelefono").value.trim();
+      const direccion = document.getElementById("adminDireccion").value.trim();
+      const isAdmin = document.getElementById("adminRol").value === "true";
+      const latitude = parseFloat(document.getElementById("adminLat").value) || 0;
+      const longitude = parseFloat(document.getElementById("adminLng").value) || 0;
+      const altitude = parseFloat(document.getElementById("adminAlt").value) || 0;
+      const siteZone = document.getElementById("adminZone").value.trim();
+      const installationPoint = document.getElementById("adminPoint").value.trim();
+
+      const updatedData = { ...data, nombre, telefono, direccion, isAdmin, latitude, longitude, altitude, siteZone, installationPoint };
+
+      try {
+        await setDoc(userDocRef, updatedData, { merge: true });
+        await update(ref(db, `usuarios/${uid}`), updatedData);
+        alert("Usuario y ubicación actualizados ✅");
+        container.innerHTML = "";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error al actualizar el usuario: " + err.message);
+      }
+    };
   };
 
+  // ================================================
+  // ELIMINAR USUARIO
+  // ================================================
   window.deleteUser = async (uid) => {
     if (!confirm("¿Desea eliminar este usuario?")) return;
     try {
@@ -108,7 +162,6 @@ export function showUserDashboard() {
         <input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label>
         <input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-
         <label>Latitud:</label>
         <input type="text" id="editLatitude" placeholder="Latitud" />
         <label>Longitud:</label>
@@ -119,7 +172,6 @@ export function showUserDashboard() {
         <input type="text" id="editSiteZone" placeholder="Zona minera" />
         <label>Punto de Instalación:</label>
         <input type="text" id="editInstallationPoint" placeholder="Punto de instalación" />
-
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -139,17 +191,16 @@ export function showUserDashboard() {
     </div>
   `;
 
-  // Botones de navegación
+  // -----------------------------
+  // Funciones y eventos
+  // -----------------------------
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnUser").onclick = () => showNewHistoryPage();
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
-  document.getElementById("logoutBtn").onclick = async () => {
-    await auth.signOut();
-    navigate("login");
-  };
+  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
@@ -159,7 +210,6 @@ export function showUserDashboard() {
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
-
       // Mostrar datos del perfil
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
@@ -168,7 +218,6 @@ export function showUserDashboard() {
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
-
       // Llenar formulario
       document.getElementById("nombre").value = data.nombre || "";
       document.getElementById("telefono").value = data.telefono || "";
@@ -179,19 +228,16 @@ export function showUserDashboard() {
       document.getElementById("editAltitude").value = data.altitude ?? "";
       document.getElementById("editSiteZone").value = data.siteZone ?? "";
       document.getElementById("editInstallationPoint").value = data.installationPoint ?? "";
-
       // Mostrar dispositivo editable si existe
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
-    // Editar datos del usuario y dispositivo
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nombre = document.getElementById("nombre").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const direccion = document.getElementById("direccion").value.trim();
       const deviceId = document.getElementById("deviceId").value.trim();
-
       const latitude = parseFloat(document.getElementById("editLatitude").value) || 0;
       const longitude = parseFloat(document.getElementById("editLongitude").value) || 0;
       const altitude = parseFloat(document.getElementById("editAltitude").value) || 0;
@@ -200,29 +246,17 @@ export function showUserDashboard() {
 
       if (!deviceId) return alert("Debe asignar un ID de dispositivo válido");
 
-      const newUserData = {
-        nombre, telefono, direccion, deviceId, email: userEmail, updatedAt: new Date().toISOString(),
-        latitude, longitude, altitude, siteZone, installationPoint
-      };
+      const newUserData = { nombre, telefono, direccion, deviceId, email: userEmail, updatedAt: new Date().toISOString(), latitude, longitude, altitude, siteZone, installationPoint };
 
       try {
         await setDoc(doc(firestore, "users", userId), newUserData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), newUserData);
-
-        if (deviceId) {
-          const deviceRef = ref(db, `dispositivos/${deviceId}`);
-          await update(deviceRef, { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
-        }
-
+        if (deviceId) await update(ref(db, `dispositivos/${deviceId}`), { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
         alert("✅ Datos de usuario y dispositivo actualizados correctamente.");
         if (deviceId) mostrarDatosDispositivo(deviceId);
-      } catch (error) {
-        console.error(error);
-        alert(`❌ Error al guardar: ${error.message}`);
-      }
+      } catch (error) { console.error(error); alert(`❌ Error al guardar: ${error.message}`); }
     });
 
-    // Borrar usuario
     document.getElementById("deleteUser").onclick = async () => {
       if (!confirm("¿Seguro que deseas borrar este usuario?")) return;
       try {
@@ -230,20 +264,15 @@ export function showUserDashboard() {
         await remove(ref(db, `usuarios/${userId}`));
         alert("🗑️ Usuario eliminado correctamente.");
         navigate("login");
-      } catch (error) {
-        console.error(error);
-        alert(`❌ No se pudo borrar el usuario: ${error.message}`);
-      }
+      } catch (error) { console.error(error); alert(`❌ No se pudo borrar el usuario: ${error.message}`); }
     };
 
-    // Función para mostrar y editar dispositivo
     function mostrarDatosDispositivo(deviceId, userData = {}) {
       const container = document.getElementById("deviceData");
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snapshot) => {
         const d = snapshot.val();
         if (!d) return container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`;
-
         container.innerHTML = `
           <h4>Dispositivo: ${deviceId}</h4>
           <p>Latitud: ${d.latitude ?? userData.latitude ?? ""}</p>
@@ -256,6 +285,7 @@ export function showUserDashboard() {
     }
   });
 }
+
 
 // ================================================
 // MOSTRAR TODOS LOS DISPOSITIVOS
