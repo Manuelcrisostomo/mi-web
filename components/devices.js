@@ -1,5 +1,5 @@
 // ================================================
-// device.js - Gestión de Usuarios, Dispositivos y Perfil con Diseño Bootstrap
+// device.js - Gestión de Usuarios, Dispositivos y Perfil (Diseño Mejorado Bootstrap)
 // ================================================
 
 import {
@@ -13,19 +13,19 @@ import { showHistoryManagerPage } from "./historyManager.js";
 import { showPagina1, showPagina2 } from "./paginas.js";
 
 // =====================================================
-// DASHBOARD USUARIO (con diseño Bootstrap integrado)
+// DASHBOARD USUARIO
 // =====================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
   root.innerHTML = `
   <div class="container py-4">
     <div class="text-center mb-4">
-      <h2>Minesafe 2</h2>
-      <h5>Perfil del Usuario</h5>
+      <h2 class="fw-bold">Minesafe 2</h2>
+      <h5 class="text-muted">Perfil del Usuario</h5>
     </div>
 
-    <!-- Info Usuario -->
-    <div class="card mb-4 shadow-sm">
+    <!-- ===================== INFORMACIÓN PRINCIPAL ===================== -->
+    <div class="card mb-4 shadow-sm border-0">
       <div class="card-body" id="userInfo">
         <p><strong>Nombre correo:</strong> Cargando...</p>
         <p><strong>Teléfono:</strong> Cargando...</p>
@@ -35,63 +35,65 @@ export function showUserDashboard() {
       </div>
     </div>
 
-    <!-- Editor Datos del Usuario -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h6 class="mb-0">Editor Datos del Usuario</h6>
+    <!-- ===================== EDITOR DATOS USUARIO ===================== -->
+    <div class="card mb-4 shadow-sm border-0">
+      <div class="card-header text-white fw-bold" style="background-color:#0066ff;">
+        Editor Datos del Usuario
       </div>
-      <div class="card-body">
-        <form id="editForm">
-          <div class="mb-3">
+      <div class="card-body bg-light">
+        <form id="editForm" class="row g-3">
+          <div class="col-md-6">
             <label for="nombre" class="form-label">Nombre</label>
             <input type="text" id="nombre" class="form-control" placeholder="Nombre" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="telefono" class="form-label">Teléfono</label>
             <input type="text" id="telefono" class="form-control" placeholder="Teléfono" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="rut" class="form-label">RUT</label>
             <input type="text" id="rut" class="form-control" placeholder="Rut" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="datoDiagnostico" class="form-label">Dato Diagnóstico</label>
             <input type="text" id="datoDiagnostico" class="form-control" placeholder="Dato Diagnóstico" />
           </div>
-          <div class="mb-3 form-check">
+          <div class="col-12 form-check ms-2">
             <input type="checkbox" class="form-check-input" id="checkEstado" />
             <label for="checkEstado" class="form-check-label">Activo</label>
           </div>
-          <button type="submit" class="btn btn-primary">Guardar Usuario</button>
-          <button type="button" id="deleteUser" class="btn btn-danger ms-2">Eliminar Usuario</button>
+          <div class="col-12 text-end mt-3">
+            <button type="submit" class="btn btn-primary px-4">Guardar Usuario</button>
+            <button type="button" id="deleteUser" class="btn btn-danger ms-2 px-4">Eliminar Usuario</button>
+          </div>
         </form>
       </div>
     </div>
 
-    <!-- Datos Ocupacionales -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-secondary text-white">
-        <h6 class="mb-0">Datos Usuario Ocupación</h6>
+    <!-- ===================== DATOS OCUPACIONALES ===================== -->
+    <div class="card mb-4 shadow-sm border-0">
+      <div class="card-header text-white fw-bold" style="background-color:#555b61;">
+        Datos Usuario Ocupación
       </div>
-      <div class="card-body">
-        <form>
-          <div class="mb-3">
+      <div class="card-body bg-light">
+        <form class="row g-3">
+          <div class="col-md-6">
             <label for="zona" class="form-label">Zona</label>
             <input type="text" id="zona" class="form-control" placeholder="Zona" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="empresa" class="form-label">Empresa</label>
             <input type="text" id="empresa" class="form-control" placeholder="Empresa" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="gremio" class="form-label">Gremio</label>
             <input type="text" id="gremio" class="form-control" placeholder="Gremio" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="cargo" class="form-label">Cargo</label>
             <input type="text" id="cargo" class="form-control" placeholder="Cargo" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="experiencia" class="form-label">Tiempo de experiencia</label>
             <input type="text" id="experiencia" class="form-control" placeholder="Tiempo de experiencia" />
           </div>
@@ -99,43 +101,76 @@ export function showUserDashboard() {
       </div>
     </div>
 
-    <!-- Datos Técnicos -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-info text-white">
-        <h6 class="mb-0">Datos Técnicos (Operadores)</h6>
+    <!-- ===================== DATOS TÉCNICOS ===================== -->
+    <div class="card mb-4 shadow-sm border-0">
+      <div class="card-header text-white fw-bold" style="background-color:#0097b2;">
+        Datos Técnicos (Mapa / Sistema)
       </div>
-      <div class="card-body" id="deviceData">
-        Cargando datos del dispositivo...
+      <div class="card-body bg-light">
+        <form class="row g-3">
+          <div class="col-md-4">
+            <label for="latitud" class="form-label">Latitud</label>
+            <input type="text" id="latitud" class="form-control" placeholder="Latitud" />
+          </div>
+          <div class="col-md-4">
+            <label for="longitud" class="form-label">Longitud</label>
+            <input type="text" id="longitud" class="form-control" placeholder="Longitud" />
+          </div>
+          <div class="col-md-4">
+            <label for="altitud" class="form-label">Altitud (m)</label>
+            <input type="text" id="altitud" class="form-control" placeholder="Altitud" />
+          </div>
+          <div class="col-md-6">
+            <label for="precision" class="form-label">Precisión</label>
+            <input type="text" id="precision" class="form-control" placeholder="Precisión" />
+          </div>
+          <div class="col-md-6">
+            <label for="epsg" class="form-label">EPSG/WGS84</label>
+            <input type="text" id="epsg" class="form-control" placeholder="EPSG/WGS84" />
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- Datos Geográficos -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-warning text-dark">
-        <h6 class="mb-0">Datos Geográficos (Explotación)</h6>
+    <!-- ===================== DATOS GEOGRÁFICOS ===================== -->
+    <div class="card mb-4 shadow-sm border-0">
+      <div class="card-header text-dark fw-bold" style="background-color:#ffd43b;">
+        Datos Geográficos / Empresariales
       </div>
-      <div class="card-body">
-        <form>
-          <div class="mb-3">
+      <div class="card-body bg-light">
+        <form class="row g-3">
+          <div class="col-md-6">
+            <label for="pais" class="form-label">País</label>
+            <input type="text" id="pais" class="form-control" placeholder="País" />
+          </div>
+          <div class="col-md-6">
             <label for="region" class="form-label">Región</label>
             <input type="text" id="region" class="form-control" placeholder="Región" />
           </div>
-          <div class="mb-3">
+          <div class="col-md-6">
             <label for="comuna" class="form-label">Comuna</label>
             <input type="text" id="comuna" class="form-control" placeholder="Comuna" />
+          </div>
+          <div class="col-md-6">
+            <label for="mina" class="form-label">Nombre de la mina</label>
+            <input type="text" id="mina" class="form-control" placeholder="Nombre de la mina" />
+          </div>
+          <div class="col-md-6">
+            <label for="empresaGeo" class="form-label">Nombre de la empresa</label>
+            <input type="text" id="empresaGeo" class="form-control" placeholder="Nombre de la empresa" />
           </div>
         </form>
       </div>
     </div>
 
     <footer class="text-center py-3 text-muted">
-      &copy; 2024 Minesafe 2
+      &copy; 2025 Minesafe 2
     </footer>
   </div>
   `;
 
   // =====================================================
-  // Carga de datos desde Firebase
+  // CARGA DATOS FIREBASE
   // =====================================================
   onAuthStateChanged(auth, async (user) => {
     if (!user) return;
@@ -146,68 +181,57 @@ export function showUserDashboard() {
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
 
-      // Actualiza la información principal
       document.getElementById("userInfo").innerHTML = `
-        <p><strong>Nombre correo:</strong> ${userEmail}</p>
+        <p><strong>Correo:</strong> ${userEmail}</p>
         <p><strong>Teléfono:</strong> ${data.telefono || "-"}</p>
-        <p><strong>Estación de trabajo:</strong> PC</p>
+        <p><strong>Estación:</strong> PC</p>
         <p><strong>RUT:</strong> ${data.rut || "-"}</p>
         <p><strong>Dato Diagnóstico:</strong> ${data.datoDiagnostico || "-"}</p>
       `;
 
-      // Llena el formulario de edición
-      document.getElementById("nombre").value = data.nombre || "";
-      document.getElementById("telefono").value = data.telefono || "";
-      document.getElementById("rut").value = data.rut || "";
-      document.getElementById("datoDiagnostico").value = data.datoDiagnostico || "";
+      // Rellenar formulario
+      ["nombre","telefono","rut","datoDiagnostico"].forEach(id => {
+        document.getElementById(id).value = data[id] || "";
+      });
       document.getElementById("checkEstado").checked = data.activo || false;
-
-      // Carga de dispositivo asociado
-      if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
-    // =====================================================
-    // GUARDAR DATOS USUARIO
-    // =====================================================
+    // GUARDAR
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
-
       const updatedData = {
-        nombre: document.getElementById("nombre").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        rut: document.getElementById("rut").value.trim(),
-        datoDiagnostico: document.getElementById("datoDiagnostico").value.trim(),
-        activo: document.getElementById("checkEstado").checked,
+        nombre: nombre.value.trim(),
+        telefono: telefono.value.trim(),
+        rut: rut.value.trim(),
+        datoDiagnostico: datoDiagnostico.value.trim(),
+        activo: checkEstado.checked,
         email: userEmail,
         updatedAt: new Date().toISOString(),
       };
-
       try {
-        await setDoc(doc(firestore, "users", userId), updatedData, { merge: true });
+        await setDoc(userDocRef, updatedData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), updatedData);
-        alert("✅ Datos actualizados correctamente");
+        alert("✅ Datos guardados correctamente");
       } catch (err) {
-        console.error(err);
-        alert("❌ Error al guardar: " + err.message);
+        alert("❌ Error: " + err.message);
       }
     };
 
-    // =====================================================
-    // ELIMINAR USUARIO
-    // =====================================================
+    // ELIMINAR
     document.getElementById("deleteUser").onclick = async () => {
-      if (!confirm("¿Desea eliminar este usuario?")) return;
+      if (!confirm("¿Deseas eliminar este usuario?")) return;
       try {
-        await deleteDoc(doc(firestore, "users", userId));
+        await deleteDoc(userDocRef);
         await remove(ref(db, `usuarios/${userId}`));
         alert("Usuario eliminado correctamente");
         navigate("login");
       } catch (err) {
-        console.error(err);
-        alert("Error al eliminar: " + err.message);
+        alert("❌ Error al eliminar: " + err.message);
       }
     };
   });
+}
+
 
   // =====================================================
   // FUNCIÓN PARA MOSTRAR DATOS DE DISPOSITIVO
@@ -230,7 +254,7 @@ export function showUserDashboard() {
       `;
     });
   }
-}
+
 
 
 // ================================================
