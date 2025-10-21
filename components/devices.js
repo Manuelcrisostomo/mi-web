@@ -8,12 +8,10 @@ import {
 import { doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { navigate } from "../app.js";
-import { showHistoryUtilsPage } from "./historyUtils.js"; // Historial general
-import { showNewHistoryPage } from "./Histors.js"; // Nuevo botón
-import { showPagina1, showPagina2 } from "./paginas.js"; // Páginas adicionales
+import { showHistoryUtilsPage } from "./historyUtils.js";
+import { showNewHistoryPage } from "./Histors.js";
+import { showPagina1, showPagina2 } from "./paginas.js";
 import { showHistoryManagerPage } from "./historyManager.js";
-
-
 
 // ================================================
 // PANEL ADMINISTRADOR
@@ -25,12 +23,11 @@ export function showAdminDashboard() {
       <h2>Panel del Administrador</h2>
       <div id="users"></div>
 
-      <!-- BOTONES ADMIN -->
       <div class="actions">
         <button id="historyBtn">📜 Historial General</button>
         <button id="nuevoBtnAdmin">✨ Nuevo Botón</button>
-        <button id="pagina1Btn">📄 Página 1</button> <!-- Botón Página 1 -->
-        <button id="pagina2Btn">📄 Página 2</button> <!-- Botón Página 2 -->
+        <button id="pagina1Btn">📄 Página 1</button>
+        <button id="pagina2Btn">📄 Página 2</button>
         <button id="logout">Cerrar Sesión</button>
       </div>
     </div>
@@ -41,9 +38,15 @@ export function showAdminDashboard() {
     const data = snapshot.val();
     const container = document.getElementById("users");
     container.innerHTML = "<h3>Usuarios Registrados:</h3>";
+
     for (let id in data) {
       const user = data[id];
-      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email})</p>`;
+      container.innerHTML += `
+        <p>👤 ${user.nombre || "Sin nombre"} (${user.email})
+          <button onclick="editUser('${id}')">✏️ Editar</button>
+          <button onclick="deleteUser('${id}')">🗑️ Borrar</button>
+        </p>
+      `;
     }
   });
 
@@ -53,17 +56,52 @@ export function showAdminDashboard() {
   };
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnAdmin").onclick = () => showNewHistoryPage();
-
-  // ================================================
-  // BOTONES NUEVAS PAGINAS
-  
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
-  // ================================================
-  // Dentro de showDevices(), donde defines los botones:
-  document.getElementById("manualPageBtn").onclick = () =>
-    showHistoryManagerPage();
+
+  // Funciones globales para editar y borrar usuarios (solo admin)
+  window.editUser = async (uid) => {
+    const userDocRef = doc(firestore, "users", uid);
+    const snap = await get(userDocRef);
+    if (!snap.exists()) return alert("Usuario no encontrado");
+    const data = snap.data();
+
+    const nombre = prompt("Nombre:", data.nombre || "");
+    const telefono = prompt("Teléfono:", data.telefono || "");
+    const direccion = prompt("Dirección:", data.direccion || "");
+    const isAdmin = confirm("¿Es Administrador? (OK = Sí, Cancel = No)");
+
+    await setDoc(userDocRef, { ...data, nombre, telefono, direccion, isAdmin }, { merge: true });
+    await update(ref(db, `usuarios/${uid}`), { nombre, telefono, direccion, isAdmin });
+    alert("Usuario actualizado ✅");
+  };
+
+  window.deleteUser = async (uid) => {
+    if (!confirm("¿Desea eliminar este usuario?")) return;
+    try {
+      await deleteDoc(doc(firestore, "users", uid));
+      await remove(ref(db, `usuarios/${uid}`));
+      alert("Usuario eliminado correctamente 🗑️");
+    } catch (err) {
+      console.error(err);
+      alert("Error al eliminar usuario ❌");
+    }
+  };
 }
+
+// ================================================
+// DASHBOARD USUARIO / ADMINISTRADOR
+// ================================================
+import {
+  auth, db, firestore, ref, onValue, get, remove, onAuthStateChanged
+} from "../firebaseConfig.js";
+
+import { doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { navigate } from "../app.js";
+import { showHistoryUtilsPage } from "./historyUtils.js";
+import { showNewHistoryPage } from "./Histors.js";
+import { showPagina1, showPagina2 } from "./paginas.js";
 
 // ================================================
 // DASHBOARD USUARIO
@@ -75,7 +113,7 @@ export function showUserDashboard() {
       <h2>Perfil del Usuario</h2>
       <div id="userProfile" class="card">Cargando datos...</div>
 
-      <h3>Editar Datos</h3>
+      <h3>Editar Datos y Ubicación del Dispositivo</h3>
       <form id="editForm" class="card">
         <label>Nombre:</label>
         <input type="text" id="nombre" placeholder="Nombre completo" />
@@ -85,6 +123,16 @@ export function showUserDashboard() {
         <input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label>
         <input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
+        <label>Latitud:</label>
+        <input type="text" id="latitude" placeholder="-23.456789" />
+        <label>Longitud:</label>
+        <input type="text" id="longitude" placeholder="-70.123456" />
+        <label>Altitud (m):</label>
+        <input type="text" id="altitude" placeholder="1280" />
+        <label>Zona Minera:</label>
+        <input type="text" id="siteZone" placeholder="Sector Oeste" />
+        <label>Punto de Instalación:</label>
+        <input type="text" id="installationPoint" placeholder="Estación 12" />
         <label>Rol:</label>
         <select id="isAdmin">
           <option value="false">Usuario Normal</option>
@@ -97,50 +145,43 @@ export function showUserDashboard() {
       <h3>Dispositivo Asignado</h3>
       <div id="deviceData" class="card">Cargando dispositivo...</div>
 
-      <!-- BOTONES USUARIO -->
       <div class="actions">
         <button id="alertsBtn">Ver Alertas</button>
         <button id="devicesBtn">Ver Dispositivos</button>
         <button id="historyBtn">📜 Ver Historial</button>
         <button id="nuevoBtnUser">✨ Nuevo Botón</button>
-        <button id="pagina1Btn">📄 Página 1</button> <!-- Botón Página 1 -->
-        <button id="pagina2Btn">📄 Página 2</button> <!-- Botón Página 2 -->
+        <button id="pagina1Btn">📄 Página 1</button>
+        <button id="pagina2Btn">📄 Página 2</button>
         <button id="logoutBtn">Cerrar Sesión</button>
       </div>
     </div>
   `;
 
-  // Eventos de navegación
+  // --- Botones de navegación ---
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnUser").onclick = () => showNewHistoryPage();
-
-  // ================================================
-  // BOTONES NUEVAS PAGINAS
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
-  // ================================================
-
   document.getElementById("logoutBtn").onclick = async () => {
     await auth.signOut();
     navigate("login");
   };
 
-  // ... Resto del código de usuario y dispositivo (sin cambios)
-
-  // Datos del usuario autenticado
+  // --- Obtener datos del usuario ---
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
-
     const userId = user.uid;
     const userEmail = user.email;
     const userDocRef = doc(firestore, "users", userId);
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
-      const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
+      const esAdmin = data.isAdmin;
+      const rolTexto = esAdmin ? "Administrador" : "Usuario Normal";
 
+      // Mostrar datos del perfil
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
         <p><b>Correo:</b> ${userEmail}</p>
@@ -148,46 +189,63 @@ export function showUserDashboard() {
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
         <p><b>Rol:</b> ${rolTexto}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
-        ${data.deviceId ? `<button id="verHistorialBtn">📜 Ver historial</button>` : ""}
+        <p><b>Latitud:</b> ${data.latitude ?? "-"}</p>
+        <p><b>Longitud:</b> ${data.longitude ?? "-"}</p>
+        <p><b>Altitud:</b> ${data.altitude ?? "-"}</p>
+        <p><b>Zona:</b> ${data.siteZone || "-"}</p>
+        <p><b>Punto de Instalación:</b> ${data.installationPoint || "-"}</p>
       `;
 
-      if (data.deviceId) {
-        document.getElementById("verHistorialBtn").onclick = () => showHistoricalPage(data.deviceId);
-        mostrarDatosDispositivo(data.deviceId);
-      }
-
-      // Rellenar formulario
+      // Llenar formulario
       document.getElementById("nombre").value = data.nombre || "";
       document.getElementById("telefono").value = data.telefono || "";
       document.getElementById("direccion").value = data.direccion || "";
       document.getElementById("deviceId").value = data.deviceId || "";
+      document.getElementById("latitude").value = data.latitude ?? "";
+      document.getElementById("longitude").value = data.longitude ?? "";
+      document.getElementById("altitude").value = data.altitude ?? "";
+      document.getElementById("siteZone").value = data.siteZone || "";
+      document.getElementById("installationPoint").value = data.installationPoint || "";
       document.getElementById("isAdmin").value = data.isAdmin ? "true" : "false";
+
+      // Mostrar dispositivo si existe
+      if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // Guardar cambios del formulario
+    // --- Editar datos del usuario y ubicación del dispositivo ---
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nombre = document.getElementById("nombre").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const direccion = document.getElementById("direccion").value.trim();
       const deviceId = document.getElementById("deviceId").value.trim();
+      const latitude = parseFloat(document.getElementById("latitude").value) || 0;
+      const longitude = parseFloat(document.getElementById("longitude").value) || 0;
+      const altitude = parseFloat(document.getElementById("altitude").value) || 0;
+      const siteZone = document.getElementById("siteZone").value.trim();
+      const installationPoint = document.getElementById("installationPoint").value.trim();
       const isAdmin = document.getElementById("isAdmin").value === "true";
 
-      const newData = {
+      const newUserData = {
         nombre, telefono, direccion, deviceId, isAdmin,
-        email: userEmail,
-        updatedAt: new Date().toISOString()
+        latitude, longitude, altitude, siteZone, installationPoint,
+        email: userEmail, updatedAt: new Date().toISOString()
       };
 
       try {
-        await setDoc(userDocRef, newData, { merge: true });
-        await update(ref(db, `usuarios/${userId}`), newData);
+        // Actualizar datos del usuario
+        await setDoc(doc(firestore, "users", userId), newUserData, { merge: true });
+        await update(ref(db, `usuarios/${userId}`), newUserData);
 
+        // Actualizar ubicación y datos del dispositivo
         if (deviceId) {
           const deviceRef = ref(db, `dispositivos/${deviceId}`);
           const deviceSnap = await get(deviceRef);
-          if (deviceSnap.exists()) await update(deviceRef, { userEmail });
-          else alert(`⚠️ El dispositivo "${deviceId}" no existe.`);
+          if (deviceSnap.exists()) {
+            await update(deviceRef, {
+              latitude, longitude, altitude, siteZone, installationPoint, userEmail
+            });
+          } else alert(`⚠️ El dispositivo "${deviceId}" no existe.`);
         }
 
         alert("✅ Datos actualizados correctamente.");
@@ -198,11 +256,11 @@ export function showUserDashboard() {
       }
     });
 
-    // Borrar usuario
+    // --- Borrar usuario ---
     document.getElementById("deleteUser").onclick = async () => {
       if (!confirm("¿Seguro que deseas borrar este usuario?")) return;
       try {
-        await deleteDoc(userDocRef);
+        await deleteDoc(doc(firestore, "users", userId));
         await remove(ref(db, `usuarios/${userId}`));
         alert("🗑️ Usuario eliminado correctamente.");
         navigate("login");
@@ -212,7 +270,7 @@ export function showUserDashboard() {
       }
     };
 
-    // Mostrar datos del dispositivo
+    // --- Función para mostrar dispositivo ---
     function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snapshot) => {
@@ -220,79 +278,21 @@ export function showUserDashboard() {
         if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`);
         container.innerHTML = `
           <p><b>ID:</b> ${deviceId}</p>
-          <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
-          <p><b>Usuario:</b> ${d.userEmail || "Sin asignar"}</p>
+          <p><b>Nombre del dispositivo:</b> ${d.name || "Desconocido"}</p>
           <p>CO: ${d.CO ?? 0} ppm</p>
           <p>CO₂: ${d.CO2 ?? 0} ppm</p>
           <p>PM10: ${d.PM10 ?? 0} µg/m³</p>
           <p>PM2.5: ${d.PM2_5 ?? 0} µg/m³</p>
           <p>Humedad: ${d.humedad ?? 0}%</p>
           <p>Temperatura: ${d.temperatura ?? 0} °C</p>
-          <button id="verHistorialBtn2">📜 Ver historial completo</button>
+          <p>Latitud: ${d.latitude ?? "-"}</p>
+          <p>Longitud: ${d.longitude ?? "-"}</p>
+          <p>Altitud: ${d.altitude ?? "-"}</p>
+          <p>Zona: ${d.siteZone || "-"}</p>
+          <p>Punto de Instalación: ${d.installationPoint || "-"}</p>
         `;
-        document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
       });
     }
-  });
-}
-
-// ================================================
-// DISPOSITIVOS
-// ================================================
-export function showDevices() {
-  const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="dashboard">
-      <h2>Dispositivo Asignado</h2>
-      <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
-      <div class="actions">
-        <button id="verTodosBtn">Ver todos los dispositivos</button>
-        <button id="nuevoBtnDispositivo">✨ Nuevo Botón</button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById("verTodosBtn").onclick = () => showAllDevices();
-  document.getElementById("nuevoBtnDispositivo").onclick = () => showNewHistoryPage();
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return (document.getElementById("deviceData").innerHTML = "<p>No hay usuario autenticado.</p>");
-
-    const userRef = ref(db, `usuarios/${user.uid}`);
-    onValue(userRef, (snapshot) => {
-      const userData = snapshot.val();
-      if (!userData || !userData.deviceId)
-        return (document.getElementById("deviceData").innerHTML = "<p>No tienes dispositivos asignados.</p>");
-      mostrarDatosDispositivo(userData.deviceId, document.getElementById("deviceData"));
-    });
-  });
-}
-
-// ================================================
-// FUNCIONES DE DISPOSITIVOS E HISTORIALES
-// ================================================
-function mostrarDatosDispositivo(deviceId, container) {
-  const deviceRef = ref(db, `dispositivos/${deviceId}`);
-  onValue(deviceRef, (snapshot) => {
-    const d = snapshot.val();
-    if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo: <b>${deviceId}</b></p>`);
-
-    container.innerHTML = `
-      <p><b>ID:</b> ${deviceId}</p>
-      <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
-      <p><b>Usuario:</b> ${d.userEmail || "Sin asignar"}</p>
-      <p>CO: ${d.CO ?? 0} ppm</p>
-      <p>CO₂: ${d.CO2 ?? 0} ppm</p>
-      <p>PM10: ${d.PM10 ?? 0} µg/m³</p>
-      <p>PM2.5: ${d.PM2_5 ?? 0} µg/m³</p>
-      <p>Humedad: ${d.humedad ?? 0}%</p>
-      <p>Temperatura: ${d.temperatura ?? 0} °C</p>
-      <h4>📜 Últimos registros históricos</h4>
-      <div id="historialCarrusel" class="historialCarrusel">Cargando...</div>
-      <button id="verHistorialCompletoBtn">📄 Ver historial completo</button>
-    `;
-    mostrarHistorialCarrusel(deviceId);
-    document.getElementById("verHistorialCompletoBtn").onclick = () => showHistoricalPage(deviceId);
   });
 }
 
