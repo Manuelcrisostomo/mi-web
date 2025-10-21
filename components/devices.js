@@ -108,6 +108,18 @@ export function showUserDashboard() {
         <input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label>
         <input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
+
+        <label>Latitud:</label>
+        <input type="text" id="editLatitude" placeholder="Latitud" />
+        <label>Longitud:</label>
+        <input type="text" id="editLongitude" placeholder="Longitud" />
+        <label>Altitud (m):</label>
+        <input type="text" id="editAltitude" placeholder="Altitud" />
+        <label>Zona:</label>
+        <input type="text" id="editSiteZone" placeholder="Zona minera" />
+        <label>Punto de Instalación:</label>
+        <input type="text" id="editInstallationPoint" placeholder="Punto de instalación" />
+
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -157,17 +169,22 @@ export function showUserDashboard() {
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Llenar formulario usuario
+      // Llenar formulario
       document.getElementById("nombre").value = data.nombre || "";
       document.getElementById("telefono").value = data.telefono || "";
       document.getElementById("direccion").value = data.direccion || "";
       document.getElementById("deviceId").value = data.deviceId || "";
+      document.getElementById("editLatitude").value = data.latitude ?? "";
+      document.getElementById("editLongitude").value = data.longitude ?? "";
+      document.getElementById("editAltitude").value = data.altitude ?? "";
+      document.getElementById("editSiteZone").value = data.siteZone ?? "";
+      document.getElementById("editInstallationPoint").value = data.installationPoint ?? "";
 
       // Mostrar dispositivo editable si existe
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
-    // Editar datos del usuario
+    // Editar datos del usuario y dispositivo
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nombre = document.getElementById("nombre").value.trim();
@@ -175,15 +192,29 @@ export function showUserDashboard() {
       const direccion = document.getElementById("direccion").value.trim();
       const deviceId = document.getElementById("deviceId").value.trim();
 
+      const latitude = parseFloat(document.getElementById("editLatitude").value) || 0;
+      const longitude = parseFloat(document.getElementById("editLongitude").value) || 0;
+      const altitude = parseFloat(document.getElementById("editAltitude").value) || 0;
+      const siteZone = document.getElementById("editSiteZone").value.trim();
+      const installationPoint = document.getElementById("editInstallationPoint").value.trim();
+
       if (!deviceId) return alert("Debe asignar un ID de dispositivo válido");
 
-      const newUserData = { nombre, telefono, direccion, deviceId, email: userEmail, updatedAt: new Date().toISOString() };
+      const newUserData = {
+        nombre, telefono, direccion, deviceId, email: userEmail, updatedAt: new Date().toISOString(),
+        latitude, longitude, altitude, siteZone, installationPoint
+      };
 
       try {
         await setDoc(doc(firestore, "users", userId), newUserData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), newUserData);
-        alert("✅ Datos de usuario actualizados correctamente.");
 
+        if (deviceId) {
+          const deviceRef = ref(db, `dispositivos/${deviceId}`);
+          await update(deviceRef, { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
+        }
+
+        alert("✅ Datos de usuario y dispositivo actualizados correctamente.");
         if (deviceId) mostrarDatosDispositivo(deviceId);
       } catch (error) {
         console.error(error);
@@ -215,34 +246,12 @@ export function showUserDashboard() {
 
         container.innerHTML = `
           <h4>Dispositivo: ${deviceId}</h4>
-          <label>Latitud:</label>
-          <input type="text" id="editLatitude" value="${d.latitude ?? userData.latitude ?? ""}" />
-          <label>Longitud:</label>
-          <input type="text" id="editLongitude" value="${d.longitude ?? userData.longitude ?? ""}" />
-          <label>Altitud (m):</label>
-          <input type="text" id="editAltitude" value="${d.altitude ?? userData.altitude ?? ""}" />
-          <label>Zona:</label>
-          <input type="text" id="editSiteZone" value="${d.siteZone ?? userData.siteZone ?? ""}" />
-          <label>Punto de Instalación:</label>
-          <input type="text" id="editInstallationPoint" value="${d.installationPoint ?? userData.installationPoint ?? ""}" />
-          <button id="saveDeviceBtn">💾 Guardar Ubicación</button>
+          <p>Latitud: ${d.latitude ?? userData.latitude ?? ""}</p>
+          <p>Longitud: ${d.longitude ?? userData.longitude ?? ""}</p>
+          <p>Altitud (m): ${d.altitude ?? userData.altitude ?? ""}</p>
+          <p>Zona: ${d.siteZone ?? userData.siteZone ?? ""}</p>
+          <p>Punto de Instalación: ${d.installationPoint ?? userData.installationPoint ?? ""}</p>
         `;
-
-        document.getElementById("saveDeviceBtn").onclick = async () => {
-          const latitude = parseFloat(document.getElementById("editLatitude").value) || 0;
-          const longitude = parseFloat(document.getElementById("editLongitude").value) || 0;
-          const altitude = parseFloat(document.getElementById("editAltitude").value) || 0;
-          const siteZone = document.getElementById("editSiteZone").value.trim();
-          const installationPoint = document.getElementById("editInstallationPoint").value.trim();
-
-          try {
-            await update(deviceRef, { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
-            alert("✅ Ubicación del dispositivo actualizada correctamente.");
-          } catch (error) {
-            console.error(error);
-            alert(`❌ Error al actualizar dispositivo: ${error.message}`);
-          }
-        };
       });
     }
   });
