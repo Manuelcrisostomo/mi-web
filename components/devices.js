@@ -180,9 +180,11 @@ export function showAdminDashboard() {
   };
 }
 
-// ================================================
+// ... código previo de imports y panel admin intacto ...
+
+// ---------------------------------
 // DASHBOARD USUARIO
-// ================================================
+// ---------------------------------
 export function showUserDashboard() {
   const root = document.getElementById("root");
   root.innerHTML = `
@@ -193,9 +195,9 @@ export function showUserDashboard() {
       <h3>Editar Datos y Ubicación del Dispositivo</h3>
       <form id="editForm" class="card">
         <h4>Datos Personales</h4>
-        <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo"/>
-        <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono"/>
-        <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección"/>
+        <label>Nombre:</label><input type="text" id="nombre"/>
+        <label>Teléfono:</label><input type="text" id="telefono"/>
+        <label>Dirección:</label><input type="text" id="direccion"/>
 
         <h4>Datos Humanos (Operador)</h4>
         <label>Zona:</label><input type="text" id="humanZona"/>
@@ -205,10 +207,10 @@ export function showUserDashboard() {
         <label>Nombre de estación:</label><input type="text" id="humanEstacion"/>
 
         <h4>Datos Técnicos (Sistema/Mapa)</h4>
-        <label>Latitud:</label><input type="text" id="editLatitude"/>
-        <label>Longitud:</label><input type="text" id="editLongitude"/>
-        <label>Altitud (m):</label><input type="text" id="editAltitude"/>
-        <label>Precisión (m):</label><input type="text" id="editPrecision"/>
+        <label>Latitud:</label><input type="number" step="0.000001" id="editLatitude"/>
+        <label>Longitud:</label><input type="number" step="0.000001" id="editLongitude"/>
+        <label>Altitud (m):</label><input type="number" step="0.1" id="editAltitude"/>
+        <label>Precisión (m):</label><input type="number" step="0.01" id="editPrecision"/>
         <label>EPSG/WGS84:</label><input type="text" id="editEPSG"/>
 
         <h4>Datos Geográficos / Empresariales</h4>
@@ -218,7 +220,7 @@ export function showUserDashboard() {
         <label>Nombre de mina:</label><input type="text" id="geoMina"/>
         <label>Nombre de empresa:</label><input type="text" id="geoEmpresa"/>
 
-        <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84"/>
+        <label>ID del Dispositivo:</label><input type="text" id="deviceId"/>
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -239,7 +241,7 @@ export function showUserDashboard() {
   `;
 
   // -----------------------------
-  // Funciones y eventos
+  // Eventos y funciones
   // -----------------------------
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => showAllDevices();
@@ -265,7 +267,7 @@ export function showUserDashboard() {
         <p><b>Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Formulario
+      // Llenar formulario con todos los campos nuevos
       document.getElementById("nombre").value = data.nombre || "";
       document.getElementById("telefono").value = data.telefono || "";
       document.getElementById("direccion").value = data.direccion || "";
@@ -293,50 +295,47 @@ export function showUserDashboard() {
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
+    // Guardar cambios incluyendo nuevos campos
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
-      const nombre = document.getElementById("nombre").value.trim();
-      const telefono = document.getElementById("telefono").value.trim();
-      const direccion = document.getElementById("direccion").value.trim();
-      const deviceId = document.getElementById("deviceId").value.trim();
-
-      const zona = document.getElementById("humanZona").value.trim();
-      const rampa = document.getElementById("humanRampa").value.trim();
-      const galeria = document.getElementById("humanGaleria").value.trim();
-      const sector = document.getElementById("humanSector").value.trim();
-      const nombreEstacion = document.getElementById("humanEstacion").value.trim();
-
-      const latitude = parseFloat(document.getElementById("editLatitude").value) || 0;
-      const longitude = parseFloat(document.getElementById("editLongitude").value) || 0;
-      const altitude = parseFloat(document.getElementById("editAltitude").value) || 0;
-      const precision = parseFloat(document.getElementById("editPrecision").value) || 0;
-      const EPSG = document.getElementById("editEPSG").value.trim();
-
-      const pais = document.getElementById("geoPais").value.trim();
-      const region = document.getElementById("geoRegion").value.trim();
-      const comuna = document.getElementById("geoComuna").value.trim();
-      const nombreMina = document.getElementById("geoMina").value.trim();
-      const nombreEmpresa = document.getElementById("geoEmpresa").value.trim();
-
-      if (!deviceId) return alert("Debe asignar un ID de dispositivo");
 
       const updatedData = {
-        nombre, telefono, direccion, deviceId, email: userEmail,
-        zona, rampa, galeria, sector, nombreEstacion,
-        latitude, longitude, altitude, precision, EPSG,
-        pais, region, comuna, nombreMina, nombreEmpresa,
+        nombre: document.getElementById("nombre").value.trim(),
+        telefono: document.getElementById("telefono").value.trim(),
+        direccion: document.getElementById("direccion").value.trim(),
+        deviceId: document.getElementById("deviceId").value.trim(),
+        email: userEmail,
+        zona: document.getElementById("humanZona").value.trim(),
+        rampa: document.getElementById("humanRampa").value.trim(),
+        galeria: document.getElementById("humanGaleria").value.trim(),
+        sector: document.getElementById("humanSector").value.trim(),
+        nombreEstacion: document.getElementById("humanEstacion").value.trim(),
+        latitude: parseFloat(document.getElementById("editLatitude").value) || 0,
+        longitude: parseFloat(document.getElementById("editLongitude").value) || 0,
+        altitude: parseFloat(document.getElementById("editAltitude").value) || 0,
+        precision: parseFloat(document.getElementById("editPrecision").value) || 0,
+        EPSG: document.getElementById("editEPSG").value.trim(),
+        pais: document.getElementById("geoPais").value.trim(),
+        region: document.getElementById("geoRegion").value.trim(),
+        comuna: document.getElementById("geoComuna").value.trim(),
+        nombreMina: document.getElementById("geoMina").value.trim(),
+        nombreEmpresa: document.getElementById("geoEmpresa").value.trim(),
         updatedAt: new Date().toISOString()
       };
 
       try {
         await setDoc(doc(firestore, "users", userId), updatedData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), updatedData);
-        if (deviceId) await update(ref(db, `dispositivos/${deviceId}`), updatedData);
+        if (updatedData.deviceId) await update(ref(db, `dispositivos/${updatedData.deviceId}`), updatedData);
         alert("✅ Datos actualizados correctamente");
-        if (deviceId) mostrarDatosDispositivo(deviceId);
-      } catch (err) { console.error(err); alert(err.message); }
+        if (updatedData.deviceId) mostrarDatosDispositivo(updatedData.deviceId);
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error al actualizar: " + err.message);
+      }
     };
 
+    // Borrar usuario
     document.getElementById("deleteUser").onclick = async () => {
       if (!confirm("¿Desea borrar el usuario?")) return;
       try {
@@ -355,10 +354,10 @@ export function showUserDashboard() {
         if (!d) return container.innerHTML = `<p>No se encontró el dispositivo ${deviceId}</p>`;
         container.innerHTML = `
           <h4>Dispositivo: ${deviceId}</h4>
-          <p>Latitud: ${d.latitude ?? d.latitud ?? userData.latitude ?? ""}</p>
-          <p>Longitud: ${d.longitude ?? d.longitud ?? userData.longitude ?? ""}</p>
-          <p>Altitud (m): ${d.altitude ?? d.altitud ?? userData.altitude ?? ""}</p>
-          <p>Precisión (m): ${d.precision ?? d.precision_m ?? userData.precision ?? ""}</p>
+          <p>Latitud: ${d.latitude ?? userData.latitude ?? ""}</p>
+          <p>Longitud: ${d.longitude ?? userData.longitude ?? ""}</p>
+          <p>Altitud: ${d.altitude ?? userData.altitude ?? ""}</p>
+          <p>Precisión: ${d.precision ?? userData.precision ?? ""}</p>
           <p>EPSG/WGS84: ${d.EPSG ?? userData.EPSG ?? "WGS84"}</p>
           <p>Zona: ${d.zona ?? userData.zona ?? ""}</p>
           <p>Rampa: ${d.rampa ?? userData.rampa ?? ""}</p>
