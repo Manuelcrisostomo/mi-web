@@ -75,43 +75,43 @@ export function showAdminDashboard() {
     container.innerHTML = `
       <h3>Editar Datos del Usuario</h3>
       <form id="adminEditForm" class="card">
-        <label>Nombre:</label>
-        <input type="text" id="adminNombre" value="${data.nombre || ""}" />
-        <label>Teléfono:</label>
-        <input type="text" id="adminTelefono" value="${data.telefono || ""}" />
-        <label>Dirección:</label>
-        <input type="text" id="adminDireccion" value="${data.direccion || ""}" />
+        <h4>Datos Personales</h4>
+        <label>Nombre:</label><input type="text" id="adminNombre" value="${data.nombre || ""}" />
+        <label>Teléfono:</label><input type="text" id="adminTelefono" value="${data.telefono || ""}" />
+        <label>Dirección:</label><input type="text" id="adminDireccion" value="${data.direccion || ""}" />
         <label>Rol:</label>
         <select id="adminRol">
           <option value="false" ${!data.isAdmin ? "selected" : ""}>Usuario</option>
           <option value="true" ${data.isAdmin ? "selected" : ""}>Administrador</option>
         </select>
 
-        <h4>Datos de Ubicación del Dispositivo</h4>
-        <label>Latitud:</label><input type="number" step="0.000001" id="adminLat"/>
-        <label>Longitud:</label><input type="number" step="0.000001" id="adminLng"/>
-        <label>Altitud (m):</label><input type="number" step="0.1" id="adminAlt"/>
-        <label>Zona:</label><input type="text" id="adminZone"/>
-        <label>Punto de Instalación:</label><input type="text" id="adminPoint"/>
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Zona:</label><input type="text" id="humanZona" value="${data.zona || ""}" />
+        <label>Rampa:</label><input type="text" id="humanRampa" value="${data.rampa || ""}" />
+        <label>Galería:</label><input type="text" id="humanGaleria" value="${data.galeria || ""}" />
+        <label>Sector:</label><input type="text" id="humanSector" value="${data.sector || ""}" />
+        <label>Nombre de estación:</label><input type="text" id="humanEstacion" value="${data.nombreEstacion || ""}" />
+
+        <h4>Datos Técnicos (Sistema/Mapa)</h4>
+        <label>Latitud:</label><input type="number" step="0.000001" id="techLat" value="${data.latitude ?? 0}" />
+        <label>Longitud:</label><input type="number" step="0.000001" id="techLng" value="${data.longitude ?? 0}" />
+        <label>Altitud (m):</label><input type="number" step="0.1" id="techAlt" value="${data.altitude ?? 0}" />
+        <label>Precisión (m):</label><input type="number" step="0.01" id="techPrecision" value="${data.precision ?? 0}" />
+        <label>EPSG/WGS84:</label><input type="text" id="techEPSG" value="${data.EPSG ?? "WGS84"}" />
+
+        <h4>Datos Geográficos / Empresariales</h4>
+        <label>País:</label><input type="text" id="geoPais" value="${data.pais || ""}" />
+        <label>Región:</label><input type="text" id="geoRegion" value="${data.region || ""}" />
+        <label>Comuna:</label><input type="text" id="geoComuna" value="${data.comuna || ""}" />
+        <label>Nombre de mina:</label><input type="text" id="geoMina" value="${data.nombreMina || ""}" />
+        <label>Nombre de empresa:</label><input type="text" id="geoEmpresa" value="${data.nombreEmpresa || ""}" />
+
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="cancelEdit">Cancelar</button>
       </form>
     `;
 
     document.getElementById("cancelEdit").onclick = () => { container.innerHTML = ""; };
-
-    // Cargar datos actuales del dispositivo
-    let deviceData = {};
-    if (data.deviceId) {
-      const deviceSnap = await get(ref(db, `dispositivos/${data.deviceId}`));
-      deviceData = deviceSnap.exists() ? deviceSnap.val() : {};
-    }
-
-    document.getElementById("adminLat").value = deviceData.latitude ?? data.latitude ?? 0;
-    document.getElementById("adminLng").value = deviceData.longitude ?? data.longitude ?? 0;
-    document.getElementById("adminAlt").value = deviceData.altitude ?? data.altitude ?? 0;
-    document.getElementById("adminZone").value = deviceData.siteZone ?? data.siteZone ?? "";
-    document.getElementById("adminPoint").value = deviceData.installationPoint ?? data.installationPoint ?? "";
 
     // Guardar cambios
     document.getElementById("adminEditForm").onsubmit = async (e) => {
@@ -120,25 +120,35 @@ export function showAdminDashboard() {
       const telefono = document.getElementById("adminTelefono").value.trim();
       const direccion = document.getElementById("adminDireccion").value.trim();
       const isAdmin = document.getElementById("adminRol").value === "true";
-      const latitude = parseFloat(document.getElementById("adminLat").value) || 0;
-      const longitude = parseFloat(document.getElementById("adminLng").value) || 0;
-      const altitude = parseFloat(document.getElementById("adminAlt").value) || 0;
-      const siteZone = document.getElementById("adminZone").value.trim();
-      const installationPoint = document.getElementById("adminPoint").value.trim();
 
-      const updatedUserData = { ...data, nombre, telefono, direccion, isAdmin };
-      const updatedDeviceData = { latitude, longitude, altitude, siteZone, installationPoint };
+      const zona = document.getElementById("humanZona").value.trim();
+      const rampa = document.getElementById("humanRampa").value.trim();
+      const galeria = document.getElementById("humanGaleria").value.trim();
+      const sector = document.getElementById("humanSector").value.trim();
+      const nombreEstacion = document.getElementById("humanEstacion").value.trim();
+
+      const latitude = parseFloat(document.getElementById("techLat").value) || 0;
+      const longitude = parseFloat(document.getElementById("techLng").value) || 0;
+      const altitude = parseFloat(document.getElementById("techAlt").value) || 0;
+      const precision = parseFloat(document.getElementById("techPrecision").value) || 0;
+      const EPSG = document.getElementById("techEPSG").value.trim();
+
+      const pais = document.getElementById("geoPais").value.trim();
+      const region = document.getElementById("geoRegion").value.trim();
+      const comuna = document.getElementById("geoComuna").value.trim();
+      const nombreMina = document.getElementById("geoMina").value.trim();
+      const nombreEmpresa = document.getElementById("geoEmpresa").value.trim();
+
+      const updatedUserData = {
+        ...data, nombre, telefono, direccion, isAdmin,
+        zona, rampa, galeria, sector, nombreEstacion,
+        latitude, longitude, altitude, precision, EPSG,
+        pais, region, comuna, nombreMina, nombreEmpresa
+      };
 
       try {
-        // Actualizar usuario
         await setDoc(userDocRef, updatedUserData, { merge: true });
         await update(ref(db, `usuarios/${uid}`), updatedUserData);
-
-        // Actualizar dispositivo
-        if (data.deviceId) {
-          await update(ref(db, `dispositivos/${data.deviceId}`), { ...updatedDeviceData, userEmail: data.email });
-        }
-
         alert("Usuario y ubicación actualizados ✅");
         container.innerHTML = "";
       } catch (err) {
@@ -176,15 +186,33 @@ export function showUserDashboard() {
 
       <h3>Editar Datos y Ubicación del Dispositivo</h3>
       <form id="editForm" class="card">
+        <h4>Datos Personales</h4>
         <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo"/>
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono"/>
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección"/>
+
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Zona:</label><input type="text" id="humanZona"/>
+        <label>Rampa:</label><input type="text" id="humanRampa"/>
+        <label>Galería:</label><input type="text" id="humanGaleria"/>
+        <label>Sector:</label><input type="text" id="humanSector"/>
+        <label>Nombre de estación:</label><input type="text" id="humanEstacion"/>
+
+        <h4>Datos Técnicos (Sistema/Mapa)</h4>
+        <label>Latitud:</label><input type="text" id="editLatitude"/>
+        <label>Longitud:</label><input type="text" id="editLongitude"/>
+        <label>Altitud (m):</label><input type="text" id="editAltitude"/>
+        <label>Precisión (m):</label><input type="text" id="editPrecision"/>
+        <label>EPSG/WGS84:</label><input type="text" id="editEPSG"/>
+
+        <h4>Datos Geográficos / Empresariales</h4>
+        <label>País:</label><input type="text" id="geoPais"/>
+        <label>Región:</label><input type="text" id="geoRegion"/>
+        <label>Comuna:</label><input type="text" id="geoComuna"/>
+        <label>Nombre de mina:</label><input type="text" id="geoMina"/>
+        <label>Nombre de empresa:</label><input type="text" id="geoEmpresa"/>
+
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84"/>
-        <label>Latitud:</label><input type="text" id="editLatitude" placeholder="Latitud"/>
-        <label>Longitud:</label><input type="text" id="editLongitude" placeholder="Longitud"/>
-        <label>Altitud (m):</label><input type="text" id="editAltitude" placeholder="Altitud"/>
-        <label>Zona:</label><input type="text" id="editSiteZone" placeholder="Zona minera"/>
-        <label>Punto de Instalación:</label><input type="text" id="editInstallationPoint" placeholder="Punto de instalación"/>
         <button type="submit">💾 Guardar Cambios</button>
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
@@ -230,16 +258,31 @@ export function showUserDashboard() {
         <p><b>Tel:</b> ${data.telefono || "-"}</p>
         <p><b>Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
+
       // Formulario
       document.getElementById("nombre").value = data.nombre || "";
       document.getElementById("telefono").value = data.telefono || "";
       document.getElementById("direccion").value = data.direccion || "";
-      document.getElementById("deviceId").value = data.deviceId || "";
+
+      document.getElementById("humanZona").value = data.zona || "";
+      document.getElementById("humanRampa").value = data.rampa || "";
+      document.getElementById("humanGaleria").value = data.galeria || "";
+      document.getElementById("humanSector").value = data.sector || "";
+      document.getElementById("humanEstacion").value = data.nombreEstacion || "";
+
       document.getElementById("editLatitude").value = data.latitude ?? "";
       document.getElementById("editLongitude").value = data.longitude ?? "";
       document.getElementById("editAltitude").value = data.altitude ?? "";
-      document.getElementById("editSiteZone").value = data.siteZone ?? "";
-      document.getElementById("editInstallationPoint").value = data.installationPoint ?? "";
+      document.getElementById("editPrecision").value = data.precision ?? "";
+      document.getElementById("editEPSG").value = data.EPSG ?? "WGS84";
+
+      document.getElementById("geoPais").value = data.pais || "";
+      document.getElementById("geoRegion").value = data.region || "";
+      document.getElementById("geoComuna").value = data.comuna || "";
+      document.getElementById("geoMina").value = data.nombreMina || "";
+      document.getElementById("geoEmpresa").value = data.nombreEmpresa || "";
+
+      document.getElementById("deviceId").value = data.deviceId || "";
 
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
@@ -250,20 +293,39 @@ export function showUserDashboard() {
       const telefono = document.getElementById("telefono").value.trim();
       const direccion = document.getElementById("direccion").value.trim();
       const deviceId = document.getElementById("deviceId").value.trim();
+
+      const zona = document.getElementById("humanZona").value.trim();
+      const rampa = document.getElementById("humanRampa").value.trim();
+      const galeria = document.getElementById("humanGaleria").value.trim();
+      const sector = document.getElementById("humanSector").value.trim();
+      const nombreEstacion = document.getElementById("humanEstacion").value.trim();
+
       const latitude = parseFloat(document.getElementById("editLatitude").value) || 0;
       const longitude = parseFloat(document.getElementById("editLongitude").value) || 0;
       const altitude = parseFloat(document.getElementById("editAltitude").value) || 0;
-      const siteZone = document.getElementById("editSiteZone").value.trim();
-      const installationPoint = document.getElementById("editInstallationPoint").value.trim();
+      const precision = parseFloat(document.getElementById("editPrecision").value) || 0;
+      const EPSG = document.getElementById("editEPSG").value.trim();
+
+      const pais = document.getElementById("geoPais").value.trim();
+      const region = document.getElementById("geoRegion").value.trim();
+      const comuna = document.getElementById("geoComuna").value.trim();
+      const nombreMina = document.getElementById("geoMina").value.trim();
+      const nombreEmpresa = document.getElementById("geoEmpresa").value.trim();
 
       if (!deviceId) return alert("Debe asignar un ID de dispositivo");
 
-      const updatedData = { nombre, telefono, direccion, deviceId, email: userEmail, updatedAt: new Date().toISOString(), latitude, longitude, altitude, siteZone, installationPoint };
+      const updatedData = {
+        nombre, telefono, direccion, deviceId, email: userEmail,
+        zona, rampa, galeria, sector, nombreEstacion,
+        latitude, longitude, altitude, precision, EPSG,
+        pais, region, comuna, nombreMina, nombreEmpresa,
+        updatedAt: new Date().toISOString()
+      };
 
       try {
         await setDoc(doc(firestore, "users", userId), updatedData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), updatedData);
-        if (deviceId) await update(ref(db, `dispositivos/${deviceId}`), { latitude, longitude, altitude, siteZone, installationPoint, userEmail });
+        if (deviceId) await update(ref(db, `dispositivos/${deviceId}`), updatedData);
         alert("✅ Datos actualizados correctamente");
         if (deviceId) mostrarDatosDispositivo(deviceId);
       } catch (err) { console.error(err); alert(err.message); }
@@ -290,8 +352,18 @@ export function showUserDashboard() {
           <p>Latitud: ${d.latitude ?? userData.latitude ?? ""}</p>
           <p>Longitud: ${d.longitude ?? userData.longitude ?? ""}</p>
           <p>Altitud (m): ${d.altitude ?? userData.altitude ?? ""}</p>
-          <p>Zona: ${d.siteZone ?? userData.siteZone ?? ""}</p>
-          <p>Punto Instalación: ${d.installationPoint ?? userData.installationPoint ?? ""}</p>
+          <p>Precisión (m): ${d.precision ?? userData.precision ?? ""}</p>
+          <p>EPSG/WGS84: ${d.EPSG ?? userData.EPSG ?? "WGS84"}</p>
+          <p>Zona: ${d.zona ?? userData.zona ?? ""}</p>
+          <p>Rampa: ${d.rampa ?? userData.rampa ?? ""}</p>
+          <p>Galería: ${d.galeria ?? userData.galeria ?? ""}</p>
+          <p>Sector: ${d.sector ?? userData.sector ?? ""}</p>
+          <p>Nombre de estación: ${d.nombreEstacion ?? userData.nombreEstacion ?? ""}</p>
+          <p>País: ${d.pais ?? userData.pais ?? ""}</p>
+          <p>Región: ${d.region ?? userData.region ?? ""}</p>
+          <p>Comuna: ${d.comuna ?? userData.comuna ?? ""}</p>
+          <p>Nombre de mina: ${d.nombreMina ?? userData.nombreMina ?? ""}</p>
+          <p>Nombre de empresa: ${d.nombreEmpresa ?? userData.nombreEmpresa ?? ""}</p>
         `;
       });
     }
@@ -316,7 +388,6 @@ export function showAllDevices() {
   onValue(devicesRef, (snapshot) => {
     const devices = snapshot.val() || {};
     const listDiv = document.getElementById("deviceList");
-    if (!devices) return listDiv.innerHTML = "<p>No hay dispositivos</p>";
     listDiv.innerHTML = "<ul>";
     for (const id in devices) {
       const name = devices[id].name || `Dispositivo ${id}`;
@@ -329,6 +400,11 @@ export function showAllDevices() {
     listDiv.innerHTML += "</ul>";
   });
 }
+
+// ================================================
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL MULTIHOJA
+// ================================================
+// Mantener igual que tu código anterior, sin cambios (solo incluir los nuevos campos si quieres exportarlos).
 
 // ================================================
 // HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL MULTIHOJA
