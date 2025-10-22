@@ -39,11 +39,6 @@ export function showUserDashboard() {
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-        <label>Rol:</label>
-        <select id="isAdmin">
-          <option value="false">Usuario Normal</option>
-          <option value="true">Administrador</option>
-        </select>
 
         <h4>Tipo de Mina</h4>
         <select id="tipoMina">
@@ -108,7 +103,6 @@ export function showUserDashboard() {
           <label>Nombre de estación:</label><input id="nombreEstacion" placeholder="Nombre estación" />
         `;
         break;
-
       case "tajo_abierto":
         html = `
           <h4>🪨 Tajo Abierto</h4>
@@ -118,7 +112,6 @@ export function showUserDashboard() {
           <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
         `;
         break;
-
       case "aluvial":
         html = `
           <h4>💧 Aluvial (placer)</h4>
@@ -129,7 +122,6 @@ export function showUserDashboard() {
           <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
         `;
         break;
-
       case "cantera":
         html = `
           <h4>🏗️ Cantera</h4>
@@ -140,7 +132,6 @@ export function showUserDashboard() {
           <label>Polígono:</label><input id="poligono" placeholder="Polígono" />
         `;
         break;
-
       case "pirquen":
         html = `
           <h4>🧰 Pirquén / Artesanal</h4>
@@ -151,7 +142,6 @@ export function showUserDashboard() {
           <label>Nivel (si aplica):</label><input id="nivel" placeholder="Nivel" />
         `;
         break;
-
       default:
         html = "";
     }
@@ -179,9 +169,12 @@ export function showUserDashboard() {
 
       tipoSelect.value = data.tipoMina || "";
       renderCampos(tipoSelect.value);
+
+      // Cargar dispositivo automáticamente si existe
+      if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
-    // --- Guardar datos
+    // --- Guardar datos (sin permitir cambiar rol)
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
 
@@ -196,7 +189,8 @@ export function showUserDashboard() {
         telefono: document.getElementById("telefono").value.trim(),
         direccion: document.getElementById("direccion").value.trim(),
         deviceId: document.getElementById("deviceId").value.trim(),
-        isAdmin: document.getElementById("isAdmin").value === "true",
+        // --- Mantener rol actual
+        // isAdmin: se mantiene igual en Firestore
         tipoMina,
         ...camposExtras,
         latitude: parseFloat(document.getElementById("techLat").value) || 0,
@@ -234,10 +228,8 @@ export function showUserDashboard() {
         alert("❌ Error al eliminar: " + err.message);
       }
     };
-  
 
-
-
+    // --- Mostrar datos de dispositivo
     function mostrarDatosDispositivo(deviceId, userData = {}) {
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snap) => {
