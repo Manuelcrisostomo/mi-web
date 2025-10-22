@@ -1,4 +1,4 @@
-// ================================================
+// ================================================ 
 // device.js - Gestión de Usuarios, Dispositivos y Perfil
 // Incluye diseño seguro y compatibilidad con Firebase
 // ================================================
@@ -73,7 +73,10 @@ export function showUserDashboard() {
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-        <label>Rol:</label><p id="rolAsignado">Cargando...</p> <!-- SOLO LECTURA -->
+
+        <!-- Rol solo visible, no editable -->
+        <h3>Rol Asignado</h3>
+        <p id="rolAsignado">Cargando...</p>
 
         <h3>Tipo de Mina</h3>
         <select id="tipoMina">
