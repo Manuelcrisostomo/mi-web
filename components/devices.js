@@ -56,7 +56,7 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO (rol mostrado, no editable)
+// DASHBOARD USUARIO (ROL NO EDITABLE)
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
@@ -71,10 +71,6 @@ export function showUserDashboard() {
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-
-        <!-- Mostrar solo el rol asignado (no editable) -->
-        <label>Rol asignado:</label>
-        <p id="rolAsignado" class="rol-texto">Cargando rol...</p>
 
         <h3>Tipo de Mina</h3>
         <select id="tipoMina">
@@ -183,17 +179,12 @@ export function showUserDashboard() {
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
-      const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
-
-      // Mostrar rol como texto, no editable
-      document.getElementById("rolAsignado").innerText = rolTexto;
 
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
         <p><b>Correo:</b> ${userEmail}</p>
         <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
-        <p><b>Rol:</b> ${rolTexto}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
@@ -249,7 +240,6 @@ export function showUserDashboard() {
   });
 }
 
-
 // ================================================
 // FUNCIONES DE DISPOSITIVOS E HISTORIALES
 // ================================================
@@ -276,6 +266,11 @@ function mostrarDatosDispositivo(deviceId, container = document.getElementById("
     document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
   });
 }
+
+// ================================================
+// (El resto del código de historial y exportación se mantiene igual)
+// ================================================
+
 
 function mostrarHistorialCarrusel(deviceId) {
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
