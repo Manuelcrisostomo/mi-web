@@ -56,7 +56,7 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO (ROL NO EDITABLE)
+// DASHBOARD USUARIO (ROL ELIMINADO)
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
@@ -266,6 +266,7 @@ function mostrarDatosDispositivo(deviceId, container = document.getElementById("
     document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
   });
 }
+
 
 // ================================================
 // (El resto del código de historial y exportación se mantiene igual)
