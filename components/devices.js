@@ -70,6 +70,8 @@ export function showUserDashboard() {
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
+      
+        <!-- Rol mostrado en lugar de select -->
         <label>Rol:</label>
         <p id="rolAsignado">Cargando...</p>
 
@@ -335,7 +337,125 @@ export function showAllDevices() {
 }
 
 // ================================================
-// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL MULTIHOJA
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL
+// ================================================
+// ================================================
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL
+// ================================================
+export function showHistoricalPage(deviceId) {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="dashboard">
+      <h2>Historial Completo del Dispositivo</h2>
+      <p><b>ID:</b> ${deviceId}</p>
+      <div class="actions">
+        <button id="exportExcelBtn" disabled>💾 Exportar a Excel</button>
+        <button id="backToDeviceBtn">Volver</button>
+      </div>
+      <h3>Historial del dispositivo</h3>
+      <div id="historialContainer" class="historialGrid">Cargando historial...</div>
+      <h3>Historial global</h3>
+      <div id="historialGlobalContainer" class="historialGrid">Cargando historial global...</div>
+    </div>
+  `;
+
+  const historialDiv = document.getElementById("historialContainer");
+  const historialGlobalDiv = document.getElementById("historialGlobalContainer");
+  const exportExcelBtn = document.getElementById("exportExcelBtn");
+
+  document.getElementById("backToDeviceBtn").onclick = () => showDevices();
+
+  // --- Historial del dispositivo ---
+  const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
+  onValue(historialRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    historialDiv.innerHTML = "";
+    const registros = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
+
+    registros.forEach(([ts, valores]) => {
+      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
+      const card = document.createElement("div");
+      card.className = "historialCard";
+      card.innerHTML = `
+        <h4>${fecha}</h4>
+        <p>CO: ${valores.CO ?? "—"} ppm</p>
+        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
+        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
+        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
+        <p>Humedad: ${valores.humedad ?? "—"}%</p>
+        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
+      `;
+      historialDiv.appendChild(card);
+    });
+
+    exportExcelBtn.disabled = registros.length === 0;
+    exportExcelBtn.onclick = () => exportToExcel(deviceId, registros);
+  });
+
+  // --- Historial global ---
+  const historialGlobalRef = ref(db, `dispositivos/${deviceId}/historial_global`);
+  onValue(historialGlobalRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    historialGlobalDiv.innerHTML = "";
+    const registrosGlobal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
+
+    registrosGlobal.forEach(([ts, valores]) => {
+      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
+      const card = document.createElement("div");
+      card.className = "historialCard";
+      card.innerHTML = `
+        <h4>${fecha}</h4>
+        <p>CO: ${valores.CO ?? "—"} ppm</p>
+        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
+        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
+        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
+        <p>Humedad: ${valores.humedad ?? "—"}%</p>
+        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
+      `;
+      historialGlobalDiv.appendChild(card);
+    });
+  });
+}
+
+// ================================================
+// FUNCIONES AUXILIARES: EXPORTAR HISTORIAL A EXCEL
+// ================================================
+async function exportToExcel(deviceId, registros) {
+  // Obtener email del usuario asignado
+  let userEmail = "Sin asignar";
+  try {
+    const snapshot = await get(ref(db, "usuarios"));
+    const usuarios = snapshot.val() || {};
+    for (let uid in usuarios) {
+      if (usuarios[uid].deviceId === deviceId) {
+        userEmail = usuarios[uid].email || userEmail;
+        break;
+      }
+    }
+  } catch (err) {
+    console.error("Error al obtener usuario:", err);
+  }
+
+  // Construir CSV
+  let csv = "Fecha,CO,CO2,PM10,PM2.5,Humedad,Temperatura,Usuario,Dispositivo\n";
+  registros.forEach(([ts, valores]) => {
+    const fecha = new Date(parseInt(ts)).toLocaleString("es-CL");
+    csv += `"${fecha}",${valores.CO ?? ""},${valores.CO2 ?? ""},${valores.PM10 ?? ""},${valores.PM2_5 ?? ""},${valores.humedad ?? ""},${valores.temperatura ?? ""},"${userEmail}","${deviceId}"\n`;
+  });
+
+  // Descargar CSV
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `historial_${deviceId}.csv`);
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+// ================================================
+// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL CON DOS HOJAS
 // ================================================
 export function showHistoricalPage(deviceId) {
   const root = document.getElementById("root");
@@ -363,6 +483,7 @@ export function showHistoricalPage(deviceId) {
   let registrosLocal = [];
   let registrosGlobal = [];
 
+  // --- Historial del dispositivo ---
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
   onValue(historialRef, (snapshot) => {
     const data = snapshot.val() || {};
@@ -388,6 +509,7 @@ export function showHistoricalPage(deviceId) {
     exportExcelBtn.disabled = registrosLocal.length === 0 && registrosGlobal.length === 0;
   });
 
+  // --- Historial global ---
   const historialGlobalRef = ref(db, `dispositivos/${deviceId}/historial_global`);
   onValue(historialGlobalRef, (snapshot) => {
     const data = snapshot.val() || {};
@@ -420,6 +542,7 @@ export function showHistoricalPage(deviceId) {
 // FUNCIONES AUXILIARES: EXPORTAR HISTORIAL A EXCEL MULTIHOJA
 // ================================================
 async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal) {
+  // Obtener email del usuario asignado
   let userEmail = "Sin asignar";
   try {
     const snapshot = await get(ref(db, "usuarios"));
@@ -434,7 +557,8 @@ async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal
     console.error("Error al obtener usuario:", err);
   }
 
-  const hojaLocal = [["Fecha","CO","CO2","PM10","PM2.5","Humedad","Temperatura","Usuario","Dispositivo"]];
+  // Crear arrays de datos para hojas
+  const hojaLocal = [["Fecha", "CO", "CO2", "PM10", "PM2.5", "Humedad", "Temperatura", "Usuario", "Dispositivo"]];
   registrosLocal.forEach(([ts, valores]) => {
     hojaLocal.push([
       new Date(parseInt(ts)).toLocaleString("es-CL"),
@@ -449,7 +573,7 @@ async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal
     ]);
   });
 
-  const hojaGlobal = [["Fecha","CO","CO2","PM10","PM2.5","Humedad","Temperatura","Usuario","Dispositivo"]];
+  const hojaGlobal = [["Fecha", "CO", "CO2", "PM10", "PM2.5", "Humedad", "Temperatura", "Usuario", "Dispositivo"]];
   registrosGlobal.forEach(([ts, valores]) => {
     hojaGlobal.push([
       new Date(parseInt(ts)).toLocaleString("es-CL"),
@@ -464,10 +588,13 @@ async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal
     ]);
   });
 
+  // Crear libro de Excel
   const wb = XLSX.utils.book_new();
   const wsLocal = XLSX.utils.aoa_to_sheet(hojaLocal);
   const wsGlobal = XLSX.utils.aoa_to_sheet(hojaGlobal);
   XLSX.utils.book_append_sheet(wb, wsLocal, "Historial Local");
   XLSX.utils.book_append_sheet(wb, wsGlobal, "Historial Global");
+
+  // Descargar Excel
   XLSX.writeFile(wb, `historial_${deviceId}.xlsx`);
 }
