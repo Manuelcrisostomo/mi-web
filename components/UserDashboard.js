@@ -1,5 +1,5 @@
 // ================================================
-// userDashboard.js — Gestión de Usuario y Tipos de Mina (Solo Lectura)
+// userDashboard.js — Gestión de Usuario y Tipos de Mina
 // ================================================
 
 import {
@@ -31,7 +31,7 @@ export function showUserDashboard() {
       <h2>Perfil del Usuario</h2>
       <div id="userProfile" class="card"></div>
 
-      <h3>Datos del Usuario (Solo Lectura)</h3>
+      <h3>Editar Datos del Usuario</h3>
       <form id="editForm" class="card">
 
         <h4>Datos Personales</h4>
@@ -46,7 +46,7 @@ export function showUserDashboard() {
         </select>
 
         <h4>Tipo de Mina</h4>
-        <select id="tipoMina" disabled>
+        <select id="tipoMina">
           <option value="">Seleccione tipo...</option>
           <option value="subterranea">⛏️ Subterránea</option>
           <option value="tajo_abierto">🪨 Tajo Abierto</option>
@@ -70,6 +70,9 @@ export function showUserDashboard() {
         <label>Comuna:</label><input type="text" id="geoComuna" placeholder="Comuna" />
         <label>Nombre de la mina:</label><input type="text" id="geoMina" placeholder="Nombre de la mina" />
         <label>Nombre de la empresa:</label><input type="text" id="geoEmpresa" placeholder="Nombre de la empresa" />
+
+        <button type="submit">💾 Guardar Cambios</button>
+        <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
 
       <h3>Dispositivo Asignado</h3>
@@ -86,11 +89,9 @@ export function showUserDashboard() {
   // --- Navegación
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
-  document.getElementById("logout").onclick = async () => { 
-    await auth.signOut(); 
-    navigate("login"); 
-  };
+  document.getElementById("logout").onclick = async () => { await auth.signOut(); navigate("login"); };
 
+  // --- Renderizado dinámico de campos según tipo de mina
   const camposMinaDiv = document.getElementById("camposMina");
   const tipoSelect = document.getElementById("tipoMina");
 
@@ -100,58 +101,66 @@ export function showUserDashboard() {
       case "subterranea":
         html = `
           <h4>⛏️ Subterránea</h4>
-          <label>Zona:</label><input id="zona" disabled />
-          <label>Rampa:</label><input id="rampa" disabled />
-          <label>Galería:</label><input id="galeria" disabled />
-          <label>Sector:</label><input id="sector" disabled />
-          <label>Nombre de estación:</label><input id="nombreEstacion" disabled />
+          <label>Zona:</label><input id="zona" placeholder="Zona" />
+          <label>Rampa:</label><input id="rampa" placeholder="Rampa" />
+          <label>Galería:</label><input id="galeria" placeholder="Galería" />
+          <label>Sector:</label><input id="sector" placeholder="Sector" />
+          <label>Nombre de estación:</label><input id="nombreEstacion" placeholder="Nombre estación" />
         `;
         break;
+
       case "tajo_abierto":
         html = `
           <h4>🪨 Tajo Abierto</h4>
-          <label>Banco:</label><input id="banco" disabled />
-          <label>Fase:</label><input id="fase" disabled />
-          <label>Frente:</label><input id="frente" disabled />
-          <label>Coordenadas GPS:</label><input id="coordGPS" disabled />
+          <label>Banco:</label><input id="banco" placeholder="Banco" />
+          <label>Fase:</label><input id="fase" placeholder="Fase" />
+          <label>Frente:</label><input id="frente" placeholder="Frente" />
+          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
         `;
         break;
+
       case "aluvial":
         html = `
           <h4>💧 Aluvial (placer)</h4>
-          <label>Mina:</label><input id="mina" disabled />
-          <label>Río:</label><input id="rio" disabled />
-          <label>Tramo:</label><input id="tramo" disabled />
-          <label>Cuadrante:</label><input id="cuadrante" disabled />
-          <label>Coordenadas GPS:</label><input id="coordGPS" disabled />
+          <label>Mina:</label><input id="mina" placeholder="Mina" />
+          <label>Río:</label><input id="rio" placeholder="Río" />
+          <label>Tramo:</label><input id="tramo" placeholder="Tramo" />
+          <label>Cuadrante:</label><input id="cuadrante" placeholder="Cuadrante" />
+          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
         `;
         break;
+
       case "cantera":
         html = `
           <h4>🏗️ Cantera</h4>
-          <label>Cantera:</label><input id="cantera" disabled />
-          <label>Material:</label><input id="material" disabled />
-          <label>Frente:</label><input id="frente" disabled />
-          <label>Coordenadas GPS:</label><input id="coordGPS" disabled />
-          <label>Polígono:</label><input id="poligono" disabled />
+          <label>Cantera:</label><input id="cantera" placeholder="Cantera" />
+          <label>Material:</label><input id="material" placeholder="Material" />
+          <label>Frente:</label><input id="frente" placeholder="Frente" />
+          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
+          <label>Polígono:</label><input id="poligono" placeholder="Polígono" />
         `;
         break;
+
       case "pirquen":
         html = `
           <h4>🧰 Pirquén / Artesanal</h4>
-          <label>Faena:</label><input id="faena" disabled />
-          <label>Tipo de explotación:</label><input id="tipoExplotacion" disabled />
-          <label>Sector:</label><input id="sector" disabled />
-          <label>Coordenadas:</label><input id="coordGPS" disabled />
-          <label>Nivel (si aplica):</label><input id="nivel" disabled />
+          <label>Faena:</label><input id="faena" placeholder="Faena" />
+          <label>Tipo de explotación:</label><input id="tipoExplotacion" placeholder="Tipo de explotación" />
+          <label>Sector:</label><input id="sector" placeholder="Sector" />
+          <label>Coordenadas:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
+          <label>Nivel (si aplica):</label><input id="nivel" placeholder="Nivel" />
         `;
         break;
+
       default:
         html = "";
     }
     camposMinaDiv.innerHTML = html;
   }
 
+  tipoSelect.addEventListener("change", (e) => renderCampos(e.target.value));
+
+  // --- Autenticación y carga de datos
   onAuthStateChanged(auth, async (user) => {
     if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
@@ -168,28 +177,67 @@ export function showUserDashboard() {
         <p><b>Tipo de mina:</b> ${data.tipoMina || "-"}</p>
       `;
 
-      // Cargar inputs con datos (solo lectura)
-      document.getElementById("nombre").value = data.nombre || "";
-      document.getElementById("telefono").value = data.telefono || "";
-      document.getElementById("direccion").value = data.direccion || "";
-      document.getElementById("deviceId").value = data.deviceId || "";
-      document.getElementById("isAdmin").value = data.isAdmin ? "true" : "false";
-      document.getElementById("techLat").value = data.latitude ?? "";
-      document.getElementById("techLng").value = data.longitude ?? "";
-      document.getElementById("techAlt").value = data.altitude ?? "";
-      document.getElementById("techPrecision").value = data.precision ?? "";
-      document.getElementById("techEPSG").value = data.EPSG ?? "WGS84";
-      document.getElementById("geoPais").value = data.pais ?? "";
-      document.getElementById("geoRegion").value = data.region ?? "";
-      document.getElementById("geoComuna").value = data.comuna ?? "";
-      document.getElementById("geoMina").value = data.nombreMina ?? "";
-      document.getElementById("geoEmpresa").value = data.nombreEmpresa ?? "";
-
       tipoSelect.value = data.tipoMina || "";
       renderCampos(tipoSelect.value);
     });
 
-    // --- Mostrar datos del dispositivo
+    // --- Guardar datos
+    document.getElementById("editForm").onsubmit = async (e) => {
+      e.preventDefault();
+
+      const tipoMina = tipoSelect.value;
+      const camposExtras = {};
+      camposMinaDiv.querySelectorAll("input").forEach(input => {
+        camposExtras[input.id] = input.value.trim();
+      });
+
+      const updatedData = {
+        nombre: document.getElementById("nombre").value.trim(),
+        telefono: document.getElementById("telefono").value.trim(),
+        direccion: document.getElementById("direccion").value.trim(),
+        deviceId: document.getElementById("deviceId").value.trim(),
+        isAdmin: document.getElementById("isAdmin").value === "true",
+        tipoMina,
+        ...camposExtras,
+        latitude: parseFloat(document.getElementById("techLat").value) || 0,
+        longitude: parseFloat(document.getElementById("techLng").value) || 0,
+        altitude: parseFloat(document.getElementById("techAlt").value) || 0,
+        precision: parseFloat(document.getElementById("techPrecision").value) || 0,
+        EPSG: document.getElementById("techEPSG").value.trim() || "WGS84",
+        pais: document.getElementById("geoPais").value.trim(),
+        region: document.getElementById("geoRegion").value.trim(),
+        comuna: document.getElementById("geoComuna").value.trim(),
+        nombreMina: document.getElementById("geoMina").value.trim(),
+        nombreEmpresa: document.getElementById("geoEmpresa").value.trim(),
+        email: userEmail,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        await setDoc(userDocRef, updatedData, { merge: true });
+        await update(ref(db, `usuarios/${userId}`), updatedData);
+        alert("✅ Datos guardados correctamente");
+      } catch (err) {
+        alert("❌ Error al guardar: " + err.message);
+      }
+    };
+
+    // --- Eliminar usuario
+    document.getElementById("deleteUser").onclick = async () => {
+      if (!confirm("¿Eliminar usuario permanentemente?")) return;
+      try {
+        await deleteDoc(userDocRef);
+        await remove(ref(db, `usuarios/${userId}`));
+        alert("🗑️ Usuario eliminado");
+        navigate("login");
+      } catch (err) {
+        alert("❌ Error al eliminar: " + err.message);
+      }
+    };
+  
+
+
+
     function mostrarDatosDispositivo(deviceId, userData = {}) {
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snap) => {
@@ -222,9 +270,5 @@ export function showUserDashboard() {
         `;
       });
     }
-
-    // --- Llamada inicial
-    const userDeviceId = document.getElementById("deviceId").value;
-    if (userDeviceId) mostrarDatosDispositivo(userDeviceId);
   });
 }
