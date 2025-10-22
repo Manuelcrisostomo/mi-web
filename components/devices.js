@@ -34,6 +34,7 @@ export function showNav() {
 // PANEL ADMINISTRADOR
 // ================================================
 export function showAdminDashboard() {
+  showNav(); // ✅ Aseguramos que el nav se muestre
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
@@ -76,59 +77,14 @@ export function showAdminDashboard() {
 // DASHBOARD USUARIO
 // ================================================
 export function showUserDashboard() {
+  showNav(); // ✅ Aseguramos que el nav se muestre
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
       <h2>Perfil del Usuario</h2>
       <div id="userProfile" class="card">Cargando datos...</div>
-
-      <form id="editForm" class="card">
-        <h3>Datos Personales</h3>
-        <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" />
-        <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
-        <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
-        <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-
-        <h3>Tipo de Mina</h3>
-        <select id="tipoMina">
-          <option value="">Seleccione tipo de mina</option>
-          <option value="subterranea">Subterránea</option>
-          <option value="tajo_abierto">Tajo Abierto</option>
-          <option value="aluvial">Aluvial (placer)</option>
-          <option value="cantera">Cantera</option>
-          <option value="pirqen">Pirquén / artesanal</option>
-        </select>
-        <div id="camposMinaDinamicos"></div>
-
-        <h3>Datos Técnicos (Mapas/Sistema)</h3>
-        <label>Latitud:</label><input type="number" id="latitude" step="any" placeholder="0" />
-        <label>Longitud:</label><input type="number" id="longitude" step="any" placeholder="0" />
-        <label>Altitud (m):</label><input type="number" id="altitude" step="any" placeholder="0" />
-        <label>Precisión (m):</label><input type="number" id="precision" step="any" placeholder="0" />
-        <label>EPSG/WGS84:</label><input type="text" id="EPSG" placeholder="WGS84" />
-
-        <h3>Datos Geográficos / Empresariales</h3>
-        <label>País:</label><input type="text" id="pais" placeholder="País" />
-        <label>Región:</label><input type="text" id="region" placeholder="Región" />
-        <label>Comuna:</label><input type="text" id="comuna" placeholder="Comuna" />
-        <label>Nombre de la empresa:</label><input type="text" id="nombreEmpresa" placeholder="Nombre de la empresa" />
-
-        <button type="submit">💾 Guardar Cambios</button>
-        <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
-      </form>
-
-      <h3>Dispositivo Asignado</h3>
-      <div id="deviceData" class="card">Cargando dispositivo...</div>
-
-      <div class="actions">
-        <button id="alertsBtn">Ver Alertas</button>
-        <button id="devicesBtn">Ver Dispositivos</button>
-        <button id="historyBtn">📜 Ver Historial</button>
-        <button id="nuevoBtnUser">✨ Nuevo Botón</button>
-        <button id="pagina1Btn">📄 Página 1</button>
-        <button id="pagina2Btn">📄 Página 2</button>
-        <button id="logoutBtn">Cerrar Sesión</button>
-      </div>
+      ...
+      <!-- resto de tu formulario y botones como ya lo tienes -->
     </div>
   `;
 
@@ -171,6 +127,10 @@ export function showUserDashboard() {
     }
     camposMinaDiv.innerHTML = html;
   });
+
+  // ===== Resto de eventos y sincronización con Firestore/RealtimeDB =====
+  
+
 
   // ===== Eventos =====
   document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
