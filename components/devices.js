@@ -70,7 +70,7 @@ export function showUserDashboard() {
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-      
+        <label>Rol:</label>
         <!-- Rol mostrado en lugar de select -->
         <label>Rol:</label>
         <p id="rolAsignado">Cargando...</p>
