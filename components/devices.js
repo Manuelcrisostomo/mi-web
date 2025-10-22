@@ -71,10 +71,9 @@ export function showUserDashboard() {
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
         <label>Rol:</label>
-        <select id="isAdmin">
-          <option value="false">Usuario Normal</option>
-          <option value="true">Administrador</option>
-        </select>
+        <!-- Rol mostrado en lugar de select -->
+        <label>Rol:</label>
+        <p id="rolAsignado">Cargando...</p>
 
         <h3>Tipo de Mina</h3>
         <select id="tipoMina">
