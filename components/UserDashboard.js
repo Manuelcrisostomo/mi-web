@@ -64,7 +64,7 @@ export function showUserDashboard() {
         <label>Precisión (m):</label><input type="number" step="0.01" id="techPrecision" placeholder="Precisión" />
         <label>EPSG/WGS84:</label><input type="text" id="techEPSG" placeholder="EPSG/WGS84" />
 
-        <h4>Datos Geográficos / Empresariales</h4>
+       
         <label>País:</label><input type="text" id="geoPais" placeholder="País" />
         <label>Región:</label><input type="text" id="geoRegion" placeholder="Región" />
         <label>Comuna:</label><input type="text" id="geoComuna" placeholder="Comuna" />
