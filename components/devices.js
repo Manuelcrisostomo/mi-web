@@ -203,7 +203,7 @@ export function showUserDashboard() {
       `;
 
       // Rellenar campos del formulario
-      const fields = ["nombre","telefono","direccion","deviceId","isAdmin",
+      const fields = ["nombre","telefono","direccion","deviceId",
                       "zona","rampa","galeria","sector","nombreEstacion",
                       "latitude","longitude","altitude","precision","EPSG",
                       "pais","region","comuna","nombreEmpresa"];
@@ -222,7 +222,7 @@ export function showUserDashboard() {
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newData = {};
-      const fields = ["nombre","telefono","direccion","deviceId","isAdmin",
+      const fields = ["nombre","telefono","direccion","deviceId",
                       "zona","rampa","galeria","sector","nombreEstacion",
                       "latitude","longitude","altitude","precision","EPSG",
                       "pais","region","comuna","nombreEmpresa"];
