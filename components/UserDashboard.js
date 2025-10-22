@@ -1,3 +1,7 @@
+// ================================================
+// userDashboard.js — Gestión de Usuario y Tipos de Mina
+// ================================================
+
 import {
   auth,
   db,
@@ -41,12 +45,17 @@ export function showUserDashboard() {
           <option value="true">Administrador</option>
         </select>
 
-        <h4>Datos Humanos (Operador)</h4>
-        <label>Zona:</label><input type="text" id="humanZona" placeholder="Zona" />
-        <label>Rampa:</label><input type="text" id="humanRampa" placeholder="Rampa" />
-        <label>Galería:</label><input type="text" id="humanGaleria" placeholder="Galería" />
-        <label>Sector:</label><input type="text" id="humanSector" placeholder="Sector" />
-        <label>Nombre de estación:</label><input type="text" id="humanEstacion" placeholder="Nombre de estación" />
+        <h4>Tipo de Mina</h4>
+        <select id="tipoMina">
+          <option value="">Seleccione tipo...</option>
+          <option value="subterranea">⛏️ Subterránea</option>
+          <option value="tajo_abierto">🪨 Tajo Abierto</option>
+          <option value="aluvial">💧 Aluvial (placer)</option>
+          <option value="cantera">🏗️ Cantera</option>
+          <option value="pirquen">🧰 Pirquén / Artesanal</option>
+        </select>
+
+        <div id="camposMina"></div>
 
         <h4>Datos Técnicos (Mapas/Sistema)</h4>
         <label>Latitud:</label><input type="number" step="0.000001" id="techLat" placeholder="Latitud" />
@@ -77,134 +86,157 @@ export function showUserDashboard() {
     </div>
   `;
 
-  // Botones de navegación
+  // --- Navegación
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
   document.getElementById("logout").onclick = async () => { await auth.signOut(); navigate("login"); };
 
+  // --- Renderizado dinámico de campos según tipo de mina
+  const camposMinaDiv = document.getElementById("camposMina");
+  const tipoSelect = document.getElementById("tipoMina");
+
+  function renderCampos(tipo) {
+    let html = "";
+    switch (tipo) {
+      case "subterranea":
+        html = `
+          <h4>⛏️ Subterránea</h4>
+          <label>Zona:</label><input id="zona" placeholder="Zona" />
+          <label>Rampa:</label><input id="rampa" placeholder="Rampa" />
+          <label>Galería:</label><input id="galeria" placeholder="Galería" />
+          <label>Sector:</label><input id="sector" placeholder="Sector" />
+          <label>Nombre de estación:</label><input id="nombreEstacion" placeholder="Nombre estación" />
+        `;
+        break;
+
+      case "tajo_abierto":
+        html = `
+          <h4>🪨 Tajo Abierto</h4>
+          <label>Banco:</label><input id="banco" placeholder="Banco" />
+          <label>Fase:</label><input id="fase" placeholder="Fase" />
+          <label>Frente:</label><input id="frente" placeholder="Frente" />
+          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
+        `;
+        break;
+
+      case "aluvial":
+        html = `
+          <h4>💧 Aluvial (placer)</h4>
+          <label>Mina:</label><input id="mina" placeholder="Mina" />
+          <label>Río:</label><input id="rio" placeholder="Río" />
+          <label>Tramo:</label><input id="tramo" placeholder="Tramo" />
+          <label>Cuadrante:</label><input id="cuadrante" placeholder="Cuadrante" />
+          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
+        `;
+        break;
+
+      case "cantera":
+        html = `
+          <h4>🏗️ Cantera</h4>
+          <label>Cantera:</label><input id="cantera" placeholder="Cantera" />
+          <label>Material:</label><input id="material" placeholder="Material" />
+          <label>Frente:</label><input id="frente" placeholder="Frente" />
+          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
+          <label>Polígono:</label><input id="poligono" placeholder="Polígono" />
+        `;
+        break;
+
+      case "pirquen":
+        html = `
+          <h4>🧰 Pirquén / Artesanal</h4>
+          <label>Faena:</label><input id="faena" placeholder="Faena" />
+          <label>Tipo de explotación:</label><input id="tipoExplotacion" placeholder="Tipo de explotación" />
+          <label>Sector:</label><input id="sector" placeholder="Sector" />
+          <label>Coordenadas:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
+          <label>Nivel (si aplica):</label><input id="nivel" placeholder="Nivel" />
+        `;
+        break;
+
+      default:
+        html = "";
+    }
+    camposMinaDiv.innerHTML = html;
+  }
+
+  tipoSelect.addEventListener("change", (e) => renderCampos(e.target.value));
+
+  // --- Autenticación y carga de datos
   onAuthStateChanged(auth, async (user) => {
     if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
-    const userEmail = user.email;
     const userId = user.uid;
+    const userEmail = user.email;
     const userDocRef = doc(firestore, "users", userId);
 
-    document.getElementById("userProfile").innerHTML = `<p>Cargando datos...</p>`;
-
-    onSnapshot(userDocRef, (docSnap) => {
-      const data = docSnap.exists() ? docSnap.data() : {};
-      const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
-
-      // Mostrar perfil
+    onSnapshot(userDocRef, (snap) => {
+      const data = snap.exists() ? snap.data() : {};
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "-"}</p>
-        <p><b>Correo:</b> ${userEmail}</p>
-        <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
-        <p><b>Dirección:</b> ${data.direccion || "-"}</p>
-        <p><b>Rol:</b> ${rolTexto}</p>
-        <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
+        <p><b>Email:</b> ${userEmail}</p>
+        <p><b>Rol:</b> ${data.isAdmin ? "Administrador" : "Usuario"}</p>
+        <p><b>Tipo de mina:</b> ${data.tipoMina || "-"}</p>
       `;
 
-      // Rellenar formulario
-      document.getElementById("nombre").value = data.nombre || "";
-      document.getElementById("telefono").value = data.telefono || "";
-      document.getElementById("direccion").value = data.direccion || "";
-      document.getElementById("deviceId").value = data.deviceId || "";
-      document.getElementById("isAdmin").value = data.isAdmin ? "true" : "false";
-
-      document.getElementById("humanZona").value = data.zona || "";
-      document.getElementById("humanRampa").value = data.rampa || "";
-      document.getElementById("humanGaleria").value = data.galeria || "";
-      document.getElementById("humanSector").value = data.sector || "";
-      document.getElementById("humanEstacion").value = data.nombreEstacion || "";
-
-      document.getElementById("techLat").value = data.latitude ?? 0;
-      document.getElementById("techLng").value = data.longitude ?? 0;
-      document.getElementById("techAlt").value = data.altitude ?? 0;
-      document.getElementById("techPrecision").value = data.precision ?? 0;
-      document.getElementById("techEPSG").value = data.EPSG ?? "WGS84";
-
-      document.getElementById("geoPais").value = data.pais || "";
-      document.getElementById("geoRegion").value = data.region || "";
-      document.getElementById("geoComuna").value = data.comuna || "";
-      document.getElementById("geoMina").value = data.nombreMina || "";
-      document.getElementById("geoEmpresa").value = data.nombreEmpresa || "";
-
-      if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
+      tipoSelect.value = data.tipoMina || "";
+      renderCampos(tipoSelect.value);
     });
 
+    // --- Guardar datos
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
 
-      const nombre = document.getElementById("nombre").value.trim();
-      const telefono = document.getElementById("telefono").value.trim();
-      const direccion = document.getElementById("direccion").value.trim();
-      const deviceId = document.getElementById("deviceId").value.trim();
-      const isAdmin = document.getElementById("isAdmin").value === "true";
-
-      const zona = document.getElementById("humanZona").value.trim();
-      const rampa = document.getElementById("humanRampa").value.trim();
-      const galeria = document.getElementById("humanGaleria").value.trim();
-      const sector = document.getElementById("humanSector").value.trim();
-      const nombreEstacion = document.getElementById("humanEstacion").value.trim();
-
-      const latitude = parseFloat(document.getElementById("techLat").value) || 0;
-      const longitude = parseFloat(document.getElementById("techLng").value) || 0;
-      const altitude = parseFloat(document.getElementById("techAlt").value) || 0;
-      const precision = parseFloat(document.getElementById("techPrecision").value) || 0;
-      const EPSG = document.getElementById("techEPSG").value.trim();
-
-      const pais = document.getElementById("geoPais").value.trim();
-      const region = document.getElementById("geoRegion").value.trim();
-      const comuna = document.getElementById("geoComuna").value.trim();
-      const nombreMina = document.getElementById("geoMina").value.trim();
-      const nombreEmpresa = document.getElementById("geoEmpresa").value.trim();
+      const tipoMina = tipoSelect.value;
+      const camposExtras = {};
+      camposMinaDiv.querySelectorAll("input").forEach(input => {
+        camposExtras[input.id] = input.value.trim();
+      });
 
       const updatedData = {
-        nombre, telefono, direccion, deviceId, isAdmin, email: userEmail,
-        zona, rampa, galeria, sector, nombreEstacion,
-        latitude, longitude, altitude, precision, EPSG,
-        pais, region, comuna, nombreMina, nombreEmpresa,
+        nombre: document.getElementById("nombre").value.trim(),
+        telefono: document.getElementById("telefono").value.trim(),
+        direccion: document.getElementById("direccion").value.trim(),
+        deviceId: document.getElementById("deviceId").value.trim(),
+        isAdmin: document.getElementById("isAdmin").value === "true",
+        tipoMina,
+        ...camposExtras,
+        latitude: parseFloat(document.getElementById("techLat").value) || 0,
+        longitude: parseFloat(document.getElementById("techLng").value) || 0,
+        altitude: parseFloat(document.getElementById("techAlt").value) || 0,
+        precision: parseFloat(document.getElementById("techPrecision").value) || 0,
+        EPSG: document.getElementById("techEPSG").value.trim() || "WGS84",
+        pais: document.getElementById("geoPais").value.trim(),
+        region: document.getElementById("geoRegion").value.trim(),
+        comuna: document.getElementById("geoComuna").value.trim(),
+        nombreMina: document.getElementById("geoMina").value.trim(),
+        nombreEmpresa: document.getElementById("geoEmpresa").value.trim(),
+        email: userEmail,
         updatedAt: new Date().toISOString()
       };
 
       try {
-        await setDoc(doc(firestore, "users", userId), updatedData, { merge: true });
+        await setDoc(userDocRef, updatedData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), updatedData);
-
-        if (deviceId) {
-          const deviceRef = ref(db, `dispositivos/${deviceId}`);
-          const deviceSnap = await get(deviceRef);
-          if (deviceSnap.exists()) {
-            await update(deviceRef, {
-              latitude, longitude, altitude, precision, EPSG,
-              zona, rampa, galeria, sector, nombreEstacion,
-              pais, region, comuna, nombreMina, nombreEmpresa,
-              userEmail
-            });
-          }
-        }
-
-        alert("✅ Datos actualizados correctamente");
-        if (deviceId) mostrarDatosDispositivo(deviceId);
+        alert("✅ Datos guardados correctamente");
       } catch (err) {
-        console.error(err);
-        alert("❌ Error al actualizar: " + err.message);
+        alert("❌ Error al guardar: " + err.message);
       }
     };
 
+    // --- Eliminar usuario
     document.getElementById("deleteUser").onclick = async () => {
-      if (!confirm("¿Desea borrar este usuario?")) return;
+      if (!confirm("¿Eliminar usuario permanentemente?")) return;
       try {
-        await deleteDoc(doc(firestore, "users", userId));
+        await deleteDoc(userDocRef);
         await remove(ref(db, `usuarios/${userId}`));
-        alert("Usuario eliminado");
+        alert("🗑️ Usuario eliminado");
         navigate("login");
       } catch (err) {
-        console.error(err);
-        alert("Error al eliminar: " + err.message);
+        alert("❌ Error al eliminar: " + err.message);
       }
     };
+  
+
+
 
     function mostrarDatosDispositivo(deviceId, userData = {}) {
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
