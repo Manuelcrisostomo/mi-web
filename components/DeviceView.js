@@ -1,4 +1,4 @@
-//aqui tambien agrega en nav // ================================================
+// ================================================
 // Dispositivos y Historial con Firebase
 // ================================================
 // NOTA: Para que la función de guardar PDF funcione, debes incluir la librería jsPDF
