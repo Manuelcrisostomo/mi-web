@@ -21,12 +21,10 @@ import { showHistoryManagerPage } from "./historyManager.js";
 // ================================================
 export function showAdminDashboard() {
   const root = document.getElementById("root");
-
-  // Renderizado del panel principal de administrador
   root.innerHTML = `
     <div class="dashboard">
       <h2>Panel del Administrador</h2>
-      <div id="users"></div> <!-- Lista de usuarios registrados -->
+      <div id="users"></div>
       <div class="actions">
         <button id="historyBtn">📜 Historial General</button>
         <button id="nuevoBtnAdmin">✨ Nuevo Botón</button>
@@ -37,7 +35,6 @@ export function showAdminDashboard() {
     </div>
   `;
 
-  // Obtener usuarios desde Realtime Database
   const usersRef = ref(db, "usuarios");
   onValue(usersRef, (snapshot) => {
     const data = snapshot.val();
@@ -49,10 +46,9 @@ export function showAdminDashboard() {
     }
   });
 
-  // Botones de acción
   document.getElementById("logout").onclick = async () => {
-    await auth.signOut();  // Cierra sesión del usuario
-    navigate("login");      // Redirige a login
+    await auth.signOut();
+    navigate("login");
   };
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnAdmin").onclick = () => showNewHistoryPage();
@@ -66,21 +62,18 @@ export function showAdminDashboard() {
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
-
-  // Renderizado del dashboard del usuario
   root.innerHTML = `
     <div class="dashboard">
       <h2>Perfil del Usuario</h2>
-      <div id="userProfile" class="card">Cargando datos...</div> <!-- Perfil resumido -->
+      <div id="userProfile" class="card">Cargando datos...</div>
 
-      <!-- Formulario de edición -->
       <form id="editForm" class="card">
         <h3>Datos Personales</h3>
         <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" />
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-        <label>Rol:</label><p id="rolAsignado">Cargando...</p> <!-- Solo lectura -->
+        <label>Rol:</label><p id="rolAsignado">Cargando...</p> <!-- SOLO LECTURA -->
 
         <h3>Tipo de Mina</h3>
         <select id="tipoMina">
@@ -91,7 +84,7 @@ export function showUserDashboard() {
           <option value="cantera">Cantera</option>
           <option value="pirqen">Pirquén / artesanal</option>
         </select>
-        <div id="camposMinaDinamicos"></div> <!-- Campos según tipo de mina -->
+        <div id="camposMinaDinamicos"></div>
 
         <h3>Datos Técnicos (Mapas/Sistema)</h3>
         <label>Latitud:</label><input type="number" id="latitude" step="any" placeholder="0" />
@@ -110,11 +103,9 @@ export function showUserDashboard() {
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
 
-      <!-- Datos del dispositivo -->
       <h3>Dispositivo Asignado</h3>
       <div id="deviceData" class="card">Cargando dispositivo...</div>
 
-      <!-- Botones de acción -->
       <div class="actions">
         <button id="alertsBtn">Ver Alertas</button>
         <button id="devicesBtn">Ver Dispositivos</button>
@@ -127,14 +118,12 @@ export function showUserDashboard() {
     </div>
   `;
 
-  // ======================= CAMPOS DINÁMICOS SEGÚN TIPO DE MINA =======================
   const tipoMinaSelect = document.getElementById("tipoMina");
   const camposMinaDiv = document.getElementById("camposMinaDinamicos");
 
   tipoMinaSelect.addEventListener("change", () => {
-    const tipo = tipoMinaSelect.value;
     let html = "";
-    switch (tipo) {
+    switch (tipoMinaSelect.value) {
       case "subterranea":
         html = `<h4>Datos Humanos (Operador)</h4>
                 <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
@@ -184,7 +173,6 @@ export function showUserDashboard() {
     const userEmail = user.email;
     const userDocRef = doc(firestore, "users", userId);
 
-    // Escucha cambios en Firestore para actualizar la UI en tiempo real
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
       const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
@@ -199,7 +187,6 @@ export function showUserDashboard() {
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Rellenar formulario con datos existentes
       const fields = ["nombre","telefono","direccion","deviceId",
                       "zona","rampa","galeria","sector","nombreEstacion",
                       "latitude","longitude","altitude","precision","EPSG",
@@ -207,14 +194,12 @@ export function showUserDashboard() {
       fields.forEach(f => {
         const el = document.getElementById(f);
         if (!el) return;
-        if (["latitude","longitude","altitude","precision"].includes(f)) el.value = data[f] ?? 0;
-        else el.value = data[f] || "";
+        el.value = ["latitude","longitude","altitude","precision"].includes(f) ? data[f] ?? 0 : data[f] || "";
       });
 
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // ======================= GUARDAR CAMBIOS =======================
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newData = {};
@@ -225,8 +210,7 @@ export function showUserDashboard() {
       fields.forEach(f => {
         const el = document.getElementById(f);
         if (!el) return;
-        if (["latitude","longitude","altitude","precision"].includes(f)) newData[f] = parseFloat(el.value) || 0;
-        else newData[f] = el.value.trim();
+        newData[f] = ["latitude","longitude","altitude","precision"].includes(f) ? parseFloat(el.value) || 0 : el.value.trim();
       });
       newData.email = userEmail;
       newData.updatedAt = new Date().toISOString();
@@ -242,7 +226,6 @@ export function showUserDashboard() {
       }
     });
 
-    // ======================= BORRAR USUARIO =======================
     document.getElementById("deleteUser").onclick = async () => {
       if (!confirm("¿Seguro que deseas borrar este usuario?")) return;
       try {
@@ -291,13 +274,11 @@ function mostrarDatosDispositivo(deviceId, container = document.getElementById("
 // ======================= HISTORIAL CARRUSEL =======================
 function mostrarHistorialCarrusel(deviceId) {
   const carrusel = document.getElementById("historialCarrusel");
-  if (!carrusel) return console.warn("⚠️ No se encontró el contenedor historialCarrusel");
-
+  if (!carrusel) return;
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
   onValue(historialRef, (snapshot) => {
     const historial = snapshot.val();
     carrusel.innerHTML = "";
-
     if (!historial) return (carrusel.innerHTML = "<p>No hay datos históricos.</p>");
 
     Object.entries(historial)
@@ -319,6 +300,7 @@ function mostrarHistorialCarrusel(deviceId) {
       });
   });
 }
+
 
 // ================================================
 // FUNCIONES AUXILIARES ADICIONALES
