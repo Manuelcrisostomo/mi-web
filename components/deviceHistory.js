@@ -1,23 +1,10 @@
 import { db, ref, onValue } from "../firebaseConfig.js";
 import { showDevices } from "./showDevices.js";
-import { navigate } from "../app.js";
 
 // --- Vista para mostrar TODOS los dispositivos ---
 export function showAllDevices() {
   const root = document.getElementById("root");
   root.innerHTML = `
-    <!-- Navbar Horizontal -->
-    <nav class="navbar-horizontal">
-      <a href="#" class="brand">EcoAsh Dashboard</a>
-      <a href="#" id="navMainMenu" class="nav-link">Inicio</a>
-      <a href="#" id="navDevices" class="nav-link active">Dispositivos</a>
-      <a href="#" id="navAlerts" class="nav-link">Alertas</a>
-      <a href="#" id="navHistory" class="nav-link">Historial</a>
-      <a href="#" id="navPage1" class="nav-link">Página 1</a>
-      <a href="#" id="navPage2" class="nav-link">Página 2</a>
-      <button id="navLogout" class="btn-logout">Cerrar Sesión</button>
-    </nav>
-
     <div class="dashboard">
       <h2>Historial de Dispositivos</h2>
       <p>Selecciona un dispositivo para ver todos sus registros guardados.</p>
@@ -25,15 +12,6 @@ export function showAllDevices() {
       <button id="backToCurrentDevice">⬅️ Volver al dispositivo actual</button>
     </div>
   `;
-
-  // --- Navegación navbar ---
-  document.getElementById("navMainMenu").onclick = () => navigate("user");
-  document.getElementById("navDevices").onclick = () => navigate("devices");
-  document.getElementById("navAlerts").onclick = () => navigate("alerts");
-  document.getElementById("navHistory").onclick = () => navigate("historyManager");
-  document.getElementById("navPage1").onclick = () => navigate("page1");
-  document.getElementById("navPage2").onclick = () => navigate("page2");
-  document.getElementById("navLogout").onclick = () => navigate("login");
 
   document.getElementById("backToCurrentDevice").onclick = () => showDevices();
 
@@ -58,6 +36,7 @@ export function showAllDevices() {
             <button id="histBtn_${deviceId}">📜 Ver Historial</button>
           </li>
         `;
+        // Agregar evento al botón de cada dispositivo
         document
           .getElementById(`histBtn_${deviceId}`)
           .addEventListener("click", () =>
@@ -74,18 +53,6 @@ export function showAllDevices() {
 export function showHistoricalPage(deviceId, volverA = "showDevices") {
   const root = document.getElementById("root");
   root.innerHTML = `
-    <!-- Navbar Horizontal -->
-    <nav class="navbar-horizontal">
-      <a href="#" class="brand">EcoAsh Dashboard</a>
-      <a href="#" id="navMainMenu" class="nav-link">Inicio</a>
-      <a href="#" id="navDevices" class="nav-link active">Dispositivos</a>
-      <a href="#" id="navAlerts" class="nav-link">Alertas</a>
-      <a href="#" id="navHistory" class="nav-link">Historial</a>
-      <a href="#" id="navPage1" class="nav-link">Página 1</a>
-      <a href="#" id="navPage2" class="nav-link">Página 2</a>
-      <button id="navLogout" class="btn-logout">Cerrar Sesión</button>
-    </nav>
-
     <div class="dashboard">
       <h2>Historial Completo del Dispositivo</h2>
       <p><strong>ID:</strong> ${deviceId}</p>
@@ -96,15 +63,6 @@ export function showHistoricalPage(deviceId, volverA = "showDevices") {
       <div id="fullHistorialContainer" class="historialDetails">Cargando historial...</div>
     </div>
   `;
-
-  // --- Navbar ---
-  document.getElementById("navMainMenu").onclick = () => navigate("user");
-  document.getElementById("navDevices").onclick = () => navigate("devices");
-  document.getElementById("navAlerts").onclick = () => navigate("alerts");
-  document.getElementById("navHistory").onclick = () => navigate("historyManager");
-  document.getElementById("navPage1").onclick = () => navigate("page1");
-  document.getElementById("navPage2").onclick = () => navigate("page2");
-  document.getElementById("navLogout").onclick = () => navigate("login");
 
   document.getElementById("backBtn").onclick = () => {
     if (volverA === "showDevices") showDevices();
