@@ -39,7 +39,8 @@ export function showAdminDashboard() {
     container.innerHTML = "<h3>Usuarios Registrados:</h3>";
     for (let id in data) {
       const user = data[id];
-      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email})</p>`;
+      const rolTexto = user.isAdmin ? "Administrador" : "Usuario Normal";
+      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email}) - <b>${rolTexto}</b></p>`;
     }
   });
 
@@ -55,7 +56,7 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO (rol fijo mostrado en texto)
+// DASHBOARD USUARIO (rol mostrado, no editable)
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
@@ -71,7 +72,7 @@ export function showUserDashboard() {
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
 
-        <!-- Mostrar solo el rol asignado -->
+        <!-- Mostrar solo el rol asignado (no editable) -->
         <label>Rol asignado:</label>
         <p id="rolAsignado" class="rol-texto">Cargando rol...</p>
 
@@ -127,33 +128,38 @@ export function showUserDashboard() {
     let html = "";
     switch (tipo) {
       case "subterranea":
-        html = `<label>Zona:</label><input type="text" id="zona" />
-                <label>Rampa:</label><input type="text" id="rampa" />
-                <label>Galería:</label><input type="text" id="galeria" />
-                <label>Sector:</label><input type="text" id="sector" />
-                <label>Nombre de estación:</label><input type="text" id="nombreEstacion" />`;
+        html = `
+          <label>Zona:</label><input type="text" id="zona" />
+          <label>Rampa:</label><input type="text" id="rampa" />
+          <label>Galería:</label><input type="text" id="galeria" />
+          <label>Sector:</label><input type="text" id="sector" />
+          <label>Nombre de estación:</label><input type="text" id="nombreEstacion" />`;
         break;
       case "tajo_abierto":
-        html = `<label>Banco:</label><input type="text" id="banco" />
-                <label>Frente:</label><input type="text" id="frente" />
-                <label>Zona:</label><input type="text" id="zona" />
-                <label>Sector:</label><input type="text" id="sector" />`;
+        html = `
+          <label>Banco:</label><input type="text" id="banco" />
+          <label>Frente:</label><input type="text" id="frente" />
+          <label>Zona:</label><input type="text" id="zona" />
+          <label>Sector:</label><input type="text" id="sector" />`;
         break;
       case "aluvial":
-        html = `<label>Mina:</label><input type="text" id="mina" />
-                <label>Río:</label><input type="text" id="rio" />
-                <label>Cuadrante:</label><input type="text" id="cuadrante" />`;
+        html = `
+          <label>Mina:</label><input type="text" id="mina" />
+          <label>Río:</label><input type="text" id="rio" />
+          <label>Cuadrante:</label><input type="text" id="cuadrante" />`;
         break;
       case "cantera":
-        html = `<label>Cantera:</label><input type="text" id="cantera" />
-                <label>Material:</label><input type="text" id="material" />
-                <label>Frente:</label><input type="text" id="frente" />`;
+        html = `
+          <label>Cantera:</label><input type="text" id="cantera" />
+          <label>Material:</label><input type="text" id="material" />
+          <label>Frente:</label><input type="text" id="frente" />`;
         break;
       case "pirqen":
-        html = `<label>Faena:</label><input type="text" id="faena" />
-                <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" />
-                <label>Sector:</label><input type="text" id="sector" />
-                <label>Nivel:</label><input type="text" id="nivel" />`;
+        html = `
+          <label>Faena:</label><input type="text" id="faena" />
+          <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" />
+          <label>Sector:</label><input type="text" id="sector" />
+          <label>Nivel:</label><input type="text" id="nivel" />`;
         break;
     }
     camposMinaDiv.innerHTML = html;
@@ -179,6 +185,7 @@ export function showUserDashboard() {
       const data = docSnap.exists() ? docSnap.data() : {};
       const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
 
+      // Mostrar rol como texto, no editable
       document.getElementById("rolAsignado").innerText = rolTexto;
 
       document.getElementById("userProfile").innerHTML = `
@@ -190,8 +197,11 @@ export function showUserDashboard() {
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Rellenar campos
-      ["nombre","telefono","direccion","deviceId","latitude","longitude","altitude","precision","EPSG","pais","region","comuna","nombreEmpresa"].forEach(f => {
+      // Rellenar campos editables
+      [
+        "nombre", "telefono", "direccion", "deviceId", "latitude", "longitude", "altitude",
+        "precision", "EPSG", "pais", "region", "comuna", "nombreEmpresa"
+      ].forEach(f => {
         const el = document.getElementById(f);
         if (el) el.value = data[f] || "";
       });
@@ -199,11 +209,14 @@ export function showUserDashboard() {
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // Guardar cambios
+    // Guardar cambios (sin rol)
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newData = {};
-      ["nombre","telefono","direccion","deviceId","latitude","longitude","altitude","precision","EPSG","pais","region","comuna","nombreEmpresa"].forEach(f => {
+      [
+        "nombre", "telefono", "direccion", "deviceId", "latitude", "longitude", "altitude",
+        "precision", "EPSG", "pais", "region", "comuna", "nombreEmpresa"
+      ].forEach(f => {
         const el = document.getElementById(f);
         if (el) newData[f] = el.value.trim();
       });
