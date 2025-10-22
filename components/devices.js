@@ -55,14 +55,13 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO COMPLETO
+// DASHBOARD USUARIO
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
       <h2>Perfil del Usuario</h2>
-
       <div id="userProfile" class="card">Cargando datos...</div>
 
       <form id="editForm" class="card">
@@ -86,7 +85,6 @@ export function showUserDashboard() {
           <option value="cantera">Cantera</option>
           <option value="pirqen">Pirquén / artesanal</option>
         </select>
-
         <div id="camposMinaDinamicos"></div>
 
         <h3>Datos Técnicos (Mapas/Sistema)</h3>
@@ -121,61 +119,48 @@ export function showUserDashboard() {
     </div>
   `;
 
-  // Campos dinámicos según tipo de mina
+  // ===== Campos dinámicos según tipo de mina =====
   const tipoMinaSelect = document.getElementById("tipoMina");
   const camposMinaDiv = document.getElementById("camposMinaDinamicos");
 
   tipoMinaSelect.addEventListener("change", () => {
     const tipo = tipoMinaSelect.value;
     let html = "";
-
-    if (tipo === "subterranea") {
-      html = `
-        <h4>Datos Humanos (Operador)</h4>
-        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
-        <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
-        <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
-        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
-        <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />
-      `;
-    } else if (tipo === "tajo_abierto") {
-      html = `
-        <h4>Datos Humanos (Operador)</h4>
-        <label>Banco:</label><input type="text" id="banco" placeholder="Banco o nivel" />
-        <label>Frente:</label><input type="text" id="frente" placeholder="Frente de trabajo" />
-        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
-        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
-      `;
-    } else if (tipo === "aluvial") {
-      html = `
-        <h4>Datos Humanos (Operador)</h4>
-        <label>Mina:</label><input type="text" id="mina" placeholder="Nombre de la mina o sitio" />
-        <label>Río:</label><input type="text" id="rio" placeholder="Río o tramo" />
-        <label>Cuadrante:</label><input type="text" id="cuadrante" placeholder="Cuadrante o punto" />
-      `;
-    } else if (tipo === "cantera") {
-      html = `
-        <h4>Datos Humanos (Operador)</h4>
-        <label>Cantera:</label><input type="text" id="cantera" placeholder="Nombre de la cantera" />
-        <label>Material:</label><input type="text" id="material" placeholder="Material extraído" />
-        <label>Frente:</label><input type="text" id="frente" placeholder="Frente activo" />
-      `;
-    } else if (tipo === "pirqen") {
-      html = `
-        <h4>Datos Humanos (Operador)</h4>
-        <label>Faena:</label><input type="text" id="faena" placeholder="Nombre de faena" />
-        <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" placeholder="Tipo de explotación" />
-        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
-        <label>Nivel:</label><input type="text" id="nivel" placeholder="Nivel (si aplica)" />
-      `;
+    switch (tipo) {
+      case "subterranea":
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+                <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
+                <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
+                <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+                <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />`; break;
+      case "tajo_abierto":
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Banco:</label><input type="text" id="banco" placeholder="Banco o nivel" />
+                <label>Frente:</label><input type="text" id="frente" placeholder="Frente de trabajo" />
+                <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+                <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />`; break;
+      case "aluvial":
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Mina:</label><input type="text" id="mina" placeholder="Nombre de la mina o sitio" />
+                <label>Río:</label><input type="text" id="rio" placeholder="Río o tramo" />
+                <label>Cuadrante:</label><input type="text" id="cuadrante" placeholder="Cuadrante o punto" />`; break;
+      case "cantera":
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Cantera:</label><input type="text" id="cantera" placeholder="Nombre de la cantera" />
+                <label>Material:</label><input type="text" id="material" placeholder="Material extraído" />
+                <label>Frente:</label><input type="text" id="frente" placeholder="Frente activo" />`; break;
+      case "pirqen":
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Faena:</label><input type="text" id="faena" placeholder="Nombre de faena" />
+                <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" placeholder="Tipo de explotación" />
+                <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+                <label>Nivel:</label><input type="text" id="nivel" placeholder="Nivel (si aplica)" />`; break;
     }
-
     camposMinaDiv.innerHTML = html;
   });
 
-  // ================================================
-  // EVENTOS Y SINCRONIZACIÓN DE DATOS
-  // ================================================
+  // ===== Eventos principales =====
   document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
@@ -184,10 +169,7 @@ export function showUserDashboard() {
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
 
-  // Aquí sigue la misma lógica del onAuthStateChanged,
-  // sincronización con Firestore y funciones de guardar/borrar usuario.
-
-
+  // ===== Sincronización de datos =====
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
     const userId = user.uid;
@@ -208,12 +190,10 @@ export function showUserDashboard() {
       `;
 
       // Rellenar formulario
-      const fields = [
-        "nombre","telefono","direccion","deviceId","isAdmin",
-        "zona","rampa","galeria","sector","nombreEstacion",
-        "latitude","longitude","altitude","precision","EPSG",
-        "pais","region","comuna","nombreMina","nombreEmpresa"
-      ];
+      const fields = ["nombre","telefono","direccion","deviceId","isAdmin",
+                      "zona","rampa","galeria","sector","nombreEstacion",
+                      "latitude","longitude","altitude","precision","EPSG",
+                      "pais","region","comuna","nombreEmpresa"];
       fields.forEach(f => {
         const el = document.getElementById(f);
         if (!el) return;
@@ -229,12 +209,10 @@ export function showUserDashboard() {
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newData = {};
-      const fields = [
-        "nombre","telefono","direccion","deviceId","isAdmin",
-        "zona","rampa","galeria","sector","nombreEstacion",
-        "latitude","longitude","altitude","precision","EPSG",
-        "pais","region","comuna","nombreMina","nombreEmpresa"
-      ];
+      const fields = ["nombre","telefono","direccion","deviceId","isAdmin",
+                      "zona","rampa","galeria","sector","nombreEstacion",
+                      "latitude","longitude","altitude","precision","EPSG",
+                      "pais","region","comuna","nombreEmpresa"];
       fields.forEach(f => {
         const el = document.getElementById(f);
         if (!el) return;
@@ -269,76 +247,17 @@ export function showUserDashboard() {
         alert(`❌ No se pudo borrar el usuario: ${error.message}`);
       }
     };
-
-    // Mostrar datos del dispositivo
-    function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
-      const deviceRef = ref(db, `dispositivos/${deviceId}`);
-      onValue(deviceRef, (snapshot) => {
-        const d = snapshot.val();
-        if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`);
-        container.innerHTML = `
-          <p><b>ID:</b> ${deviceId}</p>
-          <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
-          <p><b>Usuario:</b> ${d.userEmail || "Sin asignar"}</p>
-          <p><b>Latitud:</b> ${d.latitude ?? 0}</p>
-          <p><b>Longitud:</b> ${d.longitude ?? 0}</p>
-          <p><b>Altitud (m):</b> ${d.altitude ?? 0}</p>
-          <p><b>Precisión (m):</b> ${d.precision ?? 0}</p>
-          <button id="verHistorialBtn2">📜 Ver historial completo</button>
-        `;
-        document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
-      });
-    }
-  });
-}
-
-// ================================================
-// Resto de funciones de dispositivos, historial y exportación
-// ================================================
-// Puedes reutilizar funciones existentes: showHistoricalPage(deviceId), showHistoryUtilsPage(), etc.
-
-
-// ================================================
-// DISPOSITIVOS
-// ================================================
-export function showDevices() {
-  const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="dashboard">
-      <h2>Dispositivo Asignado</h2>
-      <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
-      <div class="actions">
-        <button id="verTodosBtn">Ver todos los dispositivos</button>
-        <button id="nuevoBtnDispositivo">✨ Nuevo Botón</button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById("verTodosBtn").onclick = () => showAllDevices();
-  document.getElementById("nuevoBtnDispositivo").onclick = () => showNewHistoryPage();
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return (document.getElementById("deviceData").innerHTML = "<p>No hay usuario autenticado.</p>");
-
-    const userRef = ref(db, `usuarios/${user.uid}`);
-    onValue(userRef, (snapshot) => {
-      const userData = snapshot.val();
-      if (!userData || !userData.deviceId)
-        return (document.getElementById("deviceData").innerHTML = "<p>No tienes dispositivos asignados.</p>");
-      mostrarDatosDispositivo(userData.deviceId, document.getElementById("deviceData"));
-    });
   });
 }
 
 // ================================================
 // FUNCIONES DE DISPOSITIVOS E HISTORIALES
 // ================================================
-function mostrarDatosDispositivo(deviceId, container) {
+function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
   const deviceRef = ref(db, `dispositivos/${deviceId}`);
   onValue(deviceRef, (snapshot) => {
     const d = snapshot.val();
     if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo: <b>${deviceId}</b></p>`);
-
     container.innerHTML = `
       <p><b>ID:</b> ${deviceId}</p>
       <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
@@ -351,10 +270,10 @@ function mostrarDatosDispositivo(deviceId, container) {
       <p>Temperatura: ${d.temperatura ?? 0} °C</p>
       <h4>📜 Últimos registros históricos</h4>
       <div id="historialCarrusel" class="historialCarrusel">Cargando...</div>
-      <button id="verHistorialCompletoBtn">📄 Ver historial completo</button>
+      <button id="verHistorialBtn2">📜 Ver historial completo</button>
     `;
     mostrarHistorialCarrusel(deviceId);
-    document.getElementById("verHistorialCompletoBtn").onclick = () => showHistoricalPage(deviceId);
+    document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
   });
 }
 
