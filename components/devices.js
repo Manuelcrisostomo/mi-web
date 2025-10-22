@@ -1,13 +1,14 @@
 // ================================================
 // IMPORTACIONES Y CONFIGURACIÓN
 // ================================================
+// Se importan las funciones de Firebase y otras utilidades
 import {
   auth, db, firestore, ref, onValue, get, remove, onAuthStateChanged
 } from "../firebaseConfig.js";
 
 import { doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-import { navigate } from "../app.js";
+import { navigate } from "../app.js"; // Función para cambiar de página
 import { showHistoryUtilsPage } from "./historyUtils.js";
 import { showNewHistoryPage } from "./Histors.js";
 import { showPagina1, showPagina2 } from "./paginas.js";
@@ -17,6 +18,7 @@ import { showHistoryManagerPage } from "./historyManager.js";
 // PANEL ADMINISTRADOR
 // ================================================
 export function showAdminDashboard() {
+  // Esta función crea la vista del panel del administrador
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
@@ -32,6 +34,7 @@ export function showAdminDashboard() {
     </div>
   `;
 
+  // Mostrar usuarios registrados desde Firebase Realtime Database
   const usersRef = ref(db, "usuarios");
   onValue(usersRef, (snapshot) => {
     const data = snapshot.val();
@@ -39,15 +42,12 @@ export function showAdminDashboard() {
     container.innerHTML = "<h3>Usuarios Registrados:</h3>";
     for (let id in data) {
       const user = data[id];
-      const rolTexto = user.isAdmin ? "Administrador" : "Usuario Normal";
-      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email}) - <b>${rolTexto}</b></p>`;
+      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email})</p>`;
     }
   });
 
-  document.getElementById("logout").onclick = async () => {
-    await auth.signOut();
-    navigate("login");
-  };
+  // Eventos de botones del panel
+  document.getElementById("logout").onclick = async () => { await auth.signOut(); navigate("login"); };
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnAdmin").onclick = () => showNewHistoryPage();
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
@@ -56,7 +56,7 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO (ROL ELIMINADO)
+// DASHBOARD USUARIO
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
@@ -65,13 +65,19 @@ export function showUserDashboard() {
       <h2>Perfil del Usuario</h2>
       <div id="userProfile" class="card">Cargando datos...</div>
 
+      <!-- Formulario para editar datos del usuario -->
       <form id="editForm" class="card">
         <h3>Datos Personales</h3>
         <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" />
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
+      
+        <!-- Rol mostrado en lugar de select -->
+        <label>Rol:</label>
+        <p id="rolAsignado">Cargando...</p>
 
+        <!-- Tipo de mina -->
         <h3>Tipo de Mina</h3>
         <select id="tipoMina">
           <option value="">Seleccione tipo de mina</option>
@@ -83,6 +89,7 @@ export function showUserDashboard() {
         </select>
         <div id="camposMinaDinamicos"></div>
 
+        <!-- Datos técnicos / mapas -->
         <h3>Datos Técnicos (Mapas/Sistema)</h3>
         <label>Latitud:</label><input type="number" id="latitude" step="any" placeholder="0" />
         <label>Longitud:</label><input type="number" id="longitude" step="any" placeholder="0" />
@@ -90,6 +97,7 @@ export function showUserDashboard() {
         <label>Precisión (m):</label><input type="number" id="precision" step="any" placeholder="0" />
         <label>EPSG/WGS84:</label><input type="text" id="EPSG" placeholder="WGS84" />
 
+        <!-- Datos geográficos y empresariales -->
         <h3>Datos Geográficos / Empresariales</h3>
         <label>País:</label><input type="text" id="pais" placeholder="País" />
         <label>Región:</label><input type="text" id="region" placeholder="Región" />
@@ -100,9 +108,11 @@ export function showUserDashboard() {
         <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
       </form>
 
+      <!-- Datos del dispositivo asignado -->
       <h3>Dispositivo Asignado</h3>
       <div id="deviceData" class="card">Cargando dispositivo...</div>
 
+      <!-- Acciones rápidas -->
       <div class="actions">
         <button id="alertsBtn">Ver Alertas</button>
         <button id="devicesBtn">Ver Dispositivos</button>
@@ -118,50 +128,43 @@ export function showUserDashboard() {
   // ===== Campos dinámicos según tipo de mina =====
   const tipoMinaSelect = document.getElementById("tipoMina");
   const camposMinaDiv = document.getElementById("camposMinaDinamicos");
-
   tipoMinaSelect.addEventListener("change", () => {
-    const tipo = tipoMinaSelect.value;
     let html = "";
-    switch (tipo) {
+    switch (tipoMinaSelect.value) {
       case "subterranea":
-        html = `
-          <label>Zona:</label><input type="text" id="zona" />
-          <label>Rampa:</label><input type="text" id="rampa" />
-          <label>Galería:</label><input type="text" id="galeria" />
-          <label>Sector:</label><input type="text" id="sector" />
-          <label>Nombre de estación:</label><input type="text" id="nombreEstacion" />`;
-        break;
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+                <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
+                <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
+                <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+                <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />`; break;
       case "tajo_abierto":
-        html = `
-          <label>Banco:</label><input type="text" id="banco" />
-          <label>Frente:</label><input type="text" id="frente" />
-          <label>Zona:</label><input type="text" id="zona" />
-          <label>Sector:</label><input type="text" id="sector" />`;
-        break;
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Banco:</label><input type="text" id="banco" placeholder="Banco o nivel" />
+                <label>Frente:</label><input type="text" id="frente" placeholder="Frente de trabajo" />
+                <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+                <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />`; break;
       case "aluvial":
-        html = `
-          <label>Mina:</label><input type="text" id="mina" />
-          <label>Río:</label><input type="text" id="rio" />
-          <label>Cuadrante:</label><input type="text" id="cuadrante" />`;
-        break;
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Mina:</label><input type="text" id="mina" placeholder="Nombre de la mina o sitio" />
+                <label>Río:</label><input type="text" id="rio" placeholder="Río o tramo" />
+                <label>Cuadrante:</label><input type="text" id="cuadrante" placeholder="Cuadrante o punto" />`; break;
       case "cantera":
-        html = `
-          <label>Cantera:</label><input type="text" id="cantera" />
-          <label>Material:</label><input type="text" id="material" />
-          <label>Frente:</label><input type="text" id="frente" />`;
-        break;
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Cantera:</label><input type="text" id="cantera" placeholder="Nombre de la cantera" />
+                <label>Material:</label><input type="text" id="material" placeholder="Material extraído" />
+                <label>Frente:</label><input type="text" id="frente" placeholder="Frente activo" />`; break;
       case "pirqen":
-        html = `
-          <label>Faena:</label><input type="text" id="faena" />
-          <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" />
-          <label>Sector:</label><input type="text" id="sector" />
-          <label>Nivel:</label><input type="text" id="nivel" />`;
-        break;
+        html = `<h4>Datos Humanos (Operador)</h4>
+                <label>Faena:</label><input type="text" id="faena" placeholder="Nombre de faena" />
+                <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" placeholder="Tipo de explotación" />
+                <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+                <label>Nivel:</label><input type="text" id="nivel" placeholder="Nivel (si aplica)" />`; break;
     }
     camposMinaDiv.innerHTML = html;
   });
 
-  // ===== Eventos =====
+  // ===== Eventos principales =====
   document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
@@ -170,46 +173,58 @@ export function showUserDashboard() {
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
 
-  // ===== Sincronización de datos =====
+  // ===== Sincronización de datos del usuario =====
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
     const userId = user.uid;
     const userEmail = user.email;
     const userDocRef = doc(firestore, "users", userId);
 
+    // Actualiza la vista en tiempo real con datos del usuario
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
+      const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
 
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
         <p><b>Correo:</b> ${userEmail}</p>
         <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
+        <p><b>Rol:</b> ${rolTexto}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Rellenar campos editables
-      [
-        "nombre", "telefono", "direccion", "deviceId", "latitude", "longitude", "altitude",
-        "precision", "EPSG", "pais", "region", "comuna", "nombreEmpresa"
-      ].forEach(f => {
+      // Rellenar formulario
+      const fields = ["nombre","telefono","direccion","deviceId","isAdmin",
+                      "zona","rampa","galeria","sector","nombreEstacion",
+                      "latitude","longitude","altitude","precision","EPSG",
+                      "pais","region","comuna","nombreEmpresa"];
+      fields.forEach(f => {
         const el = document.getElementById(f);
-        if (el) el.value = data[f] || "";
+        if (!el) return;
+        if (f === "isAdmin") el.value = data.isAdmin ? "true" : "false";
+        else if (["latitude","longitude","altitude","precision"].includes(f)) el.value = data[f] ?? 0;
+        else el.value = data[f] || "";
       });
 
+      // Mostrar datos del dispositivo si existe
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // Guardar cambios (sin rol)
+    // Guardar cambios del usuario
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newData = {};
-      [
-        "nombre", "telefono", "direccion", "deviceId", "latitude", "longitude", "altitude",
-        "precision", "EPSG", "pais", "region", "comuna", "nombreEmpresa"
-      ].forEach(f => {
+      const fields = ["nombre","telefono","direccion","deviceId","isAdmin",
+                      "zona","rampa","galeria","sector","nombreEstacion",
+                      "latitude","longitude","altitude","precision","EPSG",
+                      "pais","region","comuna","nombreEmpresa"];
+      fields.forEach(f => {
         const el = document.getElementById(f);
-        if (el) newData[f] = el.value.trim();
+        if (!el) return;
+        if (f === "isAdmin") newData[f] = el.value === "true";
+        else if (["latitude","longitude","altitude","precision"].includes(f)) newData[f] = parseFloat(el.value) || 0;
+        else newData[f] = el.value.trim();
       });
       newData.email = userEmail;
       newData.updatedAt = new Date().toISOString();
@@ -217,6 +232,7 @@ export function showUserDashboard() {
       try {
         await setDoc(doc(firestore, "users", userId), newData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), newData);
+        if (newData.deviceId) mostrarDatosDispositivo(newData.deviceId);
         alert("✅ Datos actualizados correctamente.");
       } catch (error) {
         console.error(error);
@@ -244,6 +260,7 @@ export function showUserDashboard() {
 // FUNCIONES DE DISPOSITIVOS E HISTORIALES
 // ================================================
 function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
+  // Muestra información actual y últimos registros del dispositivo
   const deviceRef = ref(db, `dispositivos/${deviceId}`);
   onValue(deviceRef, (snapshot) => {
     const d = snapshot.val();
@@ -267,12 +284,8 @@ function mostrarDatosDispositivo(deviceId, container = document.getElementById("
   });
 }
 
-// ================================================
-// (El resto del código de historial y exportación se mantiene igual)
-// ================================================
-
-
 function mostrarHistorialCarrusel(deviceId) {
+  // Muestra los últimos registros del dispositivo en un "carrusel"
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
   onValue(historialRef, (snapshot) => {
     const historial = snapshot.val();
@@ -302,157 +315,9 @@ function mostrarHistorialCarrusel(deviceId) {
 }
 
 // ================================================
-// TODOS LOS DISPOSITIVOS
+// HISTORIAL COMPLETO Y EXPORTACIÓN A EXCEL (2 hojas)
 // ================================================
-export function showAllDevices() {
-  const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="dashboard">
-      <h2>Todos los Dispositivos</h2>
-      <div id="deviceList">Cargando dispositivos...</div>
-      <button id="backBtn">Volver</button>
-    </div>
-  `;
-  document.getElementById("backBtn").onclick = () => showDevices();
-
-  const devicesRef = ref(db, "dispositivos");
-  onValue(devicesRef, (snapshot) => {
-    const devices = snapshot.val();
-    const listDiv = document.getElementById("deviceList");
-    if (!devices) return (listDiv.innerHTML = "<p>No hay dispositivos en la base de datos.</p>");
-    listDiv.innerHTML = "<ul>";
-    for (const id in devices) {
-      const name = devices[id].name || `Dispositivo ${id}`;
-      listDiv.innerHTML += `
-        <li>${name} (ID: ${id})
-          <button onclick="showHistoricalPage('${id}')">📜 Ver historial</button>
-        </li>`;
-    }
-    listDiv.innerHTML += "</ul>";
-  });
-}
-
-// ================================================
-// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL
-// ================================================
-// ================================================
-// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL
-// ================================================
-export function showHistoricalPage(deviceId) {
-  const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="dashboard">
-      <h2>Historial Completo del Dispositivo</h2>
-      <p><b>ID:</b> ${deviceId}</p>
-      <div class="actions">
-        <button id="exportExcelBtn" disabled>💾 Exportar a Excel</button>
-        <button id="backToDeviceBtn">Volver</button>
-      </div>
-      <h3>Historial del dispositivo</h3>
-      <div id="historialContainer" class="historialGrid">Cargando historial...</div>
-      <h3>Historial global</h3>
-      <div id="historialGlobalContainer" class="historialGrid">Cargando historial global...</div>
-    </div>
-  `;
-
-  const historialDiv = document.getElementById("historialContainer");
-  const historialGlobalDiv = document.getElementById("historialGlobalContainer");
-  const exportExcelBtn = document.getElementById("exportExcelBtn");
-
-  document.getElementById("backToDeviceBtn").onclick = () => showDevices();
-
-  // --- Historial del dispositivo ---
-  const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
-  onValue(historialRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    historialDiv.innerHTML = "";
-    const registros = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
-
-    registros.forEach(([ts, valores]) => {
-      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
-      const card = document.createElement("div");
-      card.className = "historialCard";
-      card.innerHTML = `
-        <h4>${fecha}</h4>
-        <p>CO: ${valores.CO ?? "—"} ppm</p>
-        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
-        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
-        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
-        <p>Humedad: ${valores.humedad ?? "—"}%</p>
-        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
-      `;
-      historialDiv.appendChild(card);
-    });
-
-    exportExcelBtn.disabled = registros.length === 0;
-    exportExcelBtn.onclick = () => exportToExcel(deviceId, registros);
-  });
-
-  // --- Historial global ---
-  const historialGlobalRef = ref(db, `dispositivos/${deviceId}/historial_global`);
-  onValue(historialGlobalRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    historialGlobalDiv.innerHTML = "";
-    const registrosGlobal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
-
-    registrosGlobal.forEach(([ts, valores]) => {
-      const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
-      const card = document.createElement("div");
-      card.className = "historialCard";
-      card.innerHTML = `
-        <h4>${fecha}</h4>
-        <p>CO: ${valores.CO ?? "—"} ppm</p>
-        <p>CO₂: ${valores.CO2 ?? "—"} ppm</p>
-        <p>PM10: ${valores.PM10 ?? "—"} µg/m³</p>
-        <p>PM2.5: ${valores.PM2_5 ?? "—"} µg/m³</p>
-        <p>Humedad: ${valores.humedad ?? "—"}%</p>
-        <p>Temperatura: ${valores.temperatura ?? "—"} °C</p>
-      `;
-      historialGlobalDiv.appendChild(card);
-    });
-  });
-}
-
-// ================================================
-// FUNCIONES AUXILIARES: EXPORTAR HISTORIAL A EXCEL
-// ================================================
-async function exportToExcel(deviceId, registros) {
-  // Obtener email del usuario asignado
-  let userEmail = "Sin asignar";
-  try {
-    const snapshot = await get(ref(db, "usuarios"));
-    const usuarios = snapshot.val() || {};
-    for (let uid in usuarios) {
-      if (usuarios[uid].deviceId === deviceId) {
-        userEmail = usuarios[uid].email || userEmail;
-        break;
-      }
-    }
-  } catch (err) {
-    console.error("Error al obtener usuario:", err);
-  }
-
-  // Construir CSV
-  let csv = "Fecha,CO,CO2,PM10,PM2.5,Humedad,Temperatura,Usuario,Dispositivo\n";
-  registros.forEach(([ts, valores]) => {
-    const fecha = new Date(parseInt(ts)).toLocaleString("es-CL");
-    csv += `"${fecha}",${valores.CO ?? ""},${valores.CO2 ?? ""},${valores.PM10 ?? ""},${valores.PM2_5 ?? ""},${valores.humedad ?? ""},${valores.temperatura ?? ""},"${userEmail}","${deviceId}"\n`;
-  });
-
-  // Descargar CSV
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", `historial_${deviceId}.csv`);
-  link.style.display = "none";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-// ================================================
-// HISTORIAL COMPLETO Y EXPORTACIÓN EXCEL CON DOS HOJAS
-// ================================================
+// Aquí se conserva la funcionalidad de exportar histórico local y global
 export function showHistoricalPage(deviceId) {
   const root = document.getElementById("root");
   root.innerHTML = `
@@ -479,13 +344,11 @@ export function showHistoricalPage(deviceId) {
   let registrosLocal = [];
   let registrosGlobal = [];
 
-  // --- Historial del dispositivo ---
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
   onValue(historialRef, (snapshot) => {
     const data = snapshot.val() || {};
-    historialDiv.innerHTML = "";
     registrosLocal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
-
+    historialDiv.innerHTML = "";
     registrosLocal.forEach(([ts, valores]) => {
       const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
       const card = document.createElement("div");
@@ -501,17 +364,14 @@ export function showHistoricalPage(deviceId) {
       `;
       historialDiv.appendChild(card);
     });
-
     exportExcelBtn.disabled = registrosLocal.length === 0 && registrosGlobal.length === 0;
   });
 
-  // --- Historial global ---
   const historialGlobalRef = ref(db, `dispositivos/${deviceId}/historial_global`);
   onValue(historialGlobalRef, (snapshot) => {
     const data = snapshot.val() || {};
-    historialGlobalDiv.innerHTML = "";
     registrosGlobal = Object.entries(data).sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
-
+    historialGlobalDiv.innerHTML = "";
     registrosGlobal.forEach(([ts, valores]) => {
       const fecha = new Date(parseInt(ts)).toLocaleString("es-CL", { dateStyle: "short", timeStyle: "medium" });
       const card = document.createElement("div");
@@ -527,7 +387,6 @@ export function showHistoricalPage(deviceId) {
       `;
       historialGlobalDiv.appendChild(card);
     });
-
     exportExcelBtn.disabled = registrosLocal.length === 0 && registrosGlobal.length === 0;
   });
 
@@ -535,10 +394,9 @@ export function showHistoricalPage(deviceId) {
 }
 
 // ================================================
-// FUNCIONES AUXILIARES: EXPORTAR HISTORIAL A EXCEL MULTIHOJA
+// EXPORTAR HISTORIAL A EXCEL MULTIHOJA
 // ================================================
 async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal) {
-  // Obtener email del usuario asignado
   let userEmail = "Sin asignar";
   try {
     const snapshot = await get(ref(db, "usuarios"));
@@ -549,48 +407,27 @@ async function exportToExcelMultiSheet(deviceId, registrosLocal, registrosGlobal
         break;
       }
     }
-  } catch (err) {
-    console.error("Error al obtener usuario:", err);
-  }
+  } catch (err) { console.error("Error al obtener usuario:", err); }
 
-  // Crear arrays de datos para hojas
   const hojaLocal = [["Fecha", "CO", "CO2", "PM10", "PM2.5", "Humedad", "Temperatura", "Usuario", "Dispositivo"]];
   registrosLocal.forEach(([ts, valores]) => {
-    hojaLocal.push([
-      new Date(parseInt(ts)).toLocaleString("es-CL"),
-      valores.CO ?? "",
-      valores.CO2 ?? "",
-      valores.PM10 ?? "",
-      valores.PM2_5 ?? "",
-      valores.humedad ?? "",
-      valores.temperatura ?? "",
-      userEmail,
-      deviceId
-    ]);
+    hojaLocal.push([new Date(parseInt(ts)).toLocaleString("es-CL"),
+                     valores.CO ?? "", valores.CO2 ?? "", valores.PM10 ?? "",
+                     valores.PM2_5 ?? "", valores.humedad ?? "", valores.temperatura ?? "",
+                     userEmail, deviceId]);
   });
 
   const hojaGlobal = [["Fecha", "CO", "CO2", "PM10", "PM2.5", "Humedad", "Temperatura", "Usuario", "Dispositivo"]];
   registrosGlobal.forEach(([ts, valores]) => {
-    hojaGlobal.push([
-      new Date(parseInt(ts)).toLocaleString("es-CL"),
-      valores.CO ?? "",
-      valores.CO2 ?? "",
-      valores.PM10 ?? "",
-      valores.PM2_5 ?? "",
-      valores.humedad ?? "",
-      valores.temperatura ?? "",
-      userEmail,
-      deviceId
-    ]);
+    hojaGlobal.push([new Date(parseInt(ts)).toLocaleString("es-CL"),
+                     valores.CO ?? "", valores.CO2 ?? "", valores.PM10 ?? "",
+                     valores.PM2_5 ?? "", valores.humedad ?? "", valores.temperatura ?? "",
+                     userEmail, deviceId]);
   });
 
-  // Crear libro de Excel
   const wb = XLSX.utils.book_new();
-  const wsLocal = XLSX.utils.aoa_to_sheet(hojaLocal);
-  const wsGlobal = XLSX.utils.aoa_to_sheet(hojaGlobal);
-  XLSX.utils.book_append_sheet(wb, wsLocal, "Historial Local");
-  XLSX.utils.book_append_sheet(wb, wsGlobal, "Historial Global");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaLocal), "Historial Local");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaGlobal), "Historial Global");
 
-  // Descargar Excel
   XLSX.writeFile(wb, `historial_${deviceId}.xlsx`);
 }
