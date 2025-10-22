@@ -39,7 +39,8 @@ export function showAdminDashboard() {
     container.innerHTML = "<h3>Usuarios Registrados:</h3>";
     for (let id in data) {
       const user = data[id];
-      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email})</p>`;
+      const rolTexto = user.isAdmin ? "Administrador" : "Usuario Normal";
+      container.innerHTML += `<p>👤 ${user.nombre || "Sin nombre"} (${user.email}) - <b>${rolTexto}</b></p>`;
     }
   });
 
@@ -55,14 +56,13 @@ export function showAdminDashboard() {
 }
 
 // ================================================
-// DASHBOARD USUARIO COMPLETO
+// DASHBOARD USUARIO (ROL ELIMINADO)
 // ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
       <h2>Perfil del Usuario</h2>
-
       <div id="userProfile" class="card">Cargando datos...</div>
 
       <form id="editForm" class="card">
@@ -71,18 +71,17 @@ export function showUserDashboard() {
         <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
         <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
         <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-        <label>Rol:</label>
-        <select id="isAdmin">
-          <option value="false">Usuario Normal</option>
-          <option value="true">Administrador</option>
-        </select>
 
-        <h3>Datos Humanos (Operador)</h3>
-        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
-        <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
-        <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
-        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
-        <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />
+        <h3>Tipo de Mina</h3>
+        <select id="tipoMina">
+          <option value="">Seleccione tipo de mina</option>
+          <option value="subterranea">Subterránea</option>
+          <option value="tajo_abierto">Tajo Abierto</option>
+          <option value="aluvial">Aluvial (placer)</option>
+          <option value="cantera">Cantera</option>
+          <option value="pirqen">Pirquén / artesanal</option>
+        </select>
+        <div id="camposMinaDinamicos"></div>
 
         <h3>Datos Técnicos (Mapas/Sistema)</h3>
         <label>Latitud:</label><input type="number" id="latitude" step="any" placeholder="0" />
@@ -95,7 +94,6 @@ export function showUserDashboard() {
         <label>País:</label><input type="text" id="pais" placeholder="País" />
         <label>Región:</label><input type="text" id="region" placeholder="Región" />
         <label>Comuna:</label><input type="text" id="comuna" placeholder="Comuna" />
-        <label>Nombre de la mina:</label><input type="text" id="nombreMina" placeholder="Nombre de la mina" />
         <label>Nombre de la empresa:</label><input type="text" id="nombreEmpresa" placeholder="Nombre de la empresa" />
 
         <button type="submit">💾 Guardar Cambios</button>
@@ -117,15 +115,62 @@ export function showUserDashboard() {
     </div>
   `;
 
-  // Navegación
+  // ===== Campos dinámicos según tipo de mina =====
+  const tipoMinaSelect = document.getElementById("tipoMina");
+  const camposMinaDiv = document.getElementById("camposMinaDinamicos");
+
+  tipoMinaSelect.addEventListener("change", () => {
+    const tipo = tipoMinaSelect.value;
+    let html = "";
+    switch (tipo) {
+      case "subterranea":
+        html = `
+          <label>Zona:</label><input type="text" id="zona" />
+          <label>Rampa:</label><input type="text" id="rampa" />
+          <label>Galería:</label><input type="text" id="galeria" />
+          <label>Sector:</label><input type="text" id="sector" />
+          <label>Nombre de estación:</label><input type="text" id="nombreEstacion" />`;
+        break;
+      case "tajo_abierto":
+        html = `
+          <label>Banco:</label><input type="text" id="banco" />
+          <label>Frente:</label><input type="text" id="frente" />
+          <label>Zona:</label><input type="text" id="zona" />
+          <label>Sector:</label><input type="text" id="sector" />`;
+        break;
+      case "aluvial":
+        html = `
+          <label>Mina:</label><input type="text" id="mina" />
+          <label>Río:</label><input type="text" id="rio" />
+          <label>Cuadrante:</label><input type="text" id="cuadrante" />`;
+        break;
+      case "cantera":
+        html = `
+          <label>Cantera:</label><input type="text" id="cantera" />
+          <label>Material:</label><input type="text" id="material" />
+          <label>Frente:</label><input type="text" id="frente" />`;
+        break;
+      case "pirqen":
+        html = `
+          <label>Faena:</label><input type="text" id="faena" />
+          <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" />
+          <label>Sector:</label><input type="text" id="sector" />
+          <label>Nivel:</label><input type="text" id="nivel" />`;
+        break;
+    }
+    camposMinaDiv.innerHTML = html;
+  });
+
+  // ===== Eventos =====
+  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnUser").onclick = () => showNewHistoryPage();
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
-  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
 
+  // ===== Sincronización de datos =====
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
     const userId = user.uid;
@@ -134,51 +179,37 @@ export function showUserDashboard() {
 
     onSnapshot(userDocRef, (docSnap) => {
       const data = docSnap.exists() ? docSnap.data() : {};
-      const rolTexto = data.isAdmin ? "Administrador" : "Usuario Normal";
 
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "No registrado"}</p>
         <p><b>Correo:</b> ${userEmail}</p>
         <p><b>Teléfono:</b> ${data.telefono || "-"}</p>
         <p><b>Dirección:</b> ${data.direccion || "-"}</p>
-        <p><b>Rol:</b> ${rolTexto}</p>
         <p><b>ID del Dispositivo:</b> ${data.deviceId || "No asignado"}</p>
       `;
 
-      // Rellenar formulario
-      const fields = [
-        "nombre","telefono","direccion","deviceId","isAdmin",
-        "zona","rampa","galeria","sector","nombreEstacion",
-        "latitude","longitude","altitude","precision","EPSG",
-        "pais","region","comuna","nombreMina","nombreEmpresa"
-      ];
-      fields.forEach(f => {
+      // Rellenar campos editables
+      [
+        "nombre", "telefono", "direccion", "deviceId", "latitude", "longitude", "altitude",
+        "precision", "EPSG", "pais", "region", "comuna", "nombreEmpresa"
+      ].forEach(f => {
         const el = document.getElementById(f);
-        if (!el) return;
-        if (f === "isAdmin") el.value = data.isAdmin ? "true" : "false";
-        else if (["latitude","longitude","altitude","precision"].includes(f)) el.value = data[f] ?? 0;
-        else el.value = data[f] || "";
+        if (el) el.value = data[f] || "";
       });
 
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId);
     });
 
-    // Guardar cambios
+    // Guardar cambios (sin rol)
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newData = {};
-      const fields = [
-        "nombre","telefono","direccion","deviceId","isAdmin",
-        "zona","rampa","galeria","sector","nombreEstacion",
-        "latitude","longitude","altitude","precision","EPSG",
-        "pais","region","comuna","nombreMina","nombreEmpresa"
-      ];
-      fields.forEach(f => {
+      [
+        "nombre", "telefono", "direccion", "deviceId", "latitude", "longitude", "altitude",
+        "precision", "EPSG", "pais", "region", "comuna", "nombreEmpresa"
+      ].forEach(f => {
         const el = document.getElementById(f);
-        if (!el) return;
-        if (f === "isAdmin") newData[f] = el.value === "true";
-        else if (["latitude","longitude","altitude","precision"].includes(f)) newData[f] = parseFloat(el.value) || 0;
-        else newData[f] = el.value.trim();
+        if (el) newData[f] = el.value.trim();
       });
       newData.email = userEmail;
       newData.updatedAt = new Date().toISOString();
@@ -186,7 +217,6 @@ export function showUserDashboard() {
       try {
         await setDoc(doc(firestore, "users", userId), newData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), newData);
-        if (newData.deviceId) mostrarDatosDispositivo(newData.deviceId);
         alert("✅ Datos actualizados correctamente.");
       } catch (error) {
         console.error(error);
@@ -207,76 +237,17 @@ export function showUserDashboard() {
         alert(`❌ No se pudo borrar el usuario: ${error.message}`);
       }
     };
-
-    // Mostrar datos del dispositivo
-    function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
-      const deviceRef = ref(db, `dispositivos/${deviceId}`);
-      onValue(deviceRef, (snapshot) => {
-        const d = snapshot.val();
-        if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo <b>${deviceId}</b></p>`);
-        container.innerHTML = `
-          <p><b>ID:</b> ${deviceId}</p>
-          <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
-          <p><b>Usuario:</b> ${d.userEmail || "Sin asignar"}</p>
-          <p><b>Latitud:</b> ${d.latitude ?? 0}</p>
-          <p><b>Longitud:</b> ${d.longitude ?? 0}</p>
-          <p><b>Altitud (m):</b> ${d.altitude ?? 0}</p>
-          <p><b>Precisión (m):</b> ${d.precision ?? 0}</p>
-          <button id="verHistorialBtn2">📜 Ver historial completo</button>
-        `;
-        document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
-      });
-    }
-  });
-}
-
-// ================================================
-// Resto de funciones de dispositivos, historial y exportación
-// ================================================
-// Puedes reutilizar funciones existentes: showHistoricalPage(deviceId), showHistoryUtilsPage(), etc.
-
-
-// ================================================
-// DISPOSITIVOS
-// ================================================
-export function showDevices() {
-  const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="dashboard">
-      <h2>Dispositivo Asignado</h2>
-      <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
-      <div class="actions">
-        <button id="verTodosBtn">Ver todos los dispositivos</button>
-        <button id="nuevoBtnDispositivo">✨ Nuevo Botón</button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById("verTodosBtn").onclick = () => showAllDevices();
-  document.getElementById("nuevoBtnDispositivo").onclick = () => showNewHistoryPage();
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return (document.getElementById("deviceData").innerHTML = "<p>No hay usuario autenticado.</p>");
-
-    const userRef = ref(db, `usuarios/${user.uid}`);
-    onValue(userRef, (snapshot) => {
-      const userData = snapshot.val();
-      if (!userData || !userData.deviceId)
-        return (document.getElementById("deviceData").innerHTML = "<p>No tienes dispositivos asignados.</p>");
-      mostrarDatosDispositivo(userData.deviceId, document.getElementById("deviceData"));
-    });
   });
 }
 
 // ================================================
 // FUNCIONES DE DISPOSITIVOS E HISTORIALES
 // ================================================
-function mostrarDatosDispositivo(deviceId, container) {
+function mostrarDatosDispositivo(deviceId, container = document.getElementById("deviceData")) {
   const deviceRef = ref(db, `dispositivos/${deviceId}`);
   onValue(deviceRef, (snapshot) => {
     const d = snapshot.val();
     if (!d) return (container.innerHTML = `<p>No se encontró el dispositivo: <b>${deviceId}</b></p>`);
-
     container.innerHTML = `
       <p><b>ID:</b> ${deviceId}</p>
       <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
@@ -289,12 +260,17 @@ function mostrarDatosDispositivo(deviceId, container) {
       <p>Temperatura: ${d.temperatura ?? 0} °C</p>
       <h4>📜 Últimos registros históricos</h4>
       <div id="historialCarrusel" class="historialCarrusel">Cargando...</div>
-      <button id="verHistorialCompletoBtn">📄 Ver historial completo</button>
+      <button id="verHistorialBtn2">📜 Ver historial completo</button>
     `;
     mostrarHistorialCarrusel(deviceId);
-    document.getElementById("verHistorialCompletoBtn").onclick = () => showHistoricalPage(deviceId);
+    document.getElementById("verHistorialBtn2").onclick = () => showHistoricalPage(deviceId);
   });
 }
+
+// ================================================
+// (El resto del código de historial y exportación se mantiene igual)
+// ================================================
+
 
 function mostrarHistorialCarrusel(deviceId) {
   const historialRef = ref(db, `dispositivos/${deviceId}/historial`);
