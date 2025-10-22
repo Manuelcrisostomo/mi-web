@@ -77,12 +77,17 @@ export function showUserDashboard() {
           <option value="true">Administrador</option>
         </select>
 
-        <h3>Datos Humanos (Operador)</h3>
-        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
-        <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
-        <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
-        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
-        <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />
+        <h3>Tipo de Mina</h3>
+        <select id="tipoMina">
+          <option value="">Seleccione tipo de mina</option>
+          <option value="subterranea">Subterránea</option>
+          <option value="tajo_abierto">Tajo Abierto</option>
+          <option value="aluvial">Aluvial (placer)</option>
+          <option value="cantera">Cantera</option>
+          <option value="pirqen">Pirquén / artesanal</option>
+        </select>
+
+        <div id="camposMinaDinamicos"></div>
 
         <h3>Datos Técnicos (Mapas/Sistema)</h3>
         <label>Latitud:</label><input type="number" id="latitude" step="any" placeholder="0" />
@@ -95,7 +100,6 @@ export function showUserDashboard() {
         <label>País:</label><input type="text" id="pais" placeholder="País" />
         <label>Región:</label><input type="text" id="region" placeholder="Región" />
         <label>Comuna:</label><input type="text" id="comuna" placeholder="Comuna" />
-        <label>Nombre de la mina:</label><input type="text" id="nombreMina" placeholder="Nombre de la mina" />
         <label>Nombre de la empresa:</label><input type="text" id="nombreEmpresa" placeholder="Nombre de la empresa" />
 
         <button type="submit">💾 Guardar Cambios</button>
@@ -117,14 +121,72 @@ export function showUserDashboard() {
     </div>
   `;
 
-  // Navegación
+  // Campos dinámicos según tipo de mina
+  const tipoMinaSelect = document.getElementById("tipoMina");
+  const camposMinaDiv = document.getElementById("camposMinaDinamicos");
+
+  tipoMinaSelect.addEventListener("change", () => {
+    const tipo = tipoMinaSelect.value;
+    let html = "";
+
+    if (tipo === "subterranea") {
+      html = `
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+        <label>Rampa:</label><input type="text" id="rampa" placeholder="Rampa" />
+        <label>Galería:</label><input type="text" id="galeria" placeholder="Galería" />
+        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+        <label>Nombre de estación:</label><input type="text" id="nombreEstacion" placeholder="Nombre de estación" />
+      `;
+    } else if (tipo === "tajo_abierto") {
+      html = `
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Banco:</label><input type="text" id="banco" placeholder="Banco o nivel" />
+        <label>Frente:</label><input type="text" id="frente" placeholder="Frente de trabajo" />
+        <label>Zona:</label><input type="text" id="zona" placeholder="Zona" />
+        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+      `;
+    } else if (tipo === "aluvial") {
+      html = `
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Mina:</label><input type="text" id="mina" placeholder="Nombre de la mina o sitio" />
+        <label>Río:</label><input type="text" id="rio" placeholder="Río o tramo" />
+        <label>Cuadrante:</label><input type="text" id="cuadrante" placeholder="Cuadrante o punto" />
+      `;
+    } else if (tipo === "cantera") {
+      html = `
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Cantera:</label><input type="text" id="cantera" placeholder="Nombre de la cantera" />
+        <label>Material:</label><input type="text" id="material" placeholder="Material extraído" />
+        <label>Frente:</label><input type="text" id="frente" placeholder="Frente activo" />
+      `;
+    } else if (tipo === "pirqen") {
+      html = `
+        <h4>Datos Humanos (Operador)</h4>
+        <label>Faena:</label><input type="text" id="faena" placeholder="Nombre de faena" />
+        <label>Tipo de explotación:</label><input type="text" id="tipoExplotacion" placeholder="Tipo de explotación" />
+        <label>Sector:</label><input type="text" id="sector" placeholder="Sector" />
+        <label>Nivel:</label><input type="text" id="nivel" placeholder="Nivel (si aplica)" />
+      `;
+    }
+
+    camposMinaDiv.innerHTML = html;
+  });
+
+  // ================================================
+  // EVENTOS Y SINCRONIZACIÓN DE DATOS
+  // ================================================
+  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
   document.getElementById("historyBtn").onclick = () => showHistoryUtilsPage();
   document.getElementById("nuevoBtnUser").onclick = () => showNewHistoryPage();
   document.getElementById("pagina1Btn").onclick = () => showPagina1();
   document.getElementById("pagina2Btn").onclick = () => showPagina2();
-  document.getElementById("logoutBtn").onclick = async () => { await auth.signOut(); navigate("login"); };
+
+  // Aquí sigue la misma lógica del onAuthStateChanged,
+  // sincronización con Firestore y funciones de guardar/borrar usuario.
+
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
