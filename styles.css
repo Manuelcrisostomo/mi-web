@@ -1,3 +1,6 @@
+/* =============================
+   Cards
+============================= */
 .card-header {
   font-size: 1rem;
   letter-spacing: 0.3px;
@@ -5,12 +8,29 @@
 }
 .card {
   border-radius: 8px;
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+.card:hover {
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+  cursor: pointer;
 }
 .card-body {
   border-radius: 0 0 8px 8px;
 }
-input.form-control {
+
+/* =============================
+   Inputs
+============================= */
+input.form-control, input {
   border-radius: 6px;
+  padding: 8px;
+  width: 90%;
+  margin: 10px auto;
+  display: block;
 }
 
 /* =============================
@@ -29,12 +49,11 @@ body {
 .navbar-horizontal {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* centra los botones */
+  justify-content: center;
   align-items: center;
   background-color: #002b5b;
   padding: 10px 20px;
 }
-
 .navbar-horizontal .brand {
   font-weight: bold;
   color: #fff;
@@ -42,8 +61,6 @@ body {
   text-decoration: none;
   font-size: 1.2rem;
 }
-
-/* Estilo uniforme para todos los botones del navbar */
 .navbar-horizontal .nav-link,
 .navbar-horizontal .btn-logout {
   margin: 5px;
@@ -56,18 +73,12 @@ body {
   cursor: pointer;
   transition: all 0.2s;
 }
-
-/* Hover uniforme */
 .navbar-horizontal .nav-link:hover,
 .navbar-horizontal .btn-logout:hover {
   filter: brightness(85%);
   color: #fff;
 }
-
-/* Botón activo */
-.navbar-horizontal .nav-link.active {
-  filter: brightness(75%);
-}
+.navbar-horizontal .nav-link.active { filter: brightness(75%); }
 
 /* Colores individuales de cada botón */
 .navbar-horizontal .nav-link#navDevices { background-color: #007bff; }
@@ -100,26 +111,12 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-
-.dashboard h2 {
-  margin-bottom: 15px;
-  color: #333;
-}
+.dashboard h2 { margin-bottom: 15px; color: #333; }
 
 /* =============================
-   Resto del CSS existente
+   Historial
 ============================= */
-/* Cards */
-.card, .historialCard {
-  background: #fff;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
 .historialCard h4 { margin-bottom: 8px; color: #333; }
-
-/* Carrusel y grid */
 .historialCarrusel {
   display: flex;
   overflow-x: auto;
@@ -132,6 +129,13 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 15px;
   margin-top: 20px;
+}
+.historialDetails, .historialItem {
+  margin: 5px 0;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  background: #f9f9f9;
+  border-radius: 6px;
 }
 
 /* Botones */
@@ -150,14 +154,7 @@ button:hover { background-color: #0056b3; }
 #verHistorialBtn { background-color: #28a745; color: white; border-radius: 5px; padding: 10px 15px; margin-top: 15px; }
 #verHistorialBtn:hover { background-color: #218838; }
 
-/* Historial completo */
-.historialDetails, .historialItem {
-  margin: 5px 0;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  background: #f9f9f9;
-  border-radius: 6px;
-}
+/* Acciones */
 .actions {
   margin-top: 15px;
   display: flex;
@@ -176,12 +173,6 @@ button:hover { background-color: #0056b3; }
 
 /* Mini barras para indicadores */
 .bar { display: inline-block; height: 10px; margin-left: 10px; border-radius: 5px; vertical-align: middle; }
-
-/* Inputs */
-input { display: block; margin: 10px auto; padding: 8px; width: 90%; }
-
-/* Hover cards */
-.card:hover, .historialCard:hover { box-shadow: 0 0 12px rgba(0,0,0,0.2); cursor: pointer; }
 
 /* Device details */
 .deviceDetails {

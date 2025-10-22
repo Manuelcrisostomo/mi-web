@@ -9,6 +9,18 @@ const DEVICE_ID_DEFAULT = "tuDeviceID"; // Cambiar por el ID real
 export function showDevices() {
   const root = document.getElementById("root");
   root.innerHTML = `
+    <!-- Navbar Horizontal -->
+    <nav class="navbar-horizontal">
+      <a href="#" class="brand">EcoAsh Dashboard</a>
+      <a href="#" id="navMainMenu" class="nav-link">Inicio</a>
+      <a href="#" id="navDevices" class="nav-link active">Dispositivos</a>
+      <a href="#" id="navAlerts" class="nav-link">Alertas</a>
+      <a href="#" id="navHistory" class="nav-link">Historial</a>
+      <a href="#" id="navPage1" class="nav-link">Página 1</a>
+      <a href="#" id="navPage2" class="nav-link">Página 2</a>
+      <button id="navLogout" class="btn-logout">Cerrar Sesión</button>
+    </nav>
+
     <div class="dashboard">
       <h2>Dispositivo Asignado</h2>
       <div class="actions">
@@ -23,14 +35,22 @@ export function showDevices() {
     </div>
   `;
 
-  const deviceDataDiv = document.getElementById("deviceData");
+  // --- Navegación navbar ---
+  document.getElementById("navMainMenu").onclick = () => navigate("user");
+  document.getElementById("navDevices").onclick = () => navigate("devices");
+  document.getElementById("navAlerts").onclick = () => navigate("alerts");
+  document.getElementById("navHistory").onclick = () => navigate("history");
+  document.getElementById("navPage1").onclick = () => navigate("page1");
+  document.getElementById("navPage2").onclick = () => navigate("page2");
+  document.getElementById("navLogout").onclick = () => navigate("login");
 
-  // Botones
+  // --- Botones acciones principales ---
+  const deviceDataDiv = document.getElementById("deviceData");
   document.getElementById("back").onclick = () => navigate("user");
   document.getElementById("refreshBtn").onclick = () => mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);
   document.getElementById("verHistorialBtn").onclick = () => showFullHistoryPage(DEVICE_ID_DEFAULT);
-  document.getElementById("page1Btn").onclick = () => alert("Navegar a Página 1"); // Ajustar según tu app
-  document.getElementById("page2Btn").onclick = () => alert("Navegar a Página 2"); // Ajustar según tu app
+  document.getElementById("page1Btn").onclick = () => navigate("page1");
+  document.getElementById("page2Btn").onclick = () => navigate("page2");
   document.getElementById("guardarMedicionBtn").onclick = () => guardarMedicion(DEVICE_ID_DEFAULT);
 
   mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);
@@ -108,6 +128,18 @@ function guardarMedicion(deviceId) {
 function showFullHistoryPage(deviceId) {
   const root = document.getElementById("root");
   root.innerHTML = `
+    <!-- Navbar Horizontal -->
+    <nav class="navbar-horizontal">
+      <a href="#" class="brand">EcoAsh Dashboard</a>
+      <a href="#" id="navMainMenu" class="nav-link">Inicio</a>
+      <a href="#" id="navDevices" class="nav-link">Dispositivos</a>
+      <a href="#" id="navAlerts" class="nav-link">Alertas</a>
+      <a href="#" id="navHistory" class="nav-link active">Historial</a>
+      <a href="#" id="navPage1" class="nav-link">Página 1</a>
+      <a href="#" id="navPage2" class="nav-link">Página 2</a>
+      <button id="navLogout" class="btn-logout">Cerrar Sesión</button>
+    </nav>
+
     <div class="dashboard">
       <h2>Historial Completo del Dispositivo</h2>
       <p><strong>ID:</strong> ${deviceId}</p>
@@ -123,6 +155,15 @@ function showFullHistoryPage(deviceId) {
     </div>
   `;
 
+  // --- Navegación navbar ---
+  document.getElementById("navMainMenu").onclick = () => navigate("user");
+  document.getElementById("navDevices").onclick = () => navigate("devices");
+  document.getElementById("navAlerts").onclick = () => navigate("alerts");
+  document.getElementById("navHistory").onclick = () => navigate("history");
+  document.getElementById("navPage1").onclick = () => navigate("page1");
+  document.getElementById("navPage2").onclick = () => navigate("page2");
+  document.getElementById("navLogout").onclick = () => navigate("login");
+
   const fullHistorialDiv = document.getElementById('fullHistorialContainer');
   const savePdfBtn = document.getElementById('savePdfBtn');
   const saveExcelBtn = document.getElementById('saveExcelBtn');
@@ -130,8 +171,8 @@ function showFullHistoryPage(deviceId) {
   // Botones
   document.getElementById('backToDeviceBtn').onclick = () => showDevices();
   document.getElementById('refreshHistBtn').onclick = () => cargarHistorial(deviceId, fullHistorialDiv, savePdfBtn, saveExcelBtn);
-  document.getElementById("page1Btn").onclick = () => alert("Navegar a Página 1"); 
-  document.getElementById("page2Btn").onclick = () => alert("Navegar a Página 2"); 
+  document.getElementById("page1Btn").onclick = () => navigate("page1");
+  document.getElementById("page2Btn").onclick = () => navigate("page2");
 
   cargarHistorial(deviceId, fullHistorialDiv, savePdfBtn, saveExcelBtn);
 }
@@ -192,7 +233,7 @@ function guardarHistorialComoPDF(deviceId, registros) {
     doc.setFontSize(10);
     doc.text(`- CO: ${valores.CO ?? "—"} ppm, CO₂: ${valores.CO2 ?? "—"} ppm`, 20, y); y += 6;
     doc.text(`- PM10: ${valores.PM10 ?? "—"} µg/m³, PM2.5: ${valores.PM2_5 ?? "—"} µg/m³`, 20, y); y += 6;
-    doc.text(`- Humedad: ${valores.humedad ?? "—"}%, Temperatura: ${valores.temperatura ?? "—"} °C`, 20, y); y += 10;
+    doc.text(`- Humedad: ${valores.humedad ?? "—"}%, Temperatura: ${valores.temperatura ?? "—"} °C`, 20, y += 10);
   });
 
   doc.save(`historial-dispositivo-${deviceId}.pdf`);

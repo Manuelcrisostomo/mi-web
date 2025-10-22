@@ -14,6 +14,18 @@ let savedData = [];
 export function showHistoryManagerPage() {
   const root = document.getElementById("root");
   root.innerHTML = `
+    <!-- Navbar Horizontal -->
+    <nav class="navbar-horizontal">
+      <a href="#" class="brand">EcoAsh Dashboard</a>
+      <a href="#" id="navMainMenu" class="nav-link">Inicio</a>
+      <a href="#" id="navDevices" class="nav-link">Dispositivos</a>
+      <a href="#" id="navAlerts" class="nav-link">Alertas</a>
+      <a href="#" id="navHistory" class="nav-link active">Historial</a>
+      <a href="#" id="navPage1" class="nav-link">Página 1</a>
+      <a href="#" id="navPage2" class="nav-link">Página 2</a>
+      <button id="navLogout" class="btn-logout">Cerrar Sesión</button>
+    </nav>
+
     <div class="dashboard">
       <h2>Historial Manager</h2>
       <div class="actions">
@@ -27,6 +39,16 @@ export function showHistoryManagerPage() {
     </div>
   `;
 
+  // --- Navegación navbar ---
+  document.getElementById("navMainMenu").onclick = () => navigate("user");
+  document.getElementById("navDevices").onclick = () => navigate("devices");
+  document.getElementById("navAlerts").onclick = () => navigate("alerts");
+  document.getElementById("navHistory").onclick = () => navigate("historyManager");
+  document.getElementById("navPage1").onclick = () => navigate("page1");
+  document.getElementById("navPage2").onclick = () => navigate("page2");
+  document.getElementById("navLogout").onclick = () => navigate("login");
+
+  // --- Botones principales ---
   document.getElementById("backBtn").onclick = () => navigate("user");
   document.getElementById("refreshBtn").onclick = () => loadManagerData();
   document.getElementById("saveManualBtn").onclick = () => saveCurrentData();

@@ -22,6 +22,57 @@ import {
 
 import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { navigate } from "../app.js";
+export function showUserDashboard() {
+  const root = document.getElementById("root");
+
+  root.innerHTML = `
+    <!-- Navbar Horizontal -->
+    <nav class="navbar-horizontal">
+      <a href="#" class="brand">EcoAsh Dashboard</a>
+      <a href="#" id="navMainMenu" class="nav-link">Inicio</a>
+      <a href="#" id="navDevices" class="nav-link">Dispositivos</a>
+      <a href="#" id="navAlerts" class="nav-link">Alertas</a>
+      <a href="#" id="navHistory" class="nav-link">Historial</a>
+      <a href="#" id="navPage1" class="nav-link">Página 1</a>
+      <a href="#" id="navPage2" class="nav-link">Página 2</a>
+      <button id="navLogout" class="btn-logout">Cerrar Sesión</button>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+      <h2>Perfil del Usuario</h2>
+      <div id="userProfile" class="card"></div>
+
+      <h3>Editar Datos del Usuario</h3>
+      <form id="editForm" class="card">
+        <!-- formulario completo aquí -->
+      </form>
+
+      <h3>Dispositivo Asignado</h3>
+      <div id="deviceData" class="card">Cargando dispositivo...</div>
+
+      <div class="actions">
+        <button id="alertsBtn">Ver Alertas</button>
+        <button id="devicesBtn">Ver Dispositivos</button>
+        <button id="logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  `;
+
+  // --- Navegación navbar
+  document.getElementById("navMainMenu").onclick = () => navigate("dashboard");
+  document.getElementById("navDevices").onclick = () => navigate("devices");
+  document.getElementById("navAlerts").onclick = () => navigate("alerts");
+  document.getElementById("navHistory").onclick = () => navigate("history");
+  document.getElementById("navPage1").onclick = () => navigate("page1");
+  document.getElementById("navPage2").onclick = () => navigate("page2");
+  document.getElementById("navLogout").onclick = async () => { 
+    await auth.signOut(); 
+    navigate("login"); 
+  };
+
+  // --- Resto de tu código existente (renderizado dinámico de campos, auth, guardado, eliminación, deviceData)
+}
 
 export function showUserDashboard() {
   const root = document.getElementById("root");
