@@ -1,5 +1,5 @@
-//aqui tambien agrega en nav // ================================================
-// Dispositivos y Historial con Firebase
+// ================================================
+// Dispositivos y Historial con Firebase + Localización por tipo de mina
 // ================================================
 // NOTA: Para que la función de guardar PDF funcione, debes incluir la librería jsPDF
 // en tu archivo HTML principal:
@@ -40,6 +40,7 @@ export function showDevices() {
         <button id="saveCurrentBtn">💾 Guardar medición</button>
       </div>
       <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
+      <div id="camposMinaDiv" class="camposMina"></div>
     </div>
   `;
 
@@ -59,14 +60,17 @@ export function showDevices() {
 }
 
 // ================================================
-// MOSTRAR DATOS DEL DISPOSITIVO
+// MOSTRAR DATOS DEL DISPOSITIVO + LOCALIZACIÓN POR TIPO DE MINA
 // ================================================
 function mostrarDatosDispositivo(deviceId, container) {
   const deviceRef = ref(db, `dispositivos/${deviceId}`);
+  const camposMinaDiv = document.getElementById("camposMinaDiv");
+
   onValue(deviceRef, (snapshot) => {
     const d = snapshot.val();
     if (!d) {
       container.innerHTML = `<p>No se encontró ningún dispositivo con ID: <b>${deviceId}</b></p>`;
+      camposMinaDiv.innerHTML = "";
       return;
     }
 
@@ -78,7 +82,7 @@ function mostrarDatosDispositivo(deviceId, container) {
     container.dataset.humedad = d.humedad ?? 0;
     container.dataset.temperatura = d.temperatura ?? 0;
 
-    // Mostrar valores en la interfaz
+    // Mostrar valores generales
     container.innerHTML = `
       <p><b>ID:</b> ${deviceId}</p>
       <p><b>Nombre:</b> ${d.name || "Desconocido"}</p>
@@ -90,7 +94,77 @@ function mostrarDatosDispositivo(deviceId, container) {
       <p>Humedad: ${d.humedad ?? 0}%</p>
       <p>Temperatura: ${d.temperatura ?? 0} °C</p>
     `;
+
+    // Renderizar campos según tipo de mina
+    renderCampos(d.tipoMina, d, camposMinaDiv);
   });
+}
+
+// ================================================
+// FUNCION RENDER CAMPOS SEGÚN TIPO DE MINA
+// ================================================
+function renderCampos(tipo, data, container) {
+  let html = "";
+  switch (tipo) {
+    case "subterranea":
+      html = `
+        <h4>⛏️ Subterránea</h4>
+        <p>Zona: ${data.zona ?? ""}</p>
+        <p>Rampa: ${data.rampa ?? ""}</p>
+        <p>Galería: ${data.galeria ?? ""}</p>
+        <p>Sector: ${data.sector ?? ""}</p>
+        <p>Nombre de estación: ${data.nombreEstacion ?? ""}</p>
+      `;
+      break;
+
+    case "tajo_abierto":
+      html = `
+        <h4>🪨 Tajo Abierto</h4>
+        <p>Banco: ${data.banco ?? ""}</p>
+        <p>Fase: ${data.fase ?? ""}</p>
+        <p>Frente: ${data.frente ?? ""}</p>
+        <p>Coordenadas GPS: ${data.coordGPS ?? ""}</p>
+      `;
+      break;
+
+    case "aluvial":
+      html = `
+        <h4>💧 Aluvial (placer)</h4>
+        <p>Mina: ${data.mina ?? ""}</p>
+        <p>Río: ${data.rio ?? ""}</p>
+        <p>Tramo: ${data.tramo ?? ""}</p>
+        <p>Cuadrante: ${data.cuadrante ?? ""}</p>
+        <p>Coordenadas GPS: ${data.coordGPS ?? ""}</p>
+      `;
+      break;
+
+    case "cantera":
+      html = `
+        <h4>🏗️ Cantera</h4>
+        <p>Cantera: ${data.cantera ?? ""}</p>
+        <p>Material: ${data.material ?? ""}</p>
+        <p>Frente: ${data.frente ?? ""}</p>
+        <p>Coordenadas GPS: ${data.coordGPS ?? ""}</p>
+        <p>Polígono: ${data.poligono ?? ""}</p>
+      `;
+      break;
+
+    case "pirquen":
+      html = `
+        <h4>🧰 Pirquén / Artesanal</h4>
+        <p>Faena: ${data.faena ?? ""}</p>
+        <p>Tipo de explotación: ${data.tipoExplotacion ?? ""}</p>
+        <p>Sector: ${data.sector ?? ""}</p>
+        <p>Coordenadas: ${data.coordGPS ?? ""}</p>
+        <p>Nivel (si aplica): ${data.nivel ?? ""}</p>
+      `;
+      break;
+
+    default:
+      html = "<p>Tipo de mina no especificado.</p>";
+  }
+
+  container.innerHTML = html;
 }
 
 // ================================================
@@ -130,8 +204,7 @@ function showHistoricalPage(deviceId) {
           <button id="savePdfBtn" disabled>💾 Guardar PDF</button>
           <button id="saveExcelBtn" disabled>📊 Guardar Excel</button>
           <button id="page1Btn">📄 Página 1</button>
-         <button id="manualPageBtn">📋 Abrir Historial Manager</button>
-
+          <button id="manualPageBtn">📋 Abrir Historial Manager</button>
           <button id="page2Btn">📄 Página 2</button>
       </div>
       <div id="fullHistorialContainer" class="historialDetails">Cargando historial...</div>
@@ -147,7 +220,6 @@ function showHistoricalPage(deviceId) {
     cargarHistorialGlobal(deviceId, fullHistorialDiv, savePdfBtn, saveExcelBtn);
   document.getElementById("page1Btn").onclick = () => showPage1(deviceId);
   document.getElementById("page2Btn").onclick = () => showPage2(deviceId);
-  // Dentro de showDevices(), donde defines los botones:
   document.getElementById("manualPageBtn").onclick = () =>
     showHistoryManagerPage();
   cargarHistorialGlobal(deviceId, fullHistorialDiv, savePdfBtn, saveExcelBtn);
