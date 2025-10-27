@@ -4,35 +4,37 @@ import { navigate } from "../app.js";
 export function showAlerts() {
   const root = document.getElementById("root");
   root.innerHTML = `
-    <!-- Navbar horizontal centrada -->
+    <!-- Barra de navegación superior -->
     <div class="d-flex flex-wrap align-items-center justify-content-center p-2" style="background-color:#002b5b;">
       <h4 class="mb-0 me-4 text-white text-center">Minesafe 2 - Panel de Control</h4>
 
-      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navDevices" style="background-color:#007bff; border-radius:5px;" href="#">Dispositivos</a>
-      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navMainMenu" style="background-color:#6c757d; border-radius:5px;" href="#">Menú Principal</a>
-      <a class="nav-link text-white me-2 mb-1 px-3 py-1 active" id="navAlerts" style="background-color:#dc3545; border-radius:5px;" href="#">Alertas</a>
-      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navHistory" style="background-color:#ffc107; border-radius:5px;" href="#">Datos Históricos</a>
-      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navPage1" style="background-color:#6f42c1; border-radius:5px;" href="#">Página 1</a>
-      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navPage2" style="background-color:#20c997; border-radius:5px;" href="#">Página 2</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navBack" style="background-color:#495057; border-radius:5px;" href="#">⬅️ Volver Atrás</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navDevices" style="background-color:#007bff; border-radius:5px;" href="#">💡 Dispositivos</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navMainMenu" style="background-color:#6c757d; border-radius:5px;" href="#">🏠 Menú Principal</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1 active" id="navAlerts" style="background-color:#dc3545; border-radius:5px;" href="#">🚨 Alertas</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navHistory" style="background-color:#ffc107; border-radius:5px;" href="#">📜 Historial</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navPage1" style="background-color:#6f42c1; border-radius:5px;" href="#">📄 Página 1</a>
+      <a class="nav-link text-white me-2 mb-1 px-3 py-1" id="navPage2" style="background-color:#20c997; border-radius:5px;" href="#">📄 Página 2</a>
 
       <button class="btn btn-outline-light ms-2 mb-1" id="navLogout">Cerrar Sesión</button>
     </div>
 
-    <!-- Contenido principal centrado -->
+    <!-- Contenido principal -->
     <div class="dashboard container mt-4 text-center" style="max-width:700px; margin:auto;">
-      <h2>Alertas de Seguridad</h2>
+      <h2>🚨 Alertas de Seguridad</h2>
       <div id="alerts" class="my-3"></div>
     </div>
   `;
 
   // --- Navegación ---
-  document.getElementById("navDevices").onclick = () => navigate("devices");
-  document.getElementById("navMainMenu").onclick = () => navigate("user");
-  document.getElementById("navAlerts").onclick = () => showAlerts();
-  document.getElementById("navHistory").onclick = () => navigate("historical");
-  document.getElementById("navPage1").onclick = () => navigate("page1");
-  document.getElementById("navPage2").onclick = () => navigate("page2");
-  document.getElementById("navLogout").onclick = () => navigate("logout");
+  document.getElementById("navBack").onclick = () => navigate("user");        // ⬅️ Volver atrás
+  document.getElementById("navDevices").onclick = () => navigate("devices");  // 💡 Dispositivos
+  document.getElementById("navMainMenu").onclick = () => navigate("user");    // 🏠 Menú Principal
+  document.getElementById("navAlerts").onclick = () => showAlerts();          // 🚨 Alertas
+  document.getElementById("navHistory").onclick = () => navigate("historical");// 📜 Historial
+  document.getElementById("navPage1").onclick = () => navigate("page1");      // 📄 Página 1
+  document.getElementById("navPage2").onclick = () => navigate("page2");      // 📄 Página 2
+  document.getElementById("navLogout").onclick = () => navigate("logout");    // 🚪 Cerrar sesión
 
   // --- Datos de alertas ---
   const deviceRef = ref(db, "dispositivos/device_38A839E81F84");
