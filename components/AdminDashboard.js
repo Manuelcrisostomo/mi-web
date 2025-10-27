@@ -5,7 +5,7 @@ export function showAdminDashboard() {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
-      <h2>Panel del Administrador</h2>
+      <h2>Panel del Administradores</h2>
       <div id="users"></div>
       <button id="logout">Cerrar Sesión</button>
     </div>
