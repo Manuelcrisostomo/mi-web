@@ -7,14 +7,19 @@ import { showUserDashboard } from "./components/UserDashboard.js";
 import { showAdminDashboard } from "./components/AdminDashboard.js";
 import { showAlerts } from "./components/AlertsView.js";
 import { showDevices } from "./components/DeviceView.js";
+import { renderNavbar } from "./components/navbar.js";
+
+// Formularios
 import { showUserForm } from "./components/UserForm.js";
 import { showTipoMinaForm } from "./components/TipoMinaForm.js";
 import { showGeoEmpresaForm } from "./components/GeoEmpresaForm.js";
+
+// Páginas extra
 import { showPagina1 } from "./components/Pagina1.js";
 import { showPagina2 } from "./components/Pagina2.js";
-import { renderNavbar } from "./components/navbar.js";
-import { auth } from "./firebaseConfig.js";
 
+// Firebase Auth
+import { auth } from "./firebaseConfig.js";
 
 // Historial opcional
 let showAllDevicesFunc = null;
@@ -30,22 +35,34 @@ const root = document.getElementById("root");
 // ================================================
 // FUNCIÓN GLOBAL DE NAVEGACIÓN
 // ================================================
-export function navigate(view, params = null) {
+export function navigate(view) {
   root.innerHTML = "";
 
-  // Mostrar login / registro SIN navbar
-  if (view === "login" || view === "register") {
+  // 🔹 Login y registro sin navbar
+  if (view === "login") {
     document.querySelector("header").style.display = "flex";
-    if (view === "login") showLogin();
-    else showRegister();
+    showLogin();
+    return;
+  }
+  if (view === "register") {
+    document.querySelector("header").style.display = "flex";
+    showRegister();
     return;
   }
 
-  // Ocultar header fijo y mostrar navbar global
+  // 🔹 En las demás páginas ocultar header y mostrar navbar
   document.querySelector("header").style.display = "none";
-  root.appendChild(renderNavbar());
 
-  // --- Mostrar vista correspondiente ---
+  // Insertar navbar
+  const navbar = renderNavbar();
+  root.appendChild(navbar);
+
+  // Contenedor principal
+  const content = document.createElement("div");
+  content.className = "page-content";
+  root.appendChild(content);
+
+  // Mostrar vista
   switch (view) {
     case "user": showUserDashboard(); break;
     case "admin": showAdminDashboard(); break;
@@ -59,7 +76,7 @@ export function navigate(view, params = null) {
     case "history":
       showAllDevicesFunc
         ? showAllDevicesFunc()
-        : (root.innerHTML += "<p>⚠️ Historial no disponible.</p>");
+        : (content.innerHTML = "<p>⚠️ Historial no disponible.</p>");
       break;
     default:
       showLogin();
