@@ -7,18 +7,13 @@ import { showUserDashboard } from "./components/UserDashboard.js";
 import { showAdminDashboard } from "./components/AdminDashboard.js";
 import { showAlerts } from "./components/AlertsView.js";
 import { showDevices } from "./components/DeviceView.js";
-
-// Formularios
 import { showUserForm } from "./components/UserForm.js";
 import { showTipoMinaForm } from "./components/TipoMinaForm.js";
 import { showGeoEmpresaForm } from "./components/GeoEmpresaForm.js";
-
-// Páginas extra
 import { showPagina1 } from "./components/Pagina1.js";
 import { showPagina2 } from "./components/Pagina2.js";
-
-// Firebase Auth
 import { auth } from "./firebaseConfig.js";
+import { renderNavbar } from "./components/Navbar.js";
 
 // Historial opcional
 let showAllDevicesFunc = null;
@@ -32,71 +27,22 @@ try {
 const root = document.getElementById("root");
 
 // ================================================
-// NAVBAR GLOBAL (excepto login y register)
-// ================================================
-function renderNavbar() {
-  const nav = document.createElement("nav");
-  nav.className = "main-navbar";
-  nav.innerHTML = `
-    <div class="navbar-container">
-      <span class="logo">⚙️ Minesafe 2</span>
-      <div class="nav-buttons">
-        <button data-view="user">🏠 Panel</button>
-        <button data-view="devices">💡 Dispositivos</button>
-        <button data-view="alerts">🚨 Alertas</button>
-        <button data-view="history">📜 Historial</button>
-        <button data-view="userform">👤 Datos</button>
-        <button data-view="tipomina">⛏️ Mina</button>
-        <button data-view="geoempresa">🌍 Empresa</button>
-        <button data-view="pagina1">📄 Pág. 1</button>
-        <button data-view="pagina2">📄 Pág. 2</button>
-        <button data-view="admin">🛠️ Admin</button>
-        <button id="logoutBtn" class="logout">🚪 Cerrar Sesión</button>
-      </div>
-    </div>
-  `;
-
-  nav.querySelectorAll("button[data-view]").forEach((btn) => {
-    btn.addEventListener("click", () => navigate(btn.dataset.view));
-  });
-
-  nav.querySelector("#logoutBtn").onclick = async () => {
-    await auth.signOut();
-    navigate("login");
-  };
-
-  return nav;
-}
-
-// ================================================
 // FUNCIÓN GLOBAL DE NAVEGACIÓN
 // ================================================
 export function navigate(view, params = null) {
   root.innerHTML = "";
 
-  // Login y registro SIN navbar
-  if (view === "login") {
+  // Mostrar login / registro SIN navbar
+  if (view === "login" || view === "register") {
     document.querySelector("header").style.display = "flex";
-    showLogin();
-    return;
-  }
-  if (view === "register") {
-    document.querySelector("header").style.display = "flex";
-    showRegister();
+    if (view === "login") showLogin();
+    else showRegister();
     return;
   }
 
-  // En las demás páginas, ocultar header fijo y usar navbar propia
+  // Ocultar header fijo y mostrar navbar global
   document.querySelector("header").style.display = "none";
-
-  // Crear navbar dinámica
-  const navbar = renderNavbar();
-  root.appendChild(navbar);
-
-  // Contenido principal
-  const content = document.createElement("div");
-  content.className = "page-content";
-  root.appendChild(content);
+  root.appendChild(renderNavbar());
 
   // --- Mostrar vista correspondiente ---
   switch (view) {
@@ -112,7 +58,7 @@ export function navigate(view, params = null) {
     case "history":
       showAllDevicesFunc
         ? showAllDevicesFunc()
-        : (content.innerHTML = "<p>⚠️ Historial no disponible.</p>");
+        : (root.innerHTML += "<p>⚠️ Historial no disponible.</p>");
       break;
     default:
       showLogin();
