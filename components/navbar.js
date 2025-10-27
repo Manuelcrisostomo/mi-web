@@ -1,5 +1,5 @@
 // ================================================
-// Navbar.js — Barra de navegación global y funcional
+// Navbar.js — Barra de navegación global reutilizable
 // ================================================
 import { auth } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
@@ -9,7 +9,6 @@ export function renderNavbar() {
   nav.className = "main-navbar";
   nav.innerHTML = `
     <div class="navbar-container">
-      <span class="logo">⚙️ Minesafe 2</span>
       <button data-view="user">🏠 Panel</button>
       <button data-view="devices">💡 Dispositivos</button>
       <button data-view="alerts">🚨 Alertas</button>
@@ -24,19 +23,16 @@ export function renderNavbar() {
     </div>
   `;
 
-  // 🎯 Activar navegación con navigate()
+  // Navegación
   nav.querySelectorAll("button[data-view]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      navigate(btn.dataset.view);
-      window.scrollTo(0, 0); // sube la vista arriba
-    });
+    btn.addEventListener("click", () => navigate(btn.dataset.view));
   });
 
-  // 🔒 Cerrar sesión
-  nav.querySelector("#logoutBtn").addEventListener("click", async () => {
+  // Logout
+  nav.querySelector("#logoutBtn").onclick = async () => {
     await auth.signOut();
     navigate("login");
-  });
+  };
 
   return nav;
 }

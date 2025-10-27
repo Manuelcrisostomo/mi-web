@@ -62,7 +62,7 @@ export function navigate(view) {
   content.className = "page-content";
   root.appendChild(content);
 
-  // Mostrar vista
+  // Mostrar vista según la ruta
   switch (view) {
     case "user": showUserDashboard(); break;
     case "admin": showAdminDashboard(); break;
@@ -73,11 +73,23 @@ export function navigate(view) {
     case "geoempresa": showGeoEmpresaForm(); break;
     case "pagina1": showPagina1(); break;
     case "pagina2": showPagina2(); break;
+
+    // 🔹 NUEVOS CASOS
     case "history":
       showAllDevicesFunc
         ? showAllDevicesFunc()
         : (content.innerHTML = "<p>⚠️ Historial no disponible.</p>");
       break;
+
+    case "manager":
+      import("./components/historyManager.js")
+        .then(module => module.showHistoryManagerPage())
+        .catch(err => {
+          content.innerHTML = "<p>⚠️ Error al cargar Historial Manager.</p>";
+          console.error(err);
+        });
+      break;
+
     default:
       showLogin();
   }
