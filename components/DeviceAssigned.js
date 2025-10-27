@@ -1,6 +1,24 @@
 // /components/DeviceAssigned.js
 import { db, ref, onValue } from "../firebaseConfig.js";
 import { showHistoricalPage } from "./deviceHistory.js";
+import { navigate } from "../app.js";
+
+export function showDeviceAssigned() {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="dashboard">
+      <h2>Dispositivo Asignado</h2>
+      <div id="deviceData" class="card">Cargando dispositivo...</div>
+      <button id="backBtn">⬅️ Volver al Panel</button>
+    </div>
+  `;
+
+  document.getElementById("backBtn").onclick = () => navigate("user");
+
+  // Dispositivo temporal para ejemplo
+  const DEFAULT_ID = "device_A4CB2F124B00";
+  mostrarDatosDispositivo(DEFAULT_ID, document.getElementById("deviceData"));
+}
 
 export function mostrarDatosDispositivo(deviceId, container) {
   const deviceRef = ref(db, `dispositivos/${deviceId}`);
@@ -21,7 +39,6 @@ export function mostrarDatosDispositivo(deviceId, container) {
       <p><b>Precisión (m):</b> ${d.precision ?? 0}</p>
       <button id="verHistorialBtn">📜 Ver historial completo</button>
     `;
-
     document.getElementById("verHistorialBtn").onclick = () =>
       showHistoricalPage(deviceId);
   });
