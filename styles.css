@@ -207,24 +207,3 @@ ul li { margin-bottom: 8px; }
 /* Botón eliminar */
 .delete-btn { background-color: #dc3545; }
 .delete-btn:hover { background-color: #a71d2a; }
-.form-section {
-  margin-bottom: 1.5em;
-  padding: 1em;
-  background: #f8f9fb;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-.form-section h4 {
-  margin-bottom: 0.5em;
-  color: #2c3e50;
-}
-.form-section label {
-  display: block;
-  margin-top: 0.5em;
-}
-.form-section input, .form-section select {
-  width: 100%;
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
