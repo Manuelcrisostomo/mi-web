@@ -23,6 +23,10 @@ import {
 import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { navigate } from "../app.js";
 
+
+// ================================================
+// FUNCIÓN PRINCIPAL: DASHBOARD DE USUARIO
+// ================================================
 export function showUserDashboard() {
   const root = document.getElementById("root");
 
@@ -39,20 +43,23 @@ export function showUserDashboard() {
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <!-- 🔹 Inicio del usuario -->
+            <!-- 🔹 Inicio -->
             <li class="nav-item"><a class="nav-link" id="navDashboard">🏠 Dashboard</a></li>
             <!-- 🔹 Dispositivos -->
             <li class="nav-item"><a class="nav-link" id="navDevices">💡 Dispositivos</a></li>
-            <!-- 🔹 Historial completo -->
-            <li class="nav-item"><a class="nav-link" id="navHistorial">📜 Historial</a></li>
+            <!-- 🔹 NUEVO: Historial completo del dispositivo -->
+            <li class="nav-item"><a class="nav-link" id="navHistorialCompleto">📜 Historial Completo</a></li>
+            <!-- 🔹 NUEVO: Página de gestión de historiales -->
+            <li class="nav-item"><a class="nav-link" id="navHistorialManage">🗂️ Historial Manage</a></li>
             <!-- 🔹 Formularios -->
             <li class="nav-item"><a class="nav-link" id="navUserForm">👤 Datos Personales</a></li>
             <li class="nav-item"><a class="nav-link" id="navTipoMina">⛏️ Tipo de Mina</a></li>
             <li class="nav-item"><a class="nav-link" id="navGeoEmpresa">🌍 Geo / Empresa</a></li>
-            <!-- 🔹 Administrador -->
+            <!-- 🔹 Panel administrador -->
             <li class="nav-item"><a class="nav-link" id="navAdmin">🛠️ Panel Admin</a></li>
           </ul>
 
+          <!-- Botón de cierre de sesión -->
           <button class="btn btn-outline-danger" id="logout">Cerrar Sesión</button>
         </div>
       </div>
@@ -65,6 +72,7 @@ export function showUserDashboard() {
       <h2>Perfil del Usuario</h2>
       <div id="userProfile" class="card p-3 mb-3"></div>
 
+      <!-- Formulario para editar datos -->
       <h3>Editar Datos del Usuario</h3>
       <form id="editForm" class="card p-3">
         <h4>Datos Personales</h4>
@@ -83,6 +91,7 @@ export function showUserDashboard() {
           <option value="pirquen">🧰 Pirquén</option>
         </select>
 
+        <!-- Campos adicionales según tipo de mina -->
         <div id="camposMina" class="mb-3"></div>
 
         <h4>Datos Geográficos / Empresariales</h4>
@@ -92,50 +101,73 @@ export function showUserDashboard() {
         <label>Nombre de la mina:</label><input type="text" id="geoMina" placeholder="Nombre de la mina" class="form-control mb-2" />
         <label>Nombre de la empresa:</label><input type="text" id="geoEmpresa" placeholder="Nombre de la empresa" class="form-control mb-2" />
 
+        <!-- Botones del formulario -->
         <div class="d-flex justify-content-between mt-3">
           <button type="submit" class="btn btn-success">💾 Guardar Cambios</button>
           <button type="button" id="deleteUser" class="btn btn-danger">🗑️ Borrar Usuario</button>
         </div>
       </form>
 
+      <!-- Dispositivo asignado -->
       <h3 class="mt-4">Dispositivo Asignado</h3>
       <div id="deviceData" class="card p-3">Cargando dispositivo...</div>
     </div>
   `;
 
+
   // ============================================
   // EVENTOS DE LA NAVBAR (RUTAS)
   // ============================================
 
-  // 🏠 Dashboard principal (perfil del usuario)
+  // Dashboard principal
   document.getElementById("navDashboard").onclick = () => navigate("dashboard");
 
-  // 💡 Dispositivos → showDevices()
+  // Dispositivos
   document.getElementById("navDevices").onclick = () => navigate("devices");
 
-  // 📜 Historial → showHistoricalPage()
-  document.getElementById("navHistorial").onclick = () => navigate("historical");
+  // 🔹 NUEVO: Ir al historial completo del dispositivo
+  document.getElementById("navHistorialCompleto").onclick = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return alert("No hay usuario autenticado.");
+      const userSnap = await get(ref(db, `usuarios/${user.uid}`));
+      const userData = userSnap.val();
+      if (userData && userData.deviceId) {
+        showHistoricalPage(userData.deviceId);
+      } else {
+        alert("Este usuario no tiene un dispositivo asignado.");
+      }
+    } catch (err) {
+      console.error("Error al abrir historial completo:", err);
+    }
+  };
 
-  // 👤 Formulario de datos personales
+  // 🔹 NUEVO: Abrir ventana Historial Manage (por ejemplo global)
+  document.getElementById("navHistorialManage").onclick = () => {
+    if (typeof showHistoryUtilsPage === "function") {
+      showHistoryUtilsPage(); // abrir ventana de gestión de historiales
+    } else {
+      alert("⚠️ La función 'showHistoryUtilsPage()' aún no está implementada.");
+    }
+  };
+
+  // Formularios
   document.getElementById("navUserForm").onclick = () => navigate("userform");
-
-  // ⛏️ Formulario tipo mina
   document.getElementById("navTipoMina").onclick = () => navigate("tipomina");
-
-  // 🌍 Formulario geográfico/empresa
   document.getElementById("navGeoEmpresa").onclick = () => navigate("geoempresa");
 
-  // 🛠️ Panel de administración
+  // Panel admin
   document.getElementById("navAdmin").onclick = () => navigate("admin");
 
-  // 🚪 Cerrar sesión
+  // Cerrar sesión
   document.getElementById("logout").onclick = async () => {
     await auth.signOut();
     navigate("login");
   };
 
+
   // ============================================
-  // EVENTOS DE FORMULARIO
+  // EVENTOS DE FORMULARIO (render dinámico por tipo de mina)
   // ============================================
 
   const tipoSelect = document.getElementById("tipoMina");
@@ -166,10 +198,10 @@ export function showUserDashboard() {
   }
   tipoSelect.addEventListener("change", (e) => renderCampos(e.target.value));
 
+
   // ============================================
   // AUTENTICACIÓN Y DATOS DE USUARIO
   // ============================================
-
   onAuthStateChanged(auth, async (user) => {
     if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
@@ -177,6 +209,7 @@ export function showUserDashboard() {
     const userEmail = user.email;
     const userDocRef = doc(firestore, "users", userId);
 
+    // Escucha los cambios del documento en Firestore en tiempo real
     onSnapshot(userDocRef, (snap) => {
       const data = snap.exists() ? snap.data() : {};
       document.getElementById("userProfile").innerHTML = `
@@ -188,7 +221,7 @@ export function showUserDashboard() {
       renderCampos(tipoSelect.value);
     });
 
-    // --- Guardar datos ---
+    // --- Guardar datos del usuario ---
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
       const tipoMina = tipoSelect.value;

@@ -79,30 +79,20 @@
       text-align: left;
     }
 
-    /* Zona inferior de botones */
-    .bottom-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin: 30px 0;
-    }
-
-    .bottom-actions button {
+    #closeBtn {
+      margin: 20px auto;
       padding: 10px 15px;
       border: none;
+      background-color: #d9534f;
+      color: white;
       border-radius: 5px;
       cursor: pointer;
-      font-weight: bold;
-      color: white;
-      transition: background-color 0.2s;
+      display: block;
     }
 
-    #closeBtn { background-color: #d9534f; }
-    #closeBtn:hover { background-color: #c9302c; }
-
-    .extra-btn { background-color: #28a745; }
-    .extra-btn:hover { background-color: #218838; }
+    #closeBtn:hover {
+      background-color: #c9302c;
+    }
   </style>
 </head>
 <body>
@@ -116,6 +106,7 @@
     <button id="pagina1Btn">📄 Página 1</button>
     <button id="pagina2Btn">📄 Página 2</button>
     <button id="manualPageBtn">📝 Abrir Nueva Página</button>
+    
   </div>
 
   <!-- Contenedores para datos -->
@@ -123,29 +114,20 @@
   <div id="deviceData" class="deviceDetails"></div>
   <div id="historialContainer"></div>
 
-  <!-- Zona inferior con nuevos botones -->
-  <div class="bottom-actions">
-    <button id="userFormBtn" class="extra-btn">👤 UserForm</button>
-    <button id="tipoMinaBtn" class="extra-btn">⛏️ Tipo Mina</button>
-    <button id="geoEmpresaBtn" class="extra-btn">🌍 Geo Empresa</button>
-    <button id="closeBtn">Cerrar Ventana</button>
-  </div>
+  <!-- Botón para cerrar la ventana -->
+  <button id="closeBtn">Cerrar Ventana</button>
 
   <script type="module" src="./app.js"></script>
   <script type="module">
-    // Botones de navegación principales
+    // Botones de navegación
     document.getElementById("pagina1Btn").onclick = () => window.navigate("page1");
     document.getElementById("pagina2Btn").onclick = () => window.navigate("page2");
+
+    // Botones de historial y nuevo
     document.getElementById("historyBtn").onclick = () => window.navigate("historical");
     document.getElementById("nuevoBtn").onclick = () => alert("Función de nuevo botón pendiente.");
-    document.getElementById("manualPageBtn").onclick = () => window.navigate("manager");
-
-    // Botones inferiores nuevos
-    document.getElementById("userFormBtn").onclick = () => window.navigate("userform");
-    document.getElementById("tipoMinaBtn").onclick = () => window.navigate("tipomina");
-    document.getElementById("geoEmpresaBtn").onclick = () => window.navigate("geoempresa");
-
-    // Botón cerrar ventana
+    
+    // Botón cerrar
     document.getElementById("closeBtn").onclick = () => window.navigate("devices");
   </script>
 
