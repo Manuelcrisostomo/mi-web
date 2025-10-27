@@ -12,8 +12,9 @@ import { showTipoMinaForm } from "./components/TipoMinaForm.js";
 import { showGeoEmpresaForm } from "./components/GeoEmpresaForm.js";
 import { showPagina1 } from "./components/Pagina1.js";
 import { showPagina2 } from "./components/Pagina2.js";
+import { renderNavbar } from "./components/navbar.js";
 import { auth } from "./firebaseConfig.js";
-import { renderNavbar } from "./components/Navbar.js";
+
 
 // Historial opcional
 let showAllDevicesFunc = null;
