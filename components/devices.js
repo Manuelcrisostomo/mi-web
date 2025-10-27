@@ -27,146 +27,136 @@ export function showUserDashboard() {
   const root = document.getElementById("root");
 
   root.innerHTML = `
-    <div class="dashboard">
+    <!-- ============================================
+         BARRA DE NAVEGACIÓN GLOBAL
+         ============================================ -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">Minesafe 2</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- 🔹 Inicio del usuario -->
+            <li class="nav-item"><a class="nav-link" id="navDashboard">🏠 Dashboard</a></li>
+            <!-- 🔹 Dispositivos -->
+            <li class="nav-item"><a class="nav-link" id="navDevices">💡 Dispositivos</a></li>
+            <!-- 🔹 Historial completo -->
+            <li class="nav-item"><a class="nav-link" id="navHistorial">📜 Historial</a></li>
+            <!-- 🔹 Formularios -->
+            <li class="nav-item"><a class="nav-link" id="navUserForm">👤 Datos Personales</a></li>
+            <li class="nav-item"><a class="nav-link" id="navTipoMina">⛏️ Tipo de Mina</a></li>
+            <li class="nav-item"><a class="nav-link" id="navGeoEmpresa">🌍 Geo / Empresa</a></li>
+            <!-- 🔹 Administrador -->
+            <li class="nav-item"><a class="nav-link" id="navAdmin">🛠️ Panel Admin</a></li>
+          </ul>
+
+          <button class="btn btn-outline-danger" id="logout">Cerrar Sesión</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============================================
+         CONTENIDO PRINCIPAL DEL DASHBOARD
+         ============================================ -->
+    <div class="dashboard container mt-4">
       <h2>Perfil del Usuario</h2>
-      <div id="userProfile" class="card"></div>
+      <div id="userProfile" class="card p-3 mb-3"></div>
 
       <h3>Editar Datos del Usuario</h3>
-      <form id="editForm" class="card">
-
+      <form id="editForm" class="card p-3">
         <h4>Datos Personales</h4>
-        <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" />
-        <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" />
-        <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" />
-        <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" />
-        <label>Rol:</label>
-        <select id="isAdmin">
-          <option value="false">Usuario Normal</option>
-          <option value="true">Administrador</option>
-        </select>
+        <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" class="form-control mb-2" />
+        <label>Teléfono:</label><input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" />
+        <label>Dirección:</label><input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" />
+        <label>ID del Dispositivo:</label><input type="text" id="deviceId" placeholder="Ej: device_38A839E81F84" class="form-control mb-2" />
 
         <h4>Tipo de Mina</h4>
-        <select id="tipoMina">
+        <select id="tipoMina" class="form-select mb-3">
           <option value="">Seleccione tipo...</option>
           <option value="subterranea">⛏️ Subterránea</option>
           <option value="tajo_abierto">🪨 Tajo Abierto</option>
-          <option value="aluvial">💧 Aluvial (placer)</option>
+          <option value="aluvial">💧 Aluvial</option>
           <option value="cantera">🏗️ Cantera</option>
-          <option value="pirquen">🧰 Pirquén / Artesanal</option>
+          <option value="pirquen">🧰 Pirquén</option>
         </select>
 
-        <div id="camposMina"></div>
-
-        <h4>Datos Técnicos (Mapas/Sistema)</h4>
-        <label>Latitud:</label><input type="number" step="0.000001" id="techLat" placeholder="Latitud" />
-        <label>Longitud:</label><input type="number" step="0.000001" id="techLng" placeholder="Longitud" />
-        <label>Altitud (m):</label><input type="number" step="0.1" id="techAlt" placeholder="Altitud" />
-        <label>Precisión (m):</label><input type="number" step="0.01" id="techPrecision" placeholder="Precisión" />
-        <label>EPSG/WGS84:</label><input type="text" id="techEPSG" placeholder="EPSG/WGS84" />
+        <div id="camposMina" class="mb-3"></div>
 
         <h4>Datos Geográficos / Empresariales</h4>
-        <label>País:</label><input type="text" id="geoPais" placeholder="País" />
-        <label>Región:</label><input type="text" id="geoRegion" placeholder="Región" />
-        <label>Comuna:</label><input type="text" id="geoComuna" placeholder="Comuna" />
-        <label>Nombre de la mina:</label><input type="text" id="geoMina" placeholder="Nombre de la mina" />
-        <label>Nombre de la empresa:</label><input type="text" id="geoEmpresa" placeholder="Nombre de la empresa" />
+        <label>País:</label><input type="text" id="geoPais" placeholder="País" class="form-control mb-2" />
+        <label>Región:</label><input type="text" id="geoRegion" placeholder="Región" class="form-control mb-2" />
+        <label>Comuna:</label><input type="text" id="geoComuna" placeholder="Comuna" class="form-control mb-2" />
+        <label>Nombre de la mina:</label><input type="text" id="geoMina" placeholder="Nombre de la mina" class="form-control mb-2" />
+        <label>Nombre de la empresa:</label><input type="text" id="geoEmpresa" placeholder="Nombre de la empresa" class="form-control mb-2" />
 
-        <button type="submit">💾 Guardar Cambios</button>
-        <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
+        <div class="d-flex justify-content-between mt-3">
+          <button type="submit" class="btn btn-success">💾 Guardar Cambios</button>
+          <button type="button" id="deleteUser" class="btn btn-danger">🗑️ Borrar Usuario</button>
+        </div>
       </form>
 
-      <h3>Dispositivo Asignado</h3>
-      <div id="deviceData" class="card">Cargando dispositivo...</div>
-
-      <!-- ================================================
-           BARRA DE BOTONES DE ACCIÓN (ACTUALIZADA)
-           ================================================ -->
-      <div class="actions">
-        <button id="alertsBtn">Ver Alertas</button>
-        <button id="devicesBtn">Ver Dispositivos</button>
-
-        <!-- 🔹 NUEVOS BOTONES AÑADIDOS AL LADO DEL CIERRE DE SESIÓN -->
-        <button id="userFormBtn">👤 Datos Personales</button>
-        <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
-        <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
-
-        <button id="logout">Cerrar Sesión</button>
-      </div>
+      <h3 class="mt-4">Dispositivo Asignado</h3>
+      <div id="deviceData" class="card p-3">Cargando dispositivo...</div>
     </div>
   `;
 
-  // ================================================
-  // EVENTOS DE NAVEGACIÓN
-  // ================================================
-  document.getElementById("alertsBtn").onclick = () => navigate("alerts");
-  document.getElementById("devicesBtn").onclick = () => navigate("devices");
+  // ============================================
+  // EVENTOS DE LA NAVBAR (RUTAS)
+  // ============================================
 
-  // 🔹 NUEVOS BOTONES: ENLAZAN A LAS NUEVAS PESTAÑAS
-  document.getElementById("userFormBtn").onclick = () => navigate("userform");
-  document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
-  document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
+  // 🏠 Dashboard principal (perfil del usuario)
+  document.getElementById("navDashboard").onclick = () => navigate("dashboard");
 
+  // 💡 Dispositivos → showDevices()
+  document.getElementById("navDevices").onclick = () => navigate("devices");
+
+  // 📜 Historial → showHistoricalPage()
+  document.getElementById("navHistorial").onclick = () => navigate("historical");
+
+  // 👤 Formulario de datos personales
+  document.getElementById("navUserForm").onclick = () => navigate("userform");
+
+  // ⛏️ Formulario tipo mina
+  document.getElementById("navTipoMina").onclick = () => navigate("tipomina");
+
+  // 🌍 Formulario geográfico/empresa
+  document.getElementById("navGeoEmpresa").onclick = () => navigate("geoempresa");
+
+  // 🛠️ Panel de administración
+  document.getElementById("navAdmin").onclick = () => navigate("admin");
+
+  // 🚪 Cerrar sesión
   document.getElementById("logout").onclick = async () => {
     await auth.signOut();
     navigate("login");
   };
 
-  // ================================================
-  // RENDERIZAR CAMPOS SEGÚN TIPO DE MINA
-  // ================================================
-  const camposMinaDiv = document.getElementById("camposMina");
+  // ============================================
+  // EVENTOS DE FORMULARIO
+  // ============================================
+
   const tipoSelect = document.getElementById("tipoMina");
+  const camposMinaDiv = document.getElementById("camposMina");
 
   function renderCampos(tipo) {
     let html = "";
     switch (tipo) {
       case "subterranea":
         html = `
-          <h4>⛏️ Subterránea</h4>
-          <label>Zona:</label><input id="zona" placeholder="Zona" />
-          <label>Rampa:</label><input id="rampa" placeholder="Rampa" />
-          <label>Galería:</label><input id="galeria" placeholder="Galería" />
-          <label>Sector:</label><input id="sector" placeholder="Sector" />
-          <label>Nombre de estación:</label><input id="nombreEstacion" placeholder="Nombre estación" />
+          <label>Zona:</label><input id="zona" class="form-control mb-2" placeholder="Zona" />
+          <label>Rampa:</label><input id="rampa" class="form-control mb-2" placeholder="Rampa" />
+          <label>Galería:</label><input id="galeria" class="form-control mb-2" placeholder="Galería" />
+          <label>Sector:</label><input id="sector" class="form-control mb-2" placeholder="Sector" />
         `;
         break;
       case "tajo_abierto":
         html = `
-          <h4>🪨 Tajo Abierto</h4>
-          <label>Banco:</label><input id="banco" placeholder="Banco" />
-          <label>Fase:</label><input id="fase" placeholder="Fase" />
-          <label>Frente:</label><input id="frente" placeholder="Frente" />
-          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
-        `;
-        break;
-      case "aluvial":
-        html = `
-          <h4>💧 Aluvial (placer)</h4>
-          <label>Mina:</label><input id="mina" placeholder="Mina" />
-          <label>Río:</label><input id="rio" placeholder="Río" />
-          <label>Tramo:</label><input id="tramo" placeholder="Tramo" />
-          <label>Cuadrante:</label><input id="cuadrante" placeholder="Cuadrante" />
-          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
-        `;
-        break;
-      case "cantera":
-        html = `
-          <h4>🏗️ Cantera</h4>
-          <label>Cantera:</label><input id="cantera" placeholder="Cantera" />
-          <label>Material:</label><input id="material" placeholder="Material" />
-          <label>Frente:</label><input id="frente" placeholder="Frente" />
-          <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
-          <label>Polígono:</label><input id="poligono" placeholder="Polígono" />
-        `;
-        break;
-      case "pirquen":
-        html = `
-          <h4>🧰 Pirquén / Artesanal</h4>
-          <label>Faena:</label><input id="faena" placeholder="Faena" />
-          <label>Tipo de explotación:</label><input id="tipoExplotacion" placeholder="Tipo de explotación" />
-          <label>Sector:</label><input id="sector" placeholder="Sector" />
-          <label>Coordenadas:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
-          <label>Nivel (si aplica):</label><input id="nivel" placeholder="Nivel" />
+          <label>Banco:</label><input id="banco" class="form-control mb-2" placeholder="Banco" />
+          <label>Fase:</label><input id="fase" class="form-control mb-2" placeholder="Fase" />
+          <label>Frente:</label><input id="frente" class="form-control mb-2" placeholder="Frente" />
         `;
         break;
       default:
@@ -174,12 +164,12 @@ export function showUserDashboard() {
     }
     camposMinaDiv.innerHTML = html;
   }
-
   tipoSelect.addEventListener("change", (e) => renderCampos(e.target.value));
 
-  // ================================================
-  // CARGA DE DATOS DE USUARIO DESDE FIREBASE
-  // ================================================
+  // ============================================
+  // AUTENTICACIÓN Y DATOS DE USUARIO
+  // ============================================
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
@@ -193,7 +183,6 @@ export function showUserDashboard() {
         <p><b>Nombre:</b> ${data.nombre || "-"}</p>
         <p><b>Email:</b> ${userEmail}</p>
         <p><b>Rol:</b> ${data.isAdmin ? "Administrador" : "Usuario"}</p>
-        <p><b>Tipo de mina:</b> ${data.tipoMina || "-"}</p>
       `;
       tipoSelect.value = data.tipoMina || "";
       renderCampos(tipoSelect.value);
@@ -202,35 +191,20 @@ export function showUserDashboard() {
     // --- Guardar datos ---
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
-
       const tipoMina = tipoSelect.value;
-      const camposExtras = {};
-      camposMinaDiv.querySelectorAll("input").forEach(input => {
-        camposExtras[input.id] = input.value.trim();
-      });
-
       const updatedData = {
         nombre: document.getElementById("nombre").value.trim(),
         telefono: document.getElementById("telefono").value.trim(),
         direccion: document.getElementById("direccion").value.trim(),
         deviceId: document.getElementById("deviceId").value.trim(),
-        isAdmin: document.getElementById("isAdmin").value === "true",
         tipoMina,
-        ...camposExtras,
-        latitude: parseFloat(document.getElementById("techLat").value) || 0,
-        longitude: parseFloat(document.getElementById("techLng").value) || 0,
-        altitude: parseFloat(document.getElementById("techAlt").value) || 0,
-        precision: parseFloat(document.getElementById("techPrecision").value) || 0,
-        EPSG: document.getElementById("techEPSG").value.trim() || "WGS84",
-        pais: document.getElementById("geoPais").value.trim(),
-        region: document.getElementById("geoRegion").value.trim(),
-        comuna: document.getElementById("geoComuna").value.trim(),
-        nombreMina: document.getElementById("geoMina").value.trim(),
-        nombreEmpresa: document.getElementById("geoEmpresa").value.trim(),
-        email: userEmail,
+        geoPais: document.getElementById("geoPais").value.trim(),
+        geoRegion: document.getElementById("geoRegion").value.trim(),
+        geoComuna: document.getElementById("geoComuna").value.trim(),
+        geoMina: document.getElementById("geoMina").value.trim(),
+        geoEmpresa: document.getElementById("geoEmpresa").value.trim(),
         updatedAt: new Date().toISOString()
       };
-
       try {
         await setDoc(userDocRef, updatedData, { merge: true });
         await update(ref(db, `usuarios/${userId}`), updatedData);
