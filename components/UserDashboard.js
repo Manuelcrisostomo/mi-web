@@ -22,8 +22,6 @@ import {
 
 import { update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { navigate } from "../app.js";
-import { showHistoricalPage } from "./historical.js";
-import { showHistoryUtilsPage } from "./historyUtils.js";
 
 export function showUserDashboard() {
   const root = document.getElementById("root");
@@ -35,15 +33,16 @@ export function showUserDashboard() {
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
       <div class="container-fluid">
         <span class="navbar-brand fw-bold">⚙️ Panel del Usuario</span>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex gap-2">
           <button class="btn btn-outline-light btn-sm" id="navUserForm">👤 Datos Personales</button>
           <button class="btn btn-outline-light btn-sm" id="navTipoMina">⛏️ Tipo de Mina</button>
           <button class="btn btn-outline-light btn-sm" id="navGeoEmpresa">🌍 Geo / Empresa</button>
           <button class="btn btn-outline-warning btn-sm" id="navDevices">🛰️ Dispositivos</button>
           <button class="btn btn-outline-info btn-sm" id="navAlerts">🚨 Alertas</button>
+          <!-- 🔹 NUEVOS BOTONES -->
           <button class="btn btn-outline-success btn-sm" id="navHistorialCompleto">📜 Historial Completo</button>
           <button class="btn btn-outline-primary btn-sm" id="navHistorialManage">🗂️ Historial Manage</button>
-          <button class="btn btn-outline-secondary btn-sm" id="navBack">⬅️ Volver Atrás</button>
+
           <button class="btn btn-outline-danger btn-sm" id="navLogout">🔒 Cerrar Sesión</button>
         </div>
       </div>
@@ -108,35 +107,7 @@ export function showUserDashboard() {
   document.getElementById("navGeoEmpresa").onclick = () => navigate("geoempresa");
   document.getElementById("navDevices").onclick = () => navigate("devices");
   document.getElementById("navAlerts").onclick = () => navigate("alerts");
-  document.getElementById("navBack").onclick = () => navigate("mainmenu");
-  document.getElementById("navLogout").onclick = async () => {
-    await auth.signOut();
-    navigate("login");
-  };
-
-  // 🔸 Botón Historial Completo
-  document.getElementById("navHistorialCompleto").onclick = async () => {
-    const user = auth.currentUser;
-    if (!user) return alert("No hay usuario autenticado.");
-
-    const userSnap = await get(ref(db, `usuarios/${user.uid}`));
-    const userData = userSnap.val();
-
-    if (userData?.deviceId) {
-      showHistoricalPage(userData.deviceId);
-    } else {
-      alert("⚠️ Este usuario no tiene dispositivo asignado.");
-    }
-  };
-
-  // 🔸 Botón Historial Manage
-  document.getElementById("navHistorialManage").onclick = () => {
-    if (typeof showHistoryUtilsPage === "function") {
-      showHistoryUtilsPage();
-    } else {
-      alert("🧩 La función showHistoryUtilsPage() aún no está implementada.");
-    }
-  };
+  document.getElementById("navLogout").onclick = async () => { await auth.signOut(); navigate("login"); };
 
   // =====================================================
   // 🔹 RENDERIZADO DE CAMPOS SEGÚN TIPO DE MINA
@@ -208,7 +179,7 @@ export function showUserDashboard() {
   // 🔹 CARGA Y GUARDADO DE DATOS DEL USUARIO
   // =====================================================
   onAuthStateChanged(auth, async (user) => {
-    if (!user) return (root.innerHTML = "<p>No hay usuario autenticado.</p>");
+    if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
     const userId = user.uid;
     const userEmail = user.email;
@@ -234,7 +205,7 @@ export function showUserDashboard() {
 
       const tipoMina = tipoSelect.value;
       const camposExtras = {};
-      camposMinaDiv.querySelectorAll("input").forEach((input) => {
+      camposMinaDiv.querySelectorAll("input").forEach(input => {
         camposExtras[input.id] = input.value.trim();
       });
 
