@@ -1,24 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Todos los Dispositivos</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dispositivos - Minesafe 2</title>
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #eef1f5;
-      margin: 0;
       text-align: center;
     }
-
     h2 {
       margin: 20px 0;
       color: #333;
     }
-
-    /* Botones principales centrados */
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -26,110 +22,45 @@
       gap: 10px;
       margin-bottom: 20px;
     }
-
     .actions button {
       padding: 8px 15px;
       border-radius: 5px;
       border: none;
       cursor: pointer;
-      font-weight: bold;
-      transition: filter 0.2s;
       background-color: #007bff;
       color: white;
+      font-weight: bold;
     }
-
     .actions button:hover {
       filter: brightness(85%);
     }
-
-    /* Contenedores para dispositivos */
-    .card {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #fff;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-    }
-
-    .card:hover {
-      background-color: #f9f9f9;
-    }
-
-    .deviceDetails {
-      margin: 20px auto;
-      padding: 15px;
-      background: #f0f0f0;
-      border-radius: 8px;
-      max-width: 700px;
-      text-align: left;
-    }
-
-    .deviceDetails h3 {
-      margin-top: 0;
-    }
-
-    #historialContainer {
-      max-width: 700px;
-      margin: 20px auto;
-      text-align: left;
-    }
-
     #closeBtn {
-      margin: 20px auto;
-      padding: 10px 15px;
-      border: none;
       background-color: #d9534f;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-      display: block;
     }
-
     #closeBtn:hover {
       background-color: #c9302c;
     }
   </style>
 </head>
 <body>
-
   <h2>Dispositivos Vinculados</h2>
 
-  <!-- Botones principales -->
   <div class="actions">
-    <button id="historyBtn">📜 Historial General</button>
-    <button id="nuevoBtn">✨ Nuevo Botón</button>
-    <button id="pagina1Btn">📄 Página 1</button>
-    <button id="pagina2Btn">📄 Página 2</button>
-    <button id="manualPageBtn">📝 Abrir Nueva Página</button>
-    
+    <button onclick="navigate('history')">📜 Historial General</button>
+    <button onclick="navigate('userform')">👤 Datos Personales</button>
+    <button onclick="navigate('tipomina')">⛏️ Tipo de Mina</button>
+    <button onclick="navigate('geoempresa')">🌍 Empresa / Geografía</button>
+    <button onclick="navigate('pagina1')">📄 Página 1</button>
+    <button onclick="navigate('pagina2')">📄 Página 2</button>
   </div>
 
-  <!-- Contenedores para datos -->
-  <div id="deviceList"></div>
-  <div id="deviceData" class="deviceDetails"></div>
-  <div id="historialContainer"></div>
+  <main id="root"></main>
 
-  <!-- Botón para cerrar la ventana -->
-  <button id="closeBtn">Cerrar Ventana</button>
+  <button id="closeBtn" onclick="navigate('login')">Cerrar Ventana</button>
 
-  <script type="module" src="./app.js"></script>
   <script type="module">
-    // Botones de navegación
-    document.getElementById("pagina1Btn").onclick = () => window.navigate("page1");
-    document.getElementById("pagina2Btn").onclick = () => window.navigate("page2");
-
-    // Botones de historial y nuevo
-    document.getElementById("historyBtn").onclick = () => window.navigate("historical");
-    document.getElementById("nuevoBtn").onclick = () => alert("Función de nuevo botón pendiente.");
-    
-    // Botón cerrar
-    document.getElementById("closeBtn").onclick = () => window.navigate("devices");
+    import { navigate } from "./app.js";
+    window.navigate = navigate;
   </script>
-
 </body>
 </html>
