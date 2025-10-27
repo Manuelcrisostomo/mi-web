@@ -1,3 +1,6 @@
+// ================================================
+// app.js — Navegación principal con navbar global
+// ================================================
 import { showLogin } from "./components/Login.js";
 import { showRegister } from "./components/Register.js";
 import { showUserDashboard } from "./components/UserDashboard.js";
@@ -5,11 +8,19 @@ import { showAdminDashboard } from "./components/AdminDashboard.js";
 import { showAlerts } from "./components/AlertsView.js";
 import { showDevices } from "./components/DeviceView.js";
 
-// 👈 Importar las páginas adicionales
+// Formularios
+import { showUserForm } from "./components/UserForm.js";
+import { showTipoMinaForm } from "./components/TipoMinaForm.js";
+import { showGeoEmpresaForm } from "./components/GeoEmpresaForm.js";
+
+// Páginas extra
 import { showPagina1 } from "./components/Pagina1.js";
 import { showPagina2 } from "./components/Pagina2.js";
 
-// Intentamos importar showAllDevices solo si existe
+// Firebase Auth
+import { auth } from "./firebaseConfig.js";
+
+// Historial opcional
 let showAllDevicesFunc = null;
 try {
   const module = await import("./components/deviceHistory.js");
@@ -20,38 +31,95 @@ try {
 
 const root = document.getElementById("root");
 
+// ================================================
+// NAVBAR GLOBAL (excepto login y register)
+// ================================================
+function renderNavbar() {
+  const nav = document.createElement("nav");
+  nav.className = "main-navbar";
+  nav.innerHTML = `
+    <div class="navbar-container">
+      <span class="logo">⚙️ Minesafe 2</span>
+      <div class="nav-buttons">
+        <button data-view="user">🏠 Panel</button>
+        <button data-view="devices">💡 Dispositivos</button>
+        <button data-view="alerts">🚨 Alertas</button>
+        <button data-view="history">📜 Historial</button>
+        <button data-view="userform">👤 Datos</button>
+        <button data-view="tipomina">⛏️ Mina</button>
+        <button data-view="geoempresa">🌍 Empresa</button>
+        <button data-view="pagina1">📄 Pág. 1</button>
+        <button data-view="pagina2">📄 Pág. 2</button>
+        <button data-view="admin">🛠️ Admin</button>
+        <button id="logoutBtn" class="logout">🚪 Cerrar Sesión</button>
+      </div>
+    </div>
+  `;
+
+  nav.querySelectorAll("button[data-view]").forEach((btn) => {
+    btn.addEventListener("click", () => navigate(btn.dataset.view));
+  });
+
+  nav.querySelector("#logoutBtn").onclick = async () => {
+    await auth.signOut();
+    navigate("login");
+  };
+
+  return nav;
+}
+
+// ================================================
+// FUNCIÓN GLOBAL DE NAVEGACIÓN
+// ================================================
 export function navigate(view, params = null) {
   root.innerHTML = "";
 
-  if (view === "login") showLogin();
-  else if (view === "register") showRegister();
-  else if (view === "user") showUserDashboard();
-  else if (view === "admin") showAdminDashboard();
-  else if (view === "alerts") showAlerts();
-  else if (view === "devices") {
-    showDevices();
-
-    // Agregar botones para páginas adicionales
-    const deviceActionsDiv = document.querySelector(".actions");
-    if (deviceActionsDiv) {
-      const btn1 = document.createElement("button");
-      btn1.textContent = "📄 Página 1";
-      btn1.onclick = () => navigate("pagina1");
-      deviceActionsDiv.appendChild(btn1);
-
-      const btn2 = document.createElement("button");
-      btn2.textContent = "📄 Página 2";
-      btn2.onclick = () => navigate("pagina2");
-      deviceActionsDiv.appendChild(btn2);
-    }
+  // Login y registro SIN navbar
+  if (view === "login") {
+    document.querySelector("header").style.display = "flex";
+    showLogin();
+    return;
   }
-  else if (view === "history") {
-    if (showAllDevicesFunc) showAllDevicesFunc();
-    else root.innerHTML = "<p>⚠️ Función de historial no disponible.</p>";
+  if (view === "register") {
+    document.querySelector("header").style.display = "flex";
+    showRegister();
+    return;
   }
-  else if (view === "pagina1") showPagina1();
-  else if (view === "pagina2") showPagina2();
+
+  // En las demás páginas, ocultar header fijo y usar navbar propia
+  document.querySelector("header").style.display = "none";
+
+  // Crear navbar dinámica
+  const navbar = renderNavbar();
+  root.appendChild(navbar);
+
+  // Contenido principal
+  const content = document.createElement("div");
+  content.className = "page-content";
+  root.appendChild(content);
+
+  // --- Mostrar vista correspondiente ---
+  switch (view) {
+    case "user": showUserDashboard(); break;
+    case "admin": showAdminDashboard(); break;
+    case "alerts": showAlerts(); break;
+    case "devices": showDevices(); break;
+    case "userform": showUserForm(); break;
+    case "tipomina": showTipoMinaForm(); break;
+    case "geoempresa": showGeoEmpresaForm(); break;
+    case "pagina1": showPagina1(); break;
+    case "pagina2": showPagina2(); break;
+    case "history":
+      showAllDevicesFunc
+        ? showAllDevicesFunc()
+        : (content.innerHTML = "<p>⚠️ Historial no disponible.</p>");
+      break;
+    default:
+      showLogin();
+  }
 }
 
-// Vista inicial
+// ================================================
+// ARRANQUE DE APLICACIÓN
+// ================================================
 navigate("login");

@@ -207,3 +207,35 @@ ul li { margin-bottom: 8px; }
 /* Botón eliminar */
 .delete-btn { background-color: #dc3545; }
 .delete-btn:hover { background-color: #a71d2a; }
+.main-navbar {
+  background: #1f1f1f;
+  color: #fff;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.navbar-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.main-navbar button {
+  background: #333;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.main-navbar button:hover {
+  background: #007bff;
+}
+
+.main-navbar .logout {
+  background: #dc3545;
+}
