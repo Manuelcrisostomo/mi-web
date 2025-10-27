@@ -33,12 +33,22 @@ export function showDevices() {
   root.innerHTML = `
     <div class="dashboard">
       <h2>Dispositivo Asignado</h2>
+
+      <!-- ================================================
+           BARRA DE BOTONES PRINCIPAL (ACTUALIZADA)
+           ================================================ -->
       <div class="actions">
         <button id="back">⬅️ Volver</button>
         <button id="refreshBtn">🔄 Actualizar datos</button>
         <button id="verHistorialBtn">📜 Ver historial completo</button>
         <button id="saveCurrentBtn">💾 Guardar medición</button>
+
+        <!-- 🔹 NUEVOS BOTONES AÑADIDOS -->
+        <button id="userFormBtn">👤 Datos Personales</button>
+        <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
+        <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
       </div>
+
       <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
       <div id="camposMinaDiv" class="camposMina"></div>
     </div>
@@ -46,7 +56,9 @@ export function showDevices() {
 
   const deviceDataDiv = document.getElementById("deviceData");
 
-  // Botones
+  // ================================================
+  // EVENTOS DE LOS BOTONES
+  // ================================================
   document.getElementById("back").onclick = () => navigate("user");
   document.getElementById("refreshBtn").onclick = () =>
     mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);
@@ -54,6 +66,11 @@ export function showDevices() {
     showHistoricalPage(DEVICE_ID_DEFAULT);
   document.getElementById("saveCurrentBtn").onclick = () =>
     guardarMedicionActual(DEVICE_ID_DEFAULT);
+
+  // 🔹 NUEVOS BOTONES DE NAVEGACIÓN
+  document.getElementById("userFormBtn").onclick = () => navigate("userform");
+  document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
+  document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
 
   // Cargar datos iniciales
   mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);
@@ -198,6 +215,10 @@ function showHistoricalPage(deviceId) {
     <div class="dashboard">
       <h2>Historial Completo del Dispositivo</h2>
       <p><strong>ID:</strong> ${deviceId}</p>
+
+      <!-- ================================================
+           BARRA DE BOTONES DE HISTORIAL (ACTUALIZADA)
+           ================================================ -->
       <div class="actions">
           <button id="backToDeviceBtn">⬅️ Volver</button>
           <button id="refreshHistBtn">🔄 Actualizar historial</button>
@@ -206,7 +227,13 @@ function showHistoricalPage(deviceId) {
           <button id="page1Btn">📄 Página 1</button>
           <button id="manualPageBtn">📋 Abrir Historial Manager</button>
           <button id="page2Btn">📄 Página 2</button>
+
+          <!-- 🔹 NUEVOS BOTONES AÑADIDOS -->
+          <button id="userFormBtn">👤 Datos Personales</button>
+          <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
+          <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
       </div>
+
       <div id="fullHistorialContainer" class="historialDetails">Cargando historial...</div>
     </div>
   `;
@@ -215,6 +242,9 @@ function showHistoricalPage(deviceId) {
   const savePdfBtn = document.getElementById("savePdfBtn");
   const saveExcelBtn = document.getElementById("saveExcelBtn");
 
+  // ================================================
+  // EVENTOS DE LOS BOTONES
+  // ================================================
   document.getElementById("backToDeviceBtn").onclick = () => showDevices();
   document.getElementById("refreshHistBtn").onclick = () =>
     cargarHistorialGlobal(deviceId, fullHistorialDiv, savePdfBtn, saveExcelBtn);
@@ -222,11 +252,17 @@ function showHistoricalPage(deviceId) {
   document.getElementById("page2Btn").onclick = () => showPage2(deviceId);
   document.getElementById("manualPageBtn").onclick = () =>
     showHistoryManagerPage();
+
+  // 🔹 NUEVOS BOTONES DE NAVEGACIÓN
+  document.getElementById("userFormBtn").onclick = () => navigate("userform");
+  document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
+  document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
+
   cargarHistorialGlobal(deviceId, fullHistorialDiv, savePdfBtn, saveExcelBtn);
 }
 
 // ================================================
-// PÁGINA 1 Y 2
+// RESTO DE FUNCIONES (SIN CAMBIOS)
 // ================================================
 function showPage1(deviceId) {
   const root = document.getElementById("root");
@@ -254,9 +290,6 @@ function showPage2(deviceId) {
     showHistoricalPage(deviceId);
 }
 
-// ================================================
-// CARGAR HISTORIAL GLOBAL
-// ================================================
 function cargarHistorialGlobal(deviceId, container, btnPDF, btnExcel) {
   const histRef = ref(db, `dispositivos/${deviceId}/historial_global`);
   onValue(histRef, (snapshot) => {
@@ -292,9 +325,6 @@ function cargarHistorialGlobal(deviceId, container, btnPDF, btnExcel) {
   });
 }
 
-// ================================================
-// GUARDAR COMO PDF
-// ================================================
 function guardarHistorialComoPDF(deviceId, registros) {
   if (typeof window.jspdf === "undefined") {
     alert("Error: La librería jsPDF no está disponible.");
@@ -326,9 +356,6 @@ function guardarHistorialComoPDF(deviceId, registros) {
   doc.save(`historial-global-${deviceId}.pdf`);
 }
 
-// ================================================
-// GUARDAR COMO EXCEL (CSV)
-// ================================================
 function guardarHistorialComoExcel(deviceId, registros) {
   let csv = "ID,CO,CO2,PM10,PM2_5,Humedad,Temperatura\n";
   registros.forEach(([id, valores]) => {

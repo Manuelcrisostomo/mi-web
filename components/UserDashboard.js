@@ -1,5 +1,5 @@
-//agrega el nav // ================================================
-// userDashboard.js — Gestión de Usuario y Tipos de Mina
+// ================================================
+// userDashboard.js — Gestión de Usuario y Tipos de Mina (ACTUALIZADO)
 // ================================================
 
 import {
@@ -27,12 +27,32 @@ export function showUserDashboard() {
   const root = document.getElementById("root");
 
   root.innerHTML = `
-    <div class="dashboard">
+    <!-- ================================================
+         BARRA DE NAVEGACIÓN (NUEVA)
+         ================================================ -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+      <div class="container-fluid">
+        <span class="navbar-brand fw-bold">⚙️ Panel del Usuario</span>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-light btn-sm" id="navUserForm">👤 Datos Personales</button>
+          <button class="btn btn-outline-light btn-sm" id="navTipoMina">⛏️ Tipo de Mina</button>
+          <button class="btn btn-outline-light btn-sm" id="navGeoEmpresa">🌍 Geo / Empresa</button>
+          <button class="btn btn-outline-warning btn-sm" id="navDevices">🛰️ Dispositivos</button>
+          <button class="btn btn-outline-info btn-sm" id="navAlerts">🚨 Alertas</button>
+          <button class="btn btn-outline-danger btn-sm" id="navLogout">🔒 Cerrar Sesión</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ================================================
+         CONTENIDO PRINCIPAL
+         ================================================ -->
+    <div class="dashboard container">
       <h2>Perfil del Usuario</h2>
-      <div id="userProfile" class="card"></div>
+      <div id="userProfile" class="card p-3 mb-4 shadow-sm"></div>
 
       <h3>Editar Datos del Usuario</h3>
-      <form id="editForm" class="card">
+      <form id="editForm" class="card p-3 shadow-sm mb-4">
 
         <h4>Datos Personales</h4>
         <label>Nombre:</label><input type="text" id="nombre" placeholder="Nombre completo" />
@@ -50,7 +70,7 @@ export function showUserDashboard() {
           <option value="pirquen">🧰 Pirquén / Artesanal</option>
         </select>
 
-        <div id="camposMina"></div>
+        <div id="camposMina" class="mt-2"></div>
 
         <h4>Datos Técnicos (Mapas/Sistema)</h4>
         <label>Latitud:</label><input type="number" step="0.000001" id="techLat" placeholder="Latitud" />
@@ -66,27 +86,28 @@ export function showUserDashboard() {
         <label>Nombre de la mina:</label><input type="text" id="geoMina" placeholder="Nombre de la mina" />
         <label>Nombre de la empresa:</label><input type="text" id="geoEmpresa" placeholder="Nombre de la empresa" />
 
-        <button type="submit">💾 Guardar Cambios</button>
-        <button type="button" id="deleteUser" class="delete-btn">🗑️ Borrar Usuario</button>
+        <button type="submit" class="btn btn-success mt-3">💾 Guardar Cambios</button>
+        <button type="button" id="deleteUser" class="btn btn-danger mt-2">🗑️ Borrar Usuario</button>
       </form>
 
       <h3>Dispositivo Asignado</h3>
-      <div id="deviceData" class="card">Cargando dispositivo...</div>
-
-      <div class="actions">
-        <button id="alertsBtn">Ver Alertas</button>
-        <button id="devicesBtn">Ver Dispositivos</button>
-        <button id="logout">Cerrar Sesión</button>
-      </div>
+      <div id="deviceData" class="card p-3 shadow-sm">Cargando dispositivo...</div>
     </div>
   `;
 
-  // --- Navegación
-  document.getElementById("alertsBtn").onclick = () => navigate("alerts");
-  document.getElementById("devicesBtn").onclick = () => navigate("devices");
-  document.getElementById("logout").onclick = async () => { await auth.signOut(); navigate("login"); };
+  // =====================================================
+  // 🔹 NAVEGACIÓN SUPERIOR
+  // =====================================================
+  document.getElementById("navUserForm").onclick = () => navigate("userform");
+  document.getElementById("navTipoMina").onclick = () => navigate("tipomina");
+  document.getElementById("navGeoEmpresa").onclick = () => navigate("geoempresa");
+  document.getElementById("navDevices").onclick = () => navigate("devices");
+  document.getElementById("navAlerts").onclick = () => navigate("alerts");
+  document.getElementById("navLogout").onclick = async () => { await auth.signOut(); navigate("login"); };
 
-  // --- Renderizado dinámico de campos según tipo de mina
+  // =====================================================
+  // 🔹 RENDERIZADO DE CAMPOS SEGÚN TIPO DE MINA
+  // =====================================================
   const camposMinaDiv = document.getElementById("camposMina");
   const tipoSelect = document.getElementById("tipoMina");
 
@@ -150,7 +171,9 @@ export function showUserDashboard() {
 
   tipoSelect.addEventListener("change", (e) => renderCampos(e.target.value));
 
-  // --- Autenticación y carga de datos
+  // =====================================================
+  // 🔹 CARGA Y GUARDADO DE DATOS DEL USUARIO
+  // =====================================================
   onAuthStateChanged(auth, async (user) => {
     if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
@@ -170,11 +193,9 @@ export function showUserDashboard() {
       tipoSelect.value = data.tipoMina || "";
       renderCampos(tipoSelect.value);
 
-      // Cargar dispositivo automáticamente si existe
       if (data.deviceId) mostrarDatosDispositivo(data.deviceId, data);
     });
 
-    // --- Guardar datos (sin permitir cambiar rol)
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
 
@@ -189,8 +210,6 @@ export function showUserDashboard() {
         telefono: document.getElementById("telefono").value.trim(),
         direccion: document.getElementById("direccion").value.trim(),
         deviceId: document.getElementById("deviceId").value.trim(),
-        // --- Mantener rol actual
-        // isAdmin: se mantiene igual en Firestore
         tipoMina,
         ...camposExtras,
         latitude: parseFloat(document.getElementById("techLat").value) || 0,
@@ -216,7 +235,6 @@ export function showUserDashboard() {
       }
     };
 
-    // --- Eliminar usuario
     document.getElementById("deleteUser").onclick = async () => {
       if (!confirm("¿Eliminar usuario permanentemente?")) return;
       try {
@@ -229,7 +247,6 @@ export function showUserDashboard() {
       }
     };
 
-    // --- Mostrar datos de dispositivo
     function mostrarDatosDispositivo(deviceId, userData = {}) {
       const deviceRef = ref(db, `dispositivos/${deviceId}`);
       onValue(deviceRef, (snap) => {
@@ -243,22 +260,6 @@ export function showUserDashboard() {
           <p><b>Altitud (m):</b> ${d.altitude ?? 0}</p>
           <p><b>Precisión:</b> ${d.precision ?? 0}</p>
           <p><b>EPSG/WGS84:</b> ${d.EPSG ?? "WGS84"}</p>
-          <p><b>Zona:</b> ${d.zona ?? ""}</p>
-          <p><b>Rampa:</b> ${d.rampa ?? ""}</p>
-          <p><b>Galería:</b> ${d.galeria ?? ""}</p>
-          <p><b>Sector:</b> ${d.sector ?? ""}</p>
-          <p><b>Nombre estación:</b> ${d.nombreEstacion ?? ""}</p>
-          <p><b>País:</b> ${d.pais ?? ""}</p>
-          <p><b>Región:</b> ${d.region ?? ""}</p>
-          <p><b>Comuna:</b> ${d.comuna ?? ""}</p>
-          <p><b>Nombre mina:</b> ${d.nombreMina ?? ""}</p>
-          <p><b>Nombre empresa:</b> ${d.nombreEmpresa ?? ""}</p>
-          <p>CO: ${d.CO ?? 0} ppm</p>
-          <p>CO₂: ${d.CO2 ?? 0} ppm</p>
-          <p>PM10: ${d.PM10 ?? 0} µg/m³</p>
-          <p>PM2.5: ${d.PM2_5 ?? 0} µg/m³</p>
-          <p>Humedad: ${d.humedad ?? 0}%</p>
-          <p>Temperatura: ${d.temperatura ?? 0} °C</p>
         `;
       });
     }
