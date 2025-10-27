@@ -78,20 +78,42 @@ export function showUserDashboard() {
       <h3>Dispositivo Asignado</h3>
       <div id="deviceData" class="card">Cargando dispositivo...</div>
 
+      <!-- ================================================
+           BARRA DE BOTONES DE ACCIÓN (ACTUALIZADA)
+           ================================================ -->
       <div class="actions">
         <button id="alertsBtn">Ver Alertas</button>
         <button id="devicesBtn">Ver Dispositivos</button>
+
+        <!-- 🔹 NUEVOS BOTONES AÑADIDOS AL LADO DEL CIERRE DE SESIÓN -->
+        <button id="userFormBtn">👤 Datos Personales</button>
+        <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
+        <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
+
         <button id="logout">Cerrar Sesión</button>
       </div>
     </div>
   `;
 
-  // --- Navegación
+  // ================================================
+  // EVENTOS DE NAVEGACIÓN
+  // ================================================
   document.getElementById("alertsBtn").onclick = () => navigate("alerts");
   document.getElementById("devicesBtn").onclick = () => navigate("devices");
-  document.getElementById("logout").onclick = async () => { await auth.signOut(); navigate("login"); };
 
-  // --- Renderizado dinámico de campos según tipo de mina
+  // 🔹 NUEVOS BOTONES: ENLAZAN A LAS NUEVAS PESTAÑAS
+  document.getElementById("userFormBtn").onclick = () => navigate("userform");
+  document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
+  document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
+
+  document.getElementById("logout").onclick = async () => {
+    await auth.signOut();
+    navigate("login");
+  };
+
+  // ================================================
+  // RENDERIZAR CAMPOS SEGÚN TIPO DE MINA
+  // ================================================
   const camposMinaDiv = document.getElementById("camposMina");
   const tipoSelect = document.getElementById("tipoMina");
 
@@ -108,7 +130,6 @@ export function showUserDashboard() {
           <label>Nombre de estación:</label><input id="nombreEstacion" placeholder="Nombre estación" />
         `;
         break;
-
       case "tajo_abierto":
         html = `
           <h4>🪨 Tajo Abierto</h4>
@@ -118,7 +139,6 @@ export function showUserDashboard() {
           <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
         `;
         break;
-
       case "aluvial":
         html = `
           <h4>💧 Aluvial (placer)</h4>
@@ -129,7 +149,6 @@ export function showUserDashboard() {
           <label>Coordenadas GPS:</label><input id="coordGPS" placeholder="Ej: -23.45, -70.12" />
         `;
         break;
-
       case "cantera":
         html = `
           <h4>🏗️ Cantera</h4>
@@ -140,7 +159,6 @@ export function showUserDashboard() {
           <label>Polígono:</label><input id="poligono" placeholder="Polígono" />
         `;
         break;
-
       case "pirquen":
         html = `
           <h4>🧰 Pirquén / Artesanal</h4>
@@ -151,7 +169,6 @@ export function showUserDashboard() {
           <label>Nivel (si aplica):</label><input id="nivel" placeholder="Nivel" />
         `;
         break;
-
       default:
         html = "";
     }
@@ -160,7 +177,9 @@ export function showUserDashboard() {
 
   tipoSelect.addEventListener("change", (e) => renderCampos(e.target.value));
 
-  // --- Autenticación y carga de datos
+  // ================================================
+  // CARGA DE DATOS DE USUARIO DESDE FIREBASE
+  // ================================================
   onAuthStateChanged(auth, async (user) => {
     if (!user) return root.innerHTML = "<p>No hay usuario autenticado.</p>";
 
@@ -176,12 +195,11 @@ export function showUserDashboard() {
         <p><b>Rol:</b> ${data.isAdmin ? "Administrador" : "Usuario"}</p>
         <p><b>Tipo de mina:</b> ${data.tipoMina || "-"}</p>
       `;
-
       tipoSelect.value = data.tipoMina || "";
       renderCampos(tipoSelect.value);
     });
 
-    // --- Guardar datos
+    // --- Guardar datos ---
     document.getElementById("editForm").onsubmit = async (e) => {
       e.preventDefault();
 
@@ -222,7 +240,7 @@ export function showUserDashboard() {
       }
     };
 
-    // --- Eliminar usuario
+    // --- Eliminar usuario ---
     document.getElementById("deleteUser").onclick = async () => {
       if (!confirm("¿Eliminar usuario permanentemente?")) return;
       try {
