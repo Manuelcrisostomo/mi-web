@@ -4,7 +4,7 @@ export function showGraficos() {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
-      <button id="backBtn" class="btn-volver">⬅️ Volver</button>
+      <button id="backBtn">⬅️ Volver</button>
       <h2>📊 Gráficos de Sensores</h2>
       <div class="card">
         <canvas id="chartMediciones"></canvas>
@@ -14,7 +14,7 @@ export function showGraficos() {
 
   // Botón Volver atrás
   document.getElementById("backBtn").onclick = () => {
-    navigate("usuarios"); // Cambia "usuarios" según corresponda
+    navigate("usuarios"); // Cambia según la sección a la que quieras volver
   };
 
   const ctx = document.getElementById("chartMediciones").getContext("2d");
@@ -50,4 +50,3 @@ export function showGraficos() {
     });
   });
 }
-// --- IGNORE ---
