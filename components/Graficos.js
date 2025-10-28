@@ -1,21 +1,9 @@
+import { navigate } from "../app.js"; // ✅ importa navigate
 import { db, ref, onValue } from "../firebaseConfig.js";
 import Chart from "chart.js/auto";
-import { navigate } from "../app.js";
-import { renderNavbar } from "./navbar.js"; // ✅ importamos la navbar
-
-let lastPage = "usuarios"; // Página anterior inicial
 
 export function showGraficos() {
-  const root = document.getElementById("root");
-  root.innerHTML = ""; // Limpiamos root
-
-  // ==== NAVBAR GLOBAL ====
-  const navbar = renderNavbar();
-  root.appendChild(navbar);
-
-  // ==== CONTENIDO PRINCIPAL ====
-  const content = document.createElement("div");
-  content.className = "page-content";
+  const content = document.querySelector(".page-content");
   content.innerHTML = `
     <div class="dashboard">
       <div class="actions mb-3">
@@ -27,18 +15,13 @@ export function showGraficos() {
       </div>
     </div>
   `;
-  root.appendChild(content);
 
-  // ==== BOTÓN VOLVER ====
+  // ✅ Asignar onclick después de crear el botón
   const backBtn = document.getElementById("backBtn");
   backBtn.addEventListener("click", () => {
-    navigate(lastPage);
+    navigate("usuarios"); // Cambia "usuarios" por la página de destino
   });
 
-  // Actualiza la página anterior
-  lastPage = "graficos";
-
-  // ==== CARGA DE DATOS PARA EL GRÁFICO ====
   const ctx = document.getElementById("chartMediciones").getContext("2d");
   const deviceId = "device_A4CB2F124B00";
   const histRef = ref(db, `dispositivos/${deviceId}/historial_global`);
@@ -49,7 +32,6 @@ export function showGraficos() {
 
     const fechas = [];
     const co = [], co2 = [], pm10 = [], pm25 = [];
-
     Object.entries(data).slice(-20).forEach(([t, v]) => {
       fechas.push(new Date(parseInt(t)).toLocaleTimeString());
       co.push(v.CO || 0);
@@ -73,3 +55,6 @@ export function showGraficos() {
     });
   });
 }
+// ================================================
+// FIN DEL COMPONENTE GRÁFICOS
+// ================================================
