@@ -206,32 +206,3 @@ button:hover {
    FIN DEL ESTILO ADMIN PANEL MINESAFE 2
    ================================================ */
    /* styles.css */
-#root {
-  padding: 20px;
-}
-
-.dashboard {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.card {
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  margin-top: 15px;
-}
-
-button {
-  padding: 8px 12px;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 12px;
-}
-
-button:hover {
-  background-color: #5a6268;
-}
