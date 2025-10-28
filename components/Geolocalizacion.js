@@ -47,3 +47,6 @@ function initMap() {
     }
   );
 }
+// ================================================   
+// Geolocalizacion.js — Mapa de geolocalización usando Leaflet.js
+// ================================================
