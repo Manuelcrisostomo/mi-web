@@ -4,12 +4,19 @@ export function showGraficos() {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
+      <button id="backBtn" class="btn btn-secondary mb-3">⬅️ Volver</button>
       <h2>📊 Gráficos de Sensores</h2>
       <div class="card">
         <canvas id="chartMediciones"></canvas>
       </div>
     </div>
   `;
+
+  // Botón Volver atrás
+  document.getElementById("backBtn").onclick = () => {
+    // Cambia "usuarios" por la sección a la que quieras volver
+    navigate("usuarios");
+  };
 
   const ctx = document.getElementById("chartMediciones").getContext("2d");
   const deviceId = "device_A4CB2F124B00";
@@ -44,4 +51,4 @@ export function showGraficos() {
     });
   });
 }
-// ================================================
+// --- IGNORE ---
