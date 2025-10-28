@@ -30,4 +30,6 @@ export function showUsuarios() {
       .join("");
   });
 }
+// ================================================   
+// Usuarios.js — Lista de usuarios registrados en Firebase
 // ================================================
