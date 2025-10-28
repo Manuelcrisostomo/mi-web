@@ -1,5 +1,7 @@
 // ================================================
 // userDashboard.js — Panel de usuario con diseño sobrio
+//esta es la pagina principal 
+//esta pagina tambien tiene la navbar principal 
 // ================================================
 import {
   auth,
