@@ -1,31 +1,22 @@
 import { db, ref, onValue } from "../firebaseConfig.js";
 import Chart from "chart.js/auto";
 import { navigate } from "../app.js";
+import { renderNavbar } from "./navbar.js"; // ✅ importamos la navbar
 
-// Historial simple de navegación
-let lastPage = "usuarios"; // Cambia según tu flujo inicial
+let lastPage = "usuarios"; // Página anterior inicial
 
 export function showGraficos() {
   const root = document.getElementById("root");
-  root.innerHTML = `
-    <!-- Navbar estilo Bootstrap -->
-    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Minesafe 2</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-          aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="#" id="navUser">Usuarios</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" id="navGraficos">Gráficos</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" id="navGeo">Geolocalización</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+  root.innerHTML = ""; // Limpiamos root
 
+  // ==== NAVBAR GLOBAL ====
+  const navbar = renderNavbar();
+  root.appendChild(navbar);
+
+  // ==== CONTENIDO PRINCIPAL ====
+  const content = document.createElement("div");
+  content.className = "page-content";
+  content.innerHTML = `
     <div class="dashboard">
       <div class="actions mb-3">
         <button id="backBtn" class="btn-volver">⬅️ Volver</button>
@@ -36,22 +27,18 @@ export function showGraficos() {
       </div>
     </div>
   `;
-
-  // ==== BOTONES NAVBAR ====
-  document.getElementById("navUser").onclick = () => navigate("usuarios");
-  document.getElementById("navGraficos").onclick = () => navigate("graficos");
-  document.getElementById("navGeo").onclick = () => navigate("geolocalizacion");
+  root.appendChild(content);
 
   // ==== BOTÓN VOLVER ====
   const backBtn = document.getElementById("backBtn");
   backBtn.addEventListener("click", () => {
-    navigate(lastPage); // regresa a la última página
+    navigate(lastPage);
   });
 
-  // Actualiza lastPage al entrar aquí
+  // Actualiza la página anterior
   lastPage = "graficos";
 
-  // ==== CARGAR GRÁFICO ====
+  // ==== CARGA DE DATOS PARA EL GRÁFICO ====
   const ctx = document.getElementById("chartMediciones").getContext("2d");
   const deviceId = "device_A4CB2F124B00";
   const histRef = ref(db, `dispositivos/${deviceId}/historial_global`);
@@ -86,6 +73,3 @@ export function showGraficos() {
     });
   });
 }
-// ================================================
-// FIN COMPONENTE GRÁFICOS
-// ================================================
