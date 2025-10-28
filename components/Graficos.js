@@ -1,11 +1,16 @@
+import { navigate } from "../app.js";
 import { db, ref, onValue } from "../firebaseConfig.js";
+import Chart from "chart.js/auto";
 
 export function showGraficos() {
   const root = document.getElementById("root");
+
   root.innerHTML = `
     <div class="dashboard">
-      <button id="backBtn">⬅️ Volver</button>
       <h2>📊 Gráficos de Sensores</h2>
+      <div class="actions mb-3">
+        <button id="backBtn" class="btn-volver">⬅️ Volver</button>
+      </div>
       <div class="card">
         <canvas id="chartMediciones"></canvas>
       </div>
@@ -13,10 +18,9 @@ export function showGraficos() {
   `;
 
   // Botón Volver atrás
-  document.getElementById("backBtn").onclick = () => {
-    navigate("usuarios"); // Cambia según la sección a la que quieras volver
-  };
+  document.getElementById("backBtn").onclick = () => navigate("usuarios"); // Cambia según tu flujo
 
+  // Configuración del gráfico
   const ctx = document.getElementById("chartMediciones").getContext("2d");
   const deviceId = "device_A4CB2F124B00";
   const histRef = ref(db, `dispositivos/${deviceId}/historial_global`);
@@ -27,6 +31,7 @@ export function showGraficos() {
 
     const fechas = [];
     const co = [], co2 = [], pm10 = [], pm25 = [];
+
     Object.entries(data).slice(-20).forEach(([t, v]) => {
       fechas.push(new Date(parseInt(t)).toLocaleTimeString());
       co.push(v.CO || 0);
@@ -46,7 +51,11 @@ export function showGraficos() {
           { label: "PM2.5 (µg/m³)", data: pm25, borderColor: "#28a745", fill: false }
         ]
       },
-      options: { responsive: true, scales: { y: { beginAtZero: true } } },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
     });
   });
 }
+// ================================================
