@@ -180,6 +180,10 @@ export function showUserDashboard() {
         <button class="btn-alerts" id="navAlerts">🚨 Alertas</button>
         <button class="btn-history" id="navHistorialCompleto">📜 Historial Completo</button>
         <button class="btn-manage" id="navHistorialManage">🗂️ Historial Manage</button>
+        <button id="usuariosBtn">👥 Usuarios</button>
+        <button id="graficosBtn">📊 Gráficos</button>
+        <button id="geoBtn">📍 Mapa</button>
+
         <button class="btn-logout" id="navLogout">🔒 Cerrar Sesión</button>
       </div>
     </nav>
@@ -220,6 +224,10 @@ export function showUserDashboard() {
   // =====================================================
   // 🔹 NAVEGACIÓN SUPERIOR
   // =====================================================
+  document.getElementById("usuariosBtn").onclick = () => navigate("usuarios");
+  document.getElementById("graficosBtn").onclick = () => navigate("graficos");
+  document.getElementById("geoBtn").onclick = () => navigate("geolocalizacion");
+
   document.getElementById("navUserForm").onclick = () => navigate("userform");
   document.getElementById("navTipoMina").onclick = () => navigate("tipomina");
   document.getElementById("navGeoEmpresa").onclick = () => navigate("geoempresa");
