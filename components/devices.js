@@ -57,6 +57,7 @@ export function showUserDashboard() {
             <li class="nav-item"><a class="nav-link" id="navGeoEmpresa">🌍 Geo / Empresa</a></li>
             <!-- 🔹 Panel administrador -->
             <li class="nav-item"><a class="nav-link" id="navAdmin">🛠️ Panel Admin</a></li>
+            <!-- 🔹 NUEVOS BOTONES AÑADIDOS -->
             <li class="nav-item"><a class="nav-link" id="navUsuarios">👥 Usuarios</a></li>
             <li class="nav-item"><a class="nav-link" id="navGraficos">📊 Gráficos</a></li>
             <li class="nav-item"><a class="nav-link" id="navGeolocalizacion">📍 Mapa</a></li>

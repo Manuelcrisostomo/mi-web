@@ -1,8 +1,3 @@
-//graficos.js
-// ================================================
-// Graficos.js — Visualización de gráficos de sensores
-// ================================================
-import Chart from "chart.js/auto";
 import { db, ref, onValue } from "../firebaseConfig.js";
 
 export function showGraficos() {
@@ -49,3 +44,4 @@ export function showGraficos() {
     });
   });
 }
+// ================================================

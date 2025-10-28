@@ -47,6 +47,7 @@ export function showDevices() {
         <button id="userFormBtn">👤 Datos Personales</button>
         <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
         <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
+        <!-- 🔹 NUEVOS BOTONES AÑADIDOS -->
         <button id="usuariosBtn">👥 Usuarios</button>
         <button id="graficosBtn">📊 Gráficos</button>
         <button id="geoBtn">📍 Mapa</button>
