@@ -205,3 +205,17 @@ button:hover {
 /* ================================================
    FIN DEL ESTILO ADMIN PANEL MINESAFE 2
    ================================================ */
+   /* styles.css */
+.btn-volver {
+  padding: 8px 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.btn-volver:hover {
+  background-color: #5a6268;
+}

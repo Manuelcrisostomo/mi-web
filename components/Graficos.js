@@ -4,7 +4,7 @@ export function showGraficos() {
   const root = document.getElementById("root");
   root.innerHTML = `
     <div class="dashboard">
-      <button id="backBtn" class="btn btn-secondary mb-3">⬅️ Volver</button>
+      <button id="backBtn" class="btn-volver">⬅️ Volver</button>
       <h2>📊 Gráficos de Sensores</h2>
       <div class="card">
         <canvas id="chartMediciones"></canvas>
@@ -14,8 +14,7 @@ export function showGraficos() {
 
   // Botón Volver atrás
   document.getElementById("backBtn").onclick = () => {
-    // Cambia "usuarios" por la sección a la que quieras volver
-    navigate("usuarios");
+    navigate("usuarios"); // Cambia "usuarios" según corresponda
   };
 
   const ctx = document.getElementById("chartMediciones").getContext("2d");
