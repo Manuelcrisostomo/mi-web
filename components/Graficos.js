@@ -1,4 +1,4 @@
-import { navigate } from "../app.js";
+import { navigate } from "../app.js"; // ✅ importa navigate
 import { db, ref, onValue } from "../firebaseConfig.js";
 import Chart from "chart.js/auto";
 
@@ -16,7 +16,11 @@ export function showGraficos() {
     </div>
   `;
 
-  document.getElementById("backBtn").onclick = () => navigate("usuarios");
+  // ✅ Asignar onclick después de crear el botón
+  const backBtn = document.getElementById("backBtn");
+  backBtn.addEventListener("click", () => {
+    navigate("usuarios"); // Cambia "usuarios" por la página de destino
+  });
 
   const ctx = document.getElementById("chartMediciones").getContext("2d");
   const deviceId = "device_A4CB2F124B00";
@@ -51,4 +55,6 @@ export function showGraficos() {
     });
   });
 }
+// ================================================
+// FIN DEL COMPONENTE GRÁFICOS
 // ================================================
