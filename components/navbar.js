@@ -38,7 +38,7 @@ export function renderNavbar() {
     navigate("login");
   };
 
-  // Tema claro/oscuro
+  // 🌙 Cambiar tema
   const themeToggle = nav.querySelector("#themeToggle");
   themeToggle.onclick = () => {
     document.body.classList.toggle("dark-mode");

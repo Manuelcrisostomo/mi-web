@@ -1,4 +1,4 @@
-// ================================================
+// DeviceView.js================================================
 // Dispositivos y Historial con Firebase + Localización por tipo de mina
 // ================================================
 // NOTA: Para que la función de guardar PDF funcione, debes incluir la librería jsPDF
@@ -47,6 +47,10 @@ export function showDevices() {
         <button id="userFormBtn">👤 Datos Personales</button>
         <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
         <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
+        <button id="usuariosBtn">👥 Usuarios</button>
+        <button id="graficosBtn">📊 Gráficos</button>
+        <button id="geoBtn">📍 Mapa</button>
+
       </div>
 
       <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
@@ -71,6 +75,9 @@ export function showDevices() {
   document.getElementById("userFormBtn").onclick = () => navigate("userform");
   document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
   document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
+  document.getElementById("usuariosBtn").onclick = () => navigate("usuarios");
+  document.getElementById("graficosBtn").onclick = () => navigate("graficos");
+  document.getElementById("geoBtn").onclick = () => navigate("geolocalizacion");
 
   // Cargar datos iniciales
   mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);

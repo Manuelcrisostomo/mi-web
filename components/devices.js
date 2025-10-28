@@ -57,7 +57,11 @@ export function showUserDashboard() {
             <li class="nav-item"><a class="nav-link" id="navGeoEmpresa">🌍 Geo / Empresa</a></li>
             <!-- 🔹 Panel administrador -->
             <li class="nav-item"><a class="nav-link" id="navAdmin">🛠️ Panel Admin</a></li>
-          </ul>
+            <li class="nav-item"><a class="nav-link" id="navUsuarios">👥 Usuarios</a></li>
+            <li class="nav-item"><a class="nav-link" id="navGraficos">📊 Gráficos</a></li>
+            <li class="nav-item"><a class="nav-link" id="navGeolocalizacion">📍 Mapa</a></li>
+          
+            </ul>
 
           <!-- Botón de cierre de sesión -->
           <button class="btn btn-outline-danger" id="logout">Cerrar Sesión</button>
@@ -118,6 +122,10 @@ export function showUserDashboard() {
   // ============================================
   // EVENTOS DE LA NAVBAR (RUTAS)
   // ============================================
+  // Nuevas ventanas
+  document.getElementById("navUsuarios").onclick = () => navigate("usuarios");
+  document.getElementById("navGraficos").onclick = () => navigate("graficos");
+  document.getElementById("navGeolocalizacion").onclick = () => navigate("geolocalizacion");
 
   // Dashboard principal
   document.getElementById("navDashboard").onclick = () => navigate("dashboard");

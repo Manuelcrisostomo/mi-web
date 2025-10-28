@@ -74,11 +74,8 @@ export function navigate(view) {
         ? showAllDevicesFunc()
         : (content.innerHTML = "<p>⚠️ Historial no disponible.</p>");
       break;
-    case "manager":
-      showHistoryManagerPage();
-      break;
-    default:
-      showLogin();
+    case "manager": showHistoryManagerPage(); break;
+    default: showLogin();
   }
 }
 
