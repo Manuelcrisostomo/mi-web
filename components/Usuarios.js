@@ -1,14 +1,36 @@
 import { db, ref, onValue } from "../firebaseConfig.js";
+import { renderNavbar } from "./navbar.js"; // Navbar global
+import { navigate } from "../app.js";
 
 export function showUsuarios() {
   const root = document.getElementById("root");
-  root.innerHTML = `
+  root.innerHTML = ""; // Limpiamos el root
+
+  // ==== NAVBAR GLOBAL ====
+  const navbar = renderNavbar();
+  root.appendChild(navbar);
+
+  // ==== CONTENIDO PRINCIPAL ====
+  const content = document.createElement("div");
+  content.className = "page-content";
+  content.innerHTML = `
     <div class="dashboard">
+      <div class="actions mb-3">
+        <button id="backBtn" class="btn-volver">⬅️ Volver</button>
+      </div>
       <h2>👥 Usuarios Registrados</h2>
       <div id="usuariosList" class="card">Cargando usuarios...</div>
     </div>
   `;
+  root.appendChild(content);
 
+  // ==== BOTÓN VOLVER ====
+  const backBtn = document.getElementById("backBtn");
+  backBtn.addEventListener("click", () => {
+    navigate("user"); // Cambia "user" según la página anterior que desees
+  });
+
+  // ==== CARGA DE USUARIOS ====
   const usuariosRef = ref(db, "usuarios");
   onValue(usuariosRef, (snapshot) => {
     const data = snapshot.val();
@@ -30,4 +52,6 @@ export function showUsuarios() {
       .join("");
   });
 }
+// ================================================
+// FIN DEL COMPONENTE USUARIOS
 // ================================================
