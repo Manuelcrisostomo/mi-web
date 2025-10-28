@@ -1,14 +1,10 @@
-import { navigate } from "../app.js"; // ✅ importa navigate
 import { db, ref, onValue } from "../firebaseConfig.js";
-import Chart from "chart.js/auto";
 
 export function showGraficos() {
-  const content = document.querySelector(".page-content");
-  content.innerHTML = `
+  const root = document.getElementById("root");
+  root.innerHTML = `
     <div class="dashboard">
-      <div class="actions mb-3">
-        <button id="backBtn" class="btn-volver">⬅️ Volver</button>
-      </div>
+      <button id="backBtn" class="btn-volver">⬅️ Volver</button>
       <h2>📊 Gráficos de Sensores</h2>
       <div class="card">
         <canvas id="chartMediciones"></canvas>
@@ -16,11 +12,10 @@ export function showGraficos() {
     </div>
   `;
 
-  // ✅ Asignar onclick después de crear el botón
-  const backBtn = document.getElementById("backBtn");
-  backBtn.addEventListener("click", () => {
-    navigate("usuarios"); // Cambia "usuarios" por la página de destino
-  });
+  // Botón Volver atrás
+  document.getElementById("backBtn").onclick = () => {
+    navigate("usuarios"); // Cambia "usuarios" según corresponda
+  };
 
   const ctx = document.getElementById("chartMediciones").getContext("2d");
   const deviceId = "device_A4CB2F124B00";
@@ -51,8 +46,8 @@ export function showGraficos() {
           { label: "PM2.5 (µg/m³)", data: pm25, borderColor: "#28a745", fill: false }
         ]
       },
-      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+      options: { responsive: true, scales: { y: { beginAtZero: true } } },
     });
   });
 }
-// ================================================
+// --- IGNORE ---
