@@ -12,9 +12,11 @@ import { showTipoMinaForm } from "./components/TipoMinaForm.js";
 import { showGeoEmpresaForm } from "./components/GeoEmpresaForm.js";
 import { showPagina1 } from "./components/Pagina1.js";
 import { showPagina2 } from "./components/Pagina2.js";
+import { showUsuarios } from "./components/Usuarios.js";
+import { showGraficos } from "./components/Graficos.js";
+import { showGeolocalizacion } from "./components/Geolocalizacion.js";
 import { auth } from "./firebaseConfig.js";
-
-// Historial
+import { renderNavbar } from "./components/navbar.js";
 import { showHistoryManagerPage } from "./components/historyManager.js";
 
 let showAllDevicesFunc = null;
@@ -26,38 +28,6 @@ try {
 }
 
 const root = document.getElementById("root");
-
-// ================================================
-// NAVBAR (NEGRA) — aparece en todas menos login/register
-// ================================================
-function renderNavbar() {
-  const nav = document.createElement("nav");
-  nav.className = "main-navbar";
-  nav.innerHTML = `
-    <span class="logo">⚙️ Panel del Usuario</span>
-    <button data-view="userform">👤 Datos Personales</button>
-    <button data-view="tipomina">⛏️ Tipo de Mina</button>
-    <button data-view="geoempresa">🌍 Geo / Empresa</button>
-    <button data-view="devices">💡 Dispositivos</button>
-    <button data-view="alerts">🚨 Alertas</button>
-    <button data-view="history">📜 Historial Completo</button>
-    <button data-view="manager">🗂️ Historial Manage</button>
-    <button class="logout">🔒 Cerrar Sesión</button>
-  `;
-
-  // Navegación entre vistas
-  nav.querySelectorAll("button[data-view]").forEach(btn => {
-    btn.addEventListener("click", () => navigate(btn.dataset.view));
-  });
-
-  // Logout
-  nav.querySelector(".logout").onclick = async () => {
-    await auth.signOut();
-    navigate("login");
-  };
-
-  return nav;
-}
 
 // ================================================
 // FUNCIÓN GLOBAL DE NAVEGACIÓN
@@ -77,9 +47,8 @@ export function navigate(view) {
     return;
   }
 
-  // Oculta header principal y muestra navbar negra
+  // Oculta header y muestra navbar
   document.querySelector("header").style.display = "none";
-
   const navbar = renderNavbar();
   root.appendChild(navbar);
 
@@ -95,6 +64,9 @@ export function navigate(view) {
     case "userform": showUserForm(); break;
     case "tipomina": showTipoMinaForm(); break;
     case "geoempresa": showGeoEmpresaForm(); break;
+    case "usuarios": showUsuarios(); break;
+    case "graficos": showGraficos(); break;
+    case "geolocalizacion": showGeolocalizacion(); break;
     case "pagina1": showPagina1(); break;
     case "pagina2": showPagina2(); break;
     case "history":

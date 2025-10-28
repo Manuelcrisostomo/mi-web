@@ -1,79 +1,204 @@
 /* ================================================
-   NUEVO ESTILO DE BOTONES — Moderno y unificado
+   ESTILO ADMIN PANEL MINESAFE 2 — CLARO / OSCURO
    ================================================ */
-button {
-  background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
-  border: 1px solid #333;
-  color: #f0f0f0;
-  padding: 10px 16px;
-  margin: 6px;
-  border-radius: 8px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  cursor: pointer;
-  transition: all 0.25s ease-in-out;
-  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+
+/* ------------------ VARIABLES DE COLOR ------------------ */
+:root {
+  --color-bg: #f8f9fa;
+  --color-text: #111;
+  --color-card: #ffffff;
+  --color-border: #ddd;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-primary: #007bff;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-muted: #6c757d;
+  --color-hover: #0056b3;
 }
 
-button:hover {
-  background: linear-gradient(145deg, #007bff, #0056b3);
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 0 8px #007bff;
+/* 🌙 MODO OSCURO */
+body.dark-mode {
+  --color-bg: #121212;
+  --color-text: #e0e0e0;
+  --color-card: #1e1e1e;
+  --color-border: #333;
+  --color-shadow: rgba(255, 255, 255, 0.05);
+  --color-hover: #3399ff;
 }
 
-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 0 4px #0056b3 inset;
+/* ------------------ BASE ------------------ */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* Botones temáticos */
-button.logout {
-  background: linear-gradient(145deg, #a00000, #d40000);
-  border: 1px solid #8b0000;
-  box-shadow: 0 0 5px rgba(255, 0, 0, 0.4);
-}
-
-button.logout:hover {
-  background: linear-gradient(145deg, #d40000, #ff4b4b);
-  box-shadow: 0 0 10px #ff4b4b;
-}
-
-button[data-view="alerts"] {
-  background: linear-gradient(145deg, #8b0000, #b80000);
-}
-
-button[data-view="devices"] {
-  background: linear-gradient(145deg, #0040a0, #006eff);
-}
-
-button[data-view="userform"] {
-  background: linear-gradient(145deg, #5a2ca0, #7d3cff);
-}
-
-button[data-view="geoempresa"] {
-  background: linear-gradient(145deg, #007b7b, #00b3b3);
-}
-
-button[data-view="tipomina"] {
-  background: linear-gradient(145deg, #6c757d, #8a8a8a);
-}
-
-button[data-view="manager"],
-button[data-view="history"] {
-  background: linear-gradient(145deg, #ffb400, #ffcf40);
-  color: #222;
-}
-
-/* Animación ligera al pasar el mouse */
-button:hover {
-  filter: brightness(110%);
-}
-
-/* Navbar container más centrado */
-.navbar-container {
+/* ------------------ NAVBAR ------------------ */
+.main-navbar {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 2px 6px var(--color-shadow);
+  padding: 10px 20px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.main-navbar button {
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+.main-navbar button:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--color-hover);
+}
+
+.main-navbar .logout {
+  background: var(--color-danger);
+}
+.main-navbar .logout:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 10px var(--color-danger);
+}
+
+/* Botón de cambio de tema */
+.theme-toggle {
+  background: var(--color-warning);
+  color: #222;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ------------------ CARDS ------------------ */
+.card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 3px 10px var(--color-shadow);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 900px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.card h2,
+.card h3,
+.card h4 {
+  margin-top: 0;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 8px;
+}
+
+/* ------------------ FORMULARIOS ------------------ */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-card);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+}
+
+/* ------------------ BOTONES GENERALES ------------------ */
+button {
+  padding: 10px 16px;
+  margin: 8px 4px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.btn-success {
+  background-color: var(--color-success);
+  color: #fff;
+}
+.btn-danger {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+.btn-warning {
+  background-color: var(--color-warning);
+  color: #222;
+}
+
+button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px var(--color-hover);
+}
+
+/* ------------------ LAYOUT RESPONSIVO ------------------ */
+@media (max-width: 1024px) {
+  .main-navbar {
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-navbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .main-navbar button {
+    width: 100%;
+    font-size: 1rem;
+  }
+  .card {
+    width: 90%;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-navbar button {
+    padding: 9px 12px;
+    border-radius: 6px;
+  }
+  .card {
+    width: 95%;
+    margin: 10px auto;
+  }
 }

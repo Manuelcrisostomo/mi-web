@@ -6,107 +6,23 @@
   <title>Minesafe 2</title>
   <link rel="stylesheet" href="styles.css" />
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #121212;
-      color: #eee;
-    }
-
-    /* Header solo visible en login */
-    header {
-      background: #1f1f1f;
-      color: #fff;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-    }
-
-    header h1 {
-      font-size: 1.3em;
-      margin: 0;
-    }
-
-    main#root {
-      padding: 20px;
-    }
-
-    footer {
-      background: #1f1f1f;
-      color: #bbb;
-      text-align: center;
-      padding: 10px;
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-    }
-
-    .loading {
-      text-align: center;
-      margin-top: 50px;
-      font-size: 1.2em;
-    }
-
-    /* =====================
-       NAVBAR GLOBAL
-       ===================== */
-    .main-navbar {
-      background: #1f1f1f;
-      color: #fff;
-      padding: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .navbar-container {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .main-navbar button {
-      background: #333;
-      border: none;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .main-navbar button:hover {
-      background: #007bff;
-    }
-
-    .main-navbar .logout {
-      background: #dc3545;
-    }
-  </style>
+  <!-- Librerías externas -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-  <!-- Header solo visible en login -->
   <header>
     <h1>⚙️ Minesafe 2</h1>
     <div id="userStatus">Cargando usuario...</div>
   </header>
 
-  <!-- Contenedor principal -->
   <main id="root">
     <div class="loading">Cargando aplicación...</div>
   </main>
 
-  <!-- Footer fijo -->
   <footer>© 2025 Minesafe 2</footer>
 
-  <!-- Script principal -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>
