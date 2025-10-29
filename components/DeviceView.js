@@ -235,7 +235,7 @@ function showHistoricalPage(deviceId) {
           <button id="manualPageBtn">📋 Abrir Historial Manager</button>
           <button id="page2Btn">📄 Página 2</button>
           <button id="userFormBtn">👤 Datos Personales</button>
-          <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
+        
           <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
       </div>
       <div id="fullHistorialContainer" class="historialDetails">Cargando historial...</div>
