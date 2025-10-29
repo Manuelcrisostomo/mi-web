@@ -1,5 +1,5 @@
 // ================================================
-// TipoMinaForm.js — Tipo de mina + localización + geolocalización GPS
+// TipoMinaForm.js — Tipo de mina + localización + geolocalización GPS + reverse geocoding
 // ================================================
 import { auth, db, firestore } from "../firebaseConfig.js";
 import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -101,17 +101,18 @@ export function showTipoMinaForm() {
   tipoMina.onchange = (e) => render(e.target.value);
   backBtn.onclick = () => navigate("user");
 
-  // === 📡 Botón para obtener la ubicación actual ===
-  getLocationBtn.onclick = () => {
+  // === 📡 Botón para obtener la ubicación actual + reverse geocoding ===
+  getLocationBtn.onclick = async () => {
     if (!navigator.geolocation) {
       alert("❌ Tu navegador no soporta geolocalización.");
       return;
     }
+
     getLocationBtn.disabled = true;
     getLocationBtn.textContent = "Obteniendo ubicación...";
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
         const alt = pos.coords.altitude || null;
@@ -120,9 +121,30 @@ export function showTipoMinaForm() {
         document.getElementById("longitud").value = lon.toFixed(6);
         if (alt !== null) document.getElementById("altitud").value = alt.toFixed(2);
 
+        // 🌍 Reverse Geocoding con OpenStreetMap (Nominatim)
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=es`
+          );
+          const data = await res.json();
+          if (data && data.address) {
+            const addr = data.address;
+            document.getElementById("pais").value = addr.country || "";
+            document.getElementById("region").value =
+              addr.state || addr.region || addr.county || "";
+            document.getElementById("comuna").value =
+              addr.city || addr.town || addr.village || addr.municipality || "";
+            document.getElementById("localidad").value =
+              addr.suburb || addr.neighbourhood || addr.hamlet || "";
+            document.getElementById("direccion").value = data.display_name || "";
+          }
+        } catch (error) {
+          console.warn("No se pudo obtener dirección:", error);
+        }
+
         getLocationBtn.textContent = "📡 Obtener ubicación actual";
         getLocationBtn.disabled = false;
-        alert("✅ Ubicación obtenida correctamente.");
+        alert("✅ Ubicación obtenida y datos rellenados automáticamente.");
       },
       (err) => {
         alert("⚠️ No se pudo obtener la ubicación: " + err.message);
