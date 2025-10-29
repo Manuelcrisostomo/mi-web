@@ -1,5 +1,5 @@
 // ================================================
-// Geolocalizacion.js — Mapa + Datos + Formulario
+// Geolocalizacion.js — Mapa con Leaflet + ubicación detallada
 // ================================================
 import { navigate } from "../app.js";
 
@@ -14,93 +14,92 @@ export function showGeolocalizacion() {
       <button class="logout">🚪 Cerrar Sesión</button>
     </nav>
 
-    <div class="dashboard">
+    <div class="dashboard container mt-3">
       <h2>📍 Geolocalización</h2>
       <div id="map" style="height:400px; border-radius:10px;"></div>
 
-      <div id="geoDatos" class="card mt-3 p-3 shadow-sm">
-        <h4>📄 Datos de ubicación actual</h4>
-        <p><strong>Latitud:</strong> <span id="latitud">--</span></p>
-        <p><strong>Longitud:</strong> <span id="longitud">--</span></p>
-        <p><strong>Precisión:</strong> <span id="precision">--</span> m</p>
-        <p><strong>Altitud:</strong> <span id="altitud">--</span> m</p>
+      <div class="mt-3">
+        <button id="btnGetLocation" class="btn btn-outline-primary">📡 Obtener ubicación actual</button>
       </div>
 
-      <div class="card mt-3 p-3 shadow-sm">
-        <h4>✏️ Formulario de corrección</h4>
-        <form id="geoForm">
-          <input id="latInput" type="number" step="any" class="form-control mb-2" placeholder="Latitud" required />
-          <input id="lonInput" type="number" step="any" class="form-control mb-2" placeholder="Longitud" required />
-          <input id="altInput" type="number" step="any" class="form-control mb-2" placeholder="Altitud (opcional)" />
-          <button type="submit" class="btn btn-success w-100 mb-2">💾 Guardar cambios</button>
-        </form>
-        <button id="getLocationBtn" class="btn btn-primary w-100">📡 Obtener ubicación actual</button>
+      <div class="card p-3 mt-3 shadow-sm">
+        <h5>📋 Detalles de ubicación</h5>
+        <input id="pais" class="form-control mb-2" placeholder="País" />
+        <input id="region" class="form-control mb-2" placeholder="Región / Estado" />
+        <input id="comuna" class="form-control mb-2" placeholder="Comuna / Municipio" />
+        <input id="latitud" class="form-control mb-2" placeholder="Latitud" readonly />
+        <input id="longitud" class="form-control mb-2" placeholder="Longitud" readonly />
       </div>
     </div>
   `;
 
-  // Navegación principal
+  // Navegación
   root.querySelectorAll(".main-navbar button[data-view]").forEach(btn =>
     btn.addEventListener("click", () => navigate(btn.dataset.view))
   );
 
-  // Inicializar mapa
+  // === Inicializar mapa ===
   const map = L.map("map").setView([-33.45, -70.65], 13); // Santiago por defecto
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19
   }).addTo(map);
-  let marker;
 
-  // Función para actualizar mapa y datos
-  function actualizarMapa(lat, lon, acc = "--", alt = "--") {
-    if (marker) map.removeLayer(marker);
-    marker = L.marker([lat, lon]).addTo(map).bindPopup("📍 Ubicación actual").openPopup();
-    map.setView([lat, lon], 15);
-    document.getElementById("latitud").textContent = lat.toFixed(6);
-    document.getElementById("longitud").textContent = lon.toFixed(6);
-    document.getElementById("precision").textContent = acc !== "--" ? acc.toFixed(2) : "--";
-    document.getElementById("altitud").textContent = alt !== "--" ? alt.toFixed(2) : "--";
-    // Sincronizar con el formulario
-    document.getElementById("latInput").value = lat.toFixed(6);
-    document.getElementById("lonInput").value = lon.toFixed(6);
-    if (alt !== "--") document.getElementById("altInput").value = alt.toFixed(2);
-  }
+  let marker = null;
+  const btnGetLocation = document.getElementById("btnGetLocation");
 
-  // Botón obtener ubicación actual
-  const getLocationBtn = document.getElementById("getLocationBtn");
-  getLocationBtn.onclick = () => {
-    if (navigator.geolocation) {
-      getLocationBtn.disabled = true;
-      getLocationBtn.textContent = "📡 Obteniendo...";
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          actualizarMapa(
-            pos.coords.latitude,
-            pos.coords.longitude,
-            pos.coords.accuracy,
-            pos.coords.altitude || "--"
-          );
-          getLocationBtn.disabled = false;
-          getLocationBtn.textContent = "📡 Obtener ubicación actual";
-        },
-        err => {
-          alert("⚠️ No se pudo obtener la ubicación: " + err.message);
-          getLocationBtn.disabled = false;
-          getLocationBtn.textContent = "📡 Obtener ubicación actual";
-        }
-      );
-    } else {
-      alert("Tu navegador no soporta geolocalización.");
+  // === Función: obtener y mostrar ubicación ===
+  btnGetLocation.onclick = async () => {
+    if (!navigator.geolocation) {
+      alert("❌ Tu navegador no soporta geolocalización.");
+      return;
     }
-  };
 
-  // Formulario manual
-  document.getElementById("geoForm").onsubmit = e => {
-    e.preventDefault();
-    const lat = parseFloat(document.getElementById("latInput").value);
-    const lon = parseFloat(document.getElementById("lonInput").value);
-    const alt = parseFloat(document.getElementById("altInput").value) || "--";
-    actualizarMapa(lat, lon, "--", alt);
-    alert("✅ Datos de ubicación actualizados manualmente.");
+    btnGetLocation.disabled = true;
+    btnGetLocation.textContent = "Obteniendo ubicación...";
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        // Actualiza los campos de lat/lon
+        document.getElementById("latitud").value = lat.toFixed(6);
+        document.getElementById("longitud").value = lon.toFixed(6);
+
+        // Mueve el mapa y el marcador
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lon]).addTo(map).bindPopup("📍 Estás aquí").openPopup();
+        map.setView([lat, lon], 15);
+
+        // === Inversión geocodificación: obtener país, región y comuna ===
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`
+          );
+          const data = await res.json();
+          const address = data.address || {};
+
+          document.getElementById("pais").value =
+            address.country || "Desconocido";
+          document.getElementById("region").value =
+            address.state || address.region || "Desconocido";
+          document.getElementById("comuna").value =
+            address.city || address.town || address.village || address.municipality || "Desconocido";
+        } catch (error) {
+          console.error("Error al obtener los datos de ubicación:", error);
+          alert("⚠️ No se pudo obtener información detallada del lugar.");
+        }
+
+        btnGetLocation.textContent = "📡 Obtener ubicación actual";
+        btnGetLocation.disabled = false;
+        alert("✅ Ubicación actualizada correctamente.");
+      },
+      (err) => {
+        alert("⚠️ No se pudo obtener la ubicación: " + err.message);
+        btnGetLocation.textContent = "📡 Obtener ubicación actual";
+        btnGetLocation.disabled = false;
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 }
