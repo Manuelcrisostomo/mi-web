@@ -177,47 +177,44 @@ button:hover {
   box-shadow: var(--neon-glow);
 }
 
-/* ------------------ BOTONES DE ACCIONES EN DASHBOARD ------------------ */
+/* ------------------ BOTONES DE ACCIONES EN DASHBOARD — COLORES VIVOS ------------------ */
 .actions button {
-  background-color: var(--color-primary);
-  color: #fff;
+  position: relative;
+  overflow: hidden;
+  border: none;
   border-radius: 8px;
-  padding: 10px 16px;
+  color: #fff;
   font-weight: 600;
+  padding: 10px 16px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  border: 1px solid transparent;
-  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  background-size: 200% 200%;
 }
 
+/* Colores específicos tipo rojo, verde, azul, naranja */
+.actions #back { background-image: linear-gradient(45deg, #6c757d, #495057); }       /* gris/neutral */
+.actions #refreshBtn { background-image: linear-gradient(45deg, #28a745, #198754); } /* verde */
+.actions #verHistorialBtn { background-image: linear-gradient(45deg, #007bff, #0056b3); } /* azul */
+.actions #saveCurrentBtn { background-image: linear-gradient(45deg, #ffc107, #e0a800); color: #222; } /* naranja */
+.actions #userFormBtn { background-image: linear-gradient(45deg, #17a2b8, #117a8b); } /* celeste */
+.actions #tipoMinaBtn { background-image: linear-gradient(45deg, #fd7e14, #e8590c); } /* naranja intenso */
+.actions #geoEmpresaBtn { background-image: linear-gradient(45deg, #6610f2, #520dc2); } /* morado */
+.actions #usuariosBtn { background-image: linear-gradient(45deg, #e83e8c, #c2175c); } /* rosa fuerte */
+.actions #graficosBtn { background-image: linear-gradient(45deg, #20c997, #198754); } /* verde secundario */
+.actions #geoBtn { background-image: linear-gradient(45deg, #007bff, #0056b3); } /* azul secundario */
+
+/* Animación de gradiente al pasar el mouse */
 .actions button:hover {
-  background-color: var(--color-hover);
+  animation: gradientShift 3s ease infinite;
   transform: translateY(-2px);
-  box-shadow: var(--neon-glow);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
   filter: brightness(1.15);
 }
 
-.actions button:disabled {
-  background-color: #555;
-  color: #ccc;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* Colores específicos de botones de acción */
-.actions #back { background-color: var(--color-muted); }
-.actions #refreshBtn { background-color: var(--color-success); }
-.actions #verHistorialBtn { background-color: var(--color-primary); }
-.actions #saveCurrentBtn { background-color: var(--color-warning); color: #222; }
-
-/* Botones de navegación extra */
-.actions #userFormBtn,
-.actions #tipoMinaBtn,
-.actions #geoEmpresaBtn,
-.actions #usuariosBtn,
-.actions #graficosBtn,
-.actions #geoBtn {
-  background-color: var(--color-primary);
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Hover modo oscuro coherente */
@@ -225,9 +222,9 @@ body.dark-mode .actions button {
   color: #fff;
   border: 1px solid rgba(255,255,255,0.2);
 }
-
 body.dark-mode .actions button:hover {
-  box-shadow: var(--neon-glow);
+  box-shadow: 0 0 15px rgba(255,255,255,0.5);
+  filter: brightness(1.25);
 }
 
 /* ------------------ ALERTAS ------------------ */
