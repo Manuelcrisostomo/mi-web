@@ -1,8 +1,8 @@
 /* ================================================
-   ESTILO ADMIN PANEL MINESAFE 2 — CLARO / OSCURO + EFECTO NEÓN
+   ESTILO ADMIN PANEL MINESAFE 2 — CLARO / OSCURO + NAVBAR DESPLEGABLE
    ================================================ */
 
-/* ------------------ VARIABLES DE COLOR ------------------ */
+/* ------------------ VARIABLES ------------------ */
 :root {
   --color-bg: #f8f9fa;
   --color-text: #111;
@@ -16,8 +16,7 @@
   --color-muted: #6c757d;
   --color-hover: #00bfff;
   --neon-glow: 0 0 10px rgba(0, 191, 255, 0.8),
-                0 0 20px rgba(0, 191, 255, 0.6),
-                0 0 40px rgba(0, 191, 255, 0.4);
+               0 0 20px rgba(0, 191, 255, 0.6);
 }
 
 /* 🌙 MODO OSCURO */
@@ -29,7 +28,7 @@ body.dark-mode {
   --color-shadow: rgba(255, 255, 255, 0.05);
   --color-hover: #66ccff;
   --neon-glow: 0 0 8px rgba(102, 204, 255, 0.8),
-                0 0 15px rgba(102, 204, 255, 0.6);
+               0 0 15px rgba(102, 204, 255, 0.6);
 }
 
 /* ------------------ BASE ------------------ */
@@ -38,74 +37,52 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   margin: 0;
-  padding: 0;
   transition: background 0.4s ease, color 0.4s ease;
 }
 
-header, footer {
+/* ------------------ NAVBAR DESPLEGABLE ------------------ */
+.navbar {
   background-color: var(--color-card);
-  color: var(--color-text);
-  text-align: center;
-  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
   box-shadow: 0 2px 6px var(--color-shadow);
 }
 
-/* ------------------ NAVBAR ------------------ */
-.main-navbar {
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 3px 6px var(--color-shadow);
-  padding: 10px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+.navbar-brand {
+  font-weight: 700;
+  color: var(--color-primary) !important;
 }
 
-.main-navbar button {
+.navbar-toggler {
   border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 10px 16px;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  background: var(--color-primary);
+  border-radius: 6px;
+  padding: 6px 10px;
 }
-
-.main-navbar button:hover {
-  transform: scale(1.05);
+.navbar-toggler:hover {
   box-shadow: var(--neon-glow);
-  filter: brightness(1.15);
 }
 
-.main-navbar .logout {
-  background-color: var(--color-danger);
+.navbar-nav .nav-link {
+  color: var(--color-text);
+  font-weight: 600;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 8px 12px;
 }
-.main-navbar .logout:hover {
+
+.navbar-nav .nav-link:hover {
+  background-color: var(--color-primary);
+  color: #fff !important;
+  box-shadow: var(--neon-glow);
+}
+
+.navbar-nav .logout {
+  background: var(--color-danger);
+  color: #fff !important;
+}
+.navbar-nav .logout:hover {
   box-shadow: 0 0 12px rgba(255, 99, 132, 0.8);
-  transform: scale(1.07);
-}
-
-/* Botón de cambio de tema */
-.theme-toggle {
-  background: var(--color-warning);
-  color: #222;
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  transition: all 0.3s;
-}
-.theme-toggle:hover {
-  box-shadow: 0 0 12px rgba(255, 193, 7, 0.8);
-  transform: rotate(15deg);
 }
 
 /* ------------------ CARDS ------------------ */
@@ -117,23 +94,10 @@ header, footer {
   padding: 20px;
   margin: 20px auto;
   max-width: 900px;
-  transition: background 0.3s, color 0.3s;
-}
-
-.card:hover {
-  box-shadow: var(--neon-glow);
-}
-
-.card h2, .card h3, .card h4 {
-  color: var(--color-text);
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 8px;
 }
 
 /* ------------------ FORMULARIOS ------------------ */
-input,
-select,
-textarea {
+input, select, textarea {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
@@ -141,14 +105,9 @@ textarea {
   border-radius: 6px;
   background: var(--color-card);
   color: var(--color-text);
-  font-size: 0.95rem;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
-
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--neon-glow);
@@ -163,38 +122,22 @@ button {
   cursor: pointer;
   transition: all 0.25s ease;
 }
-
-.btn-primary {
-  background-color: var(--color-primary);
-  color: #fff;
-}
-.btn-success {
-  background-color: var(--color-success);
-  color: #fff;
-}
-.btn-danger {
-  background-color: var(--color-danger);
-  color: #fff;
-}
-.btn-warning {
-  background-color: var(--color-warning);
-  color: #222;
-}
-
 button:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  transform: scale(1.05);
   box-shadow: var(--neon-glow);
 }
+
+.btn-primary { background-color: var(--color-primary); color: #fff; }
+.btn-success { background-color: var(--color-success); color: #fff; }
+.btn-danger { background-color: var(--color-danger); color: #fff; }
+.btn-warning { background-color: var(--color-warning); color: #222; }
 
 /* ------------------ ALERTAS ------------------ */
 .alert {
   border-radius: 8px;
   padding: 12px;
   margin: 10px 0;
-  font-weight: 500;
 }
-
 .alert-success {
   background: #d4edda;
   color: #155724;
@@ -214,52 +157,22 @@ button:hover {
   box-shadow: 0 0 8px var(--color-shadow);
 }
 
+/* ------------------ RESPONSIVO ------------------ */
+@media (max-width: 768px) {
+  .navbar-nav {
+    background-color: var(--color-card);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .navbar-nav .nav-link {
+    margin: 4px 0;
+  }
+}
+
 /* ------------------ FOOTER ------------------ */
 footer {
   text-align: center;
   color: var(--color-muted);
   font-size: 0.9rem;
-  margin: 30px 0 10px;
+  margin: 40px 0 10px;
 }
-
-/* ------------------ LAYOUT RESPONSIVO ------------------ */
-@media (max-width: 1024px) {
-  .main-navbar {
-    justify-content: space-around;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-navbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-  }
-  .main-navbar button {
-    width: 100%;
-    font-size: 1rem;
-  }
-  .card {
-    width: 92%;
-    padding: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-navbar button {
-    padding: 9px 12px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-  }
-  .card {
-    width: 95%;
-    margin: 10px auto;
-  }
-  #map {
-    height: 300px;
-  }
-}
-
-/* ================================================
-   FIN DEL ESTILO ADMIN PANEL MINESAFE 2
-   ================================================ */

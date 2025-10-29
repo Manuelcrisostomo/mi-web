@@ -1,27 +1,34 @@
-// ================================================
-// Graficos.js — Muestra gráficos de sensores
-// ================================================
 import { db, ref, onValue } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
 
 export function showGraficos() {
   const root = document.getElementById("root");
   root.innerHTML = `
-    <nav class="main-navbar">
-      <button data-view="user">🏠 Menú Principal</button>
-      <button data-view="devices">💡 Dispositivos</button>
-      <button data-view="usuarios">👥 Usuarios</button>
-      <button data-view="geolocalizacion">📍 Mapa</button>
-      <button class="logout">🚪 Cerrar Sesión</button>
-    </nav>
-
-    <div class="dashboard">
-      <h2>📊 Gráficos de Sensores</h2>
-      <canvas id="chart" width="400" height="200"></canvas>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-warning" href="#">📊 Gráficos</a>
+      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navGraf">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navGraf">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><button class="nav-link btn-link" data-view="user">🏠 Inicio</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="devices">💡 Dispositivos</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="usuarios">👥 Usuarios</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="geolocalizacion">📍 Mapa</button></li>
+        </ul>
+        <button class="btn btn-danger btn-sm logout">🚪 Cerrar Sesión</button>
+      </div>
     </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h2>📈 Gráficos de Sensores</h2>
+    <canvas id="chart" style="max-width:100%; height:300px;"></canvas>
+  </div>
   `;
 
-  root.querySelectorAll(".main-navbar button[data-view]").forEach(btn =>
+  root.querySelectorAll("button[data-view]").forEach(btn =>
     btn.addEventListener("click", () => navigate(btn.dataset.view))
   );
 

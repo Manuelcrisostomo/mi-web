@@ -1,16 +1,7 @@
 // ================================================
-// userDashboard.js — Panel de usuario con diseño sobrio
-//esta es la pagina principal 
-//esta pagina tambien tiene la navbar principal 
+// userDashboard.js — Panel de usuario con navbar Bootstrap + modo oscuro/claro
 // ================================================
-// ================================================
-// userDashboard.js — Panel de usuario con navbar moderna + modo oscuro/claro
-// ================================================
-import {
-  auth,
-  firestore,
-  onAuthStateChanged
-} from "../firebaseConfig.js";
+import { auth, firestore, onAuthStateChanged } from "../firebaseConfig.js";
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { navigate } from "../app.js";
 
@@ -18,27 +9,42 @@ export function showUserDashboard() {
   const root = document.getElementById("root");
 
   root.innerHTML = `
-    <nav class="main-navbar">
-      <button data-view="userform">👤 Datos</button>
-      <button data-view="tipomina">⛏️ Mina</button>
-      <button data-view="geoempresa">🌍 Empresa</button>
-      <button data-view="devices">💡 Dispositivos</button>
-      <button data-view="alerts">🚨 Alertas</button>
-      <button data-view="history">📜 Historial</button>
-      <button data-view="manager">🗂️ Manage</button>
-      <button data-view="usuarios">👥 Usuarios</button>
-      <button data-view="graficos">📊 Gráficos</button>
-      <button data-view="geolocalizacion">📍 Mapa</button>
-      <button id="themeToggle" class="theme-toggle">🌙</button>
-      <button class="logout">🔒 Cerrar Sesión</button>
-    </nav>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-warning" href="#">⚙️ Minesafe 2</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><button class="nav-link btn-link" data-view="userform">👤 Datos</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="tipomina">⛏️ Mina</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="geoempresa">🌍 Empresa</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="devices">💡 Dispositivos</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="alerts">🚨 Alertas</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="history">📜 Historial</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="manager">🗂️ Manage</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="usuarios">👥 Usuarios</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="graficos">📊 Gráficos</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="geolocalizacion">📍 Mapa</button></li>
+        </ul>
+        <div class="d-flex">
+          <button id="themeToggle" class="btn btn-warning btn-sm me-2">🌙</button>
+          <button class="btn btn-danger btn-sm logout">🔒 Cerrar Sesión</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-3">
     <div class="dashboard">
-      <h2>Perfil del Usuario</h2>
-      <div id="userProfile" class="card"></div>
+      <h2 class="fw-bold">Perfil del Usuario</h2>
+      <div id="userProfile" class="card p-3 mb-3 shadow-sm"></div>
 
       <h3>Editar Datos</h3>
-      <form id="editForm" class="card">
+      <form id="editForm" class="card p-3 shadow-sm">
         <h4>Datos Personales</h4>
         <label>Nombre:</label><input type="text" id="nombre" />
         <label>Teléfono:</label><input type="text" id="telefono" />
@@ -56,17 +62,18 @@ export function showUserDashboard() {
         </select>
         <div id="camposMina"></div>
 
-        <button type="submit" class="btn-primary">💾 Guardar</button>
-        <button type="button" id="deleteUser" class="btn-danger">🗑️ Eliminar</button>
+        <button type="submit" class="btn btn-primary mt-2">💾 Guardar</button>
+        <button type="button" id="deleteUser" class="btn btn-danger mt-2">🗑️ Eliminar</button>
       </form>
 
-      <h3>Dispositivo Asignado</h3>
-      <div id="deviceData" class="card">Cargando dispositivo...</div>
+      <h3 class="mt-4">Dispositivo Asignado</h3>
+      <div id="deviceData" class="card p-3 shadow-sm">Cargando dispositivo...</div>
     </div>
+  </div>
   `;
 
-  // ==================== NAVEGACIÓN ====================
-  document.querySelectorAll(".main-navbar button[data-view]").forEach(btn => {
+  // ==================== NAVBAR NAVIGATION ====================
+  document.querySelectorAll("button[data-view]").forEach(btn => {
     btn.addEventListener("click", () => navigate(btn.dataset.view));
   });
 
@@ -91,15 +98,19 @@ export function showUserDashboard() {
     let html = "";
     switch (e.target.value) {
       case "subterranea":
-        html = `<label>Zona:</label><input id="zona" />
-                <label>Rampa:</label><input id="rampa" />
-                <label>Galería:</label><input id="galeria" />
-                <label>Sector:</label><input id="sector" />`;
+        html = `
+          <label>Zona:</label><input id="zona" />
+          <label>Rampa:</label><input id="rampa" />
+          <label>Galería:</label><input id="galeria" />
+          <label>Sector:</label><input id="sector" />
+        `;
         break;
       case "tajo_abierto":
-        html = `<label>Banco:</label><input id="banco" />
-                <label>Fase:</label><input id="fase" />
-                <label>Frente:</label><input id="frente" />`;
+        html = `
+          <label>Banco:</label><input id="banco" />
+          <label>Fase:</label><input id="fase" />
+          <label>Frente:</label><input id="frente" />
+        `;
         break;
     }
     camposMinaDiv.innerHTML = html;
@@ -115,7 +126,8 @@ export function showUserDashboard() {
       document.getElementById("userProfile").innerHTML = `
         <p><b>Nombre:</b> ${data.nombre || "-"}</p>
         <p><b>Email:</b> ${user.email}</p>
-        <p><b>Tipo de mina:</b> ${data.tipoMina || "-"}</p>`;
+        <p><b>Tipo de mina:</b> ${data.tipoMina || "-"}</p>
+      `;
     });
   });
 }
