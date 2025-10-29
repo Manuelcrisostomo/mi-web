@@ -46,13 +46,13 @@ export function showUserDashboard() {
       <h3>Editar Datos</h3>
       <form id="editForm" class="card p-3 shadow-sm">
         <h4>Datos Personales</h4>
-        <label>Nombre:</label><input type="text" id="nombre" />
-        <label>Teléfono:</label><input type="text" id="telefono" />
-        <label>Dirección:</label><input type="text" id="direccion" />
-        <label>ID del Dispositivo:</label><input type="text" id="deviceId" />
+        <label>Nombre:</label><input type="text" id="nombre" class="form-control mb-2" />
+        <label>Teléfono:</label><input type="text" id="telefono" class="form-control mb-2" />
+        <label>Dirección:</label><input type="text" id="direccion" class="form-control mb-2" />
+        <label>ID del Dispositivo:</label><input type="text" id="deviceId" class="form-control mb-2" />
 
         <h4>Tipo de Mina</h4>
-        <select id="tipoMina">
+        <select id="tipoMina" class="form-select mb-2">
           <option value="">Seleccione tipo...</option>
           <option value="subterranea">Subterránea</option>
           <option value="tajo_abierto">Tajo Abierto</option>
@@ -88,7 +88,13 @@ export function showUserDashboard() {
   themeBtn.onclick = () => {
     document.body.classList.toggle("dark-mode");
     themeBtn.textContent = document.body.classList.contains("dark-mode") ? "🌞" : "🌙";
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
   };
+  // Aplica tema guardado
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    themeBtn.textContent = "🌞";
+  }
 
   // ==================== CAMPOS DE MINA DINÁMICOS ====================
   const tipoSelect = document.getElementById("tipoMina");
@@ -99,17 +105,17 @@ export function showUserDashboard() {
     switch (e.target.value) {
       case "subterranea":
         html = `
-          <label>Zona:</label><input id="zona" />
-          <label>Rampa:</label><input id="rampa" />
-          <label>Galería:</label><input id="galeria" />
-          <label>Sector:</label><input id="sector" />
+          <label>Zona:</label><input id="zona" class="form-control mb-2" />
+          <label>Rampa:</label><input id="rampa" class="form-control mb-2" />
+          <label>Galería:</label><input id="galeria" class="form-control mb-2" />
+          <label>Sector:</label><input id="sector" class="form-control mb-2" />
         `;
         break;
       case "tajo_abierto":
         html = `
-          <label>Banco:</label><input id="banco" />
-          <label>Fase:</label><input id="fase" />
-          <label>Frente:</label><input id="frente" />
+          <label>Banco:</label><input id="banco" class="form-control mb-2" />
+          <label>Fase:</label><input id="fase" class="form-control mb-2" />
+          <label>Frente:</label><input id="frente" class="form-control mb-2" />
         `;
         break;
     }
@@ -131,4 +137,4 @@ export function showUserDashboard() {
     });
   });
 }
-  // ==================== DATOS DEL DISPOSITIVO ==================== 
+  // ==================== DATOS DEL DISPOSITIVO ASIGNADO ==================== 
