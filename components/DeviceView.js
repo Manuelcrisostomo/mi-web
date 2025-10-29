@@ -1,10 +1,6 @@
 // DeviceView.js================================================
 // Dispositivos y Historial con Firebase + Localización por tipo de mina
 // ================================================
-// NOTA: Para que la función de guardar PDF funcione, debes incluir la librería jsPDF
-// en tu archivo HTML principal:
-// <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 import { db, ref, onValue, set, auth, onAuthStateChanged } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
 import { showHistoryManagerPage } from "./historyManager.js";
@@ -25,11 +21,31 @@ export function initDashboard() {
 }
 
 // ================================================
+// NAVBAR PRINCIPAL
+// ================================================
+function renderNavbar() {
+  return `
+    <nav class="main-navbar">
+      <button id="dashboardBtn">🏠 Dashboard</button>
+      <button id="usuariosBtn">👥 Usuarios</button>
+      <button id="graficosBtn">📊 Gráficos</button>
+      <button id="geoBtn">📍 Mapa</button>
+      <button id="userFormBtn">👤 Datos Personales</button>
+      <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
+      <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
+      <button class="theme-toggle" id="themeToggle">🌓</button>
+      <button class="logout" id="logoutBtn">🚪 Salir</button>
+    </nav>
+  `;
+}
+
+// ================================================
 // VISTA PRINCIPAL DEL DISPOSITIVO
 // ================================================
 export function showDevices() {
   const root = document.getElementById("root");
   root.innerHTML = `
+    ${renderNavbar()}
     <div class="dashboard">
       <h2>Dispositivo Asignado</h2>
       <div class="actions">
@@ -37,12 +53,6 @@ export function showDevices() {
         <button id="refreshBtn">🔄 Actualizar datos</button>
         <button id="verHistorialBtn">📜 Ver historial completo</button>
         <button id="saveCurrentBtn">💾 Guardar medición</button>
-        <button id="userFormBtn">👤 Datos Personales</button>
-        <button id="tipoMinaBtn">⛏️ Tipo de Mina</button>
-        <button id="geoEmpresaBtn">🌍 Geo / Empresa</button>
-        <button id="usuariosBtn">👥 Usuarios</button>
-        <button id="graficosBtn">📊 Gráficos</button>
-        <button id="geoBtn">📍 Mapa</button>
       </div>
       <div id="deviceData" class="deviceDetails">Cargando dispositivo...</div>
       <div id="camposMinaDiv" class="camposMina"></div>
@@ -51,6 +61,18 @@ export function showDevices() {
 
   const deviceDataDiv = document.getElementById("deviceData");
 
+  // EVENTOS NAVBAR
+  document.getElementById("dashboardBtn").onclick = () => navigate("user");
+  document.getElementById("usuariosBtn").onclick = () => navigate("usuarios");
+  document.getElementById("graficosBtn").onclick = () => navigate("graficos");
+  document.getElementById("geoBtn").onclick = () => navigate("geolocalizacion");
+  document.getElementById("userFormBtn").onclick = () => navigate("userform");
+  document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
+  document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
+  document.getElementById("logoutBtn").onclick = () => auth.signOut().then(() => navigate("login"));
+  document.getElementById("themeToggle").onclick = toggleTheme;
+
+  // EVENTOS BOTONES DEL DASHBOARD
   document.getElementById("back").onclick = () => navigate("user");
   document.getElementById("refreshBtn").onclick = () =>
     mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);
@@ -59,18 +81,18 @@ export function showDevices() {
   document.getElementById("saveCurrentBtn").onclick = () =>
     guardarMedicionActual(DEVICE_ID_DEFAULT);
 
-  document.getElementById("userFormBtn").onclick = () => navigate("userform");
-  document.getElementById("tipoMinaBtn").onclick = () => navigate("tipomina");
-  document.getElementById("geoEmpresaBtn").onclick = () => navigate("geoempresa");
-  document.getElementById("usuariosBtn").onclick = () => navigate("usuarios");
-  document.getElementById("graficosBtn").onclick = () => navigate("graficos");
-  document.getElementById("geoBtn").onclick = () => navigate("geolocalizacion");
-
   mostrarDatosDispositivo(DEVICE_ID_DEFAULT, deviceDataDiv);
 }
 
 // ================================================
-// MOSTRAR DATOS DEL DISPOSITIVO + LOCALIZACIÓN POR TIPO DE MINA
+// FUNCION TOGGLE TEMA CLARO / OSCURO
+// ================================================
+function toggleTheme() {
+  document.body.classList.toggle("dark-mode");
+}
+
+// ================================================
+// FUNCIONES RESTANTES (MOSTRAR DATOS, HISTORIAL, GUARDAR PDF/CSV, ETC)
 // ================================================
 function mostrarDatosDispositivo(deviceId, container) {
   const deviceRef = ref(db, `dispositivos/${deviceId}`);
@@ -106,6 +128,10 @@ function mostrarDatosDispositivo(deviceId, container) {
     renderCampos(d.tipoMina, d, camposMinaDiv);
   });
 }
+
+// Aquí van las funciones: renderCampos(), guardarMedicionActual(), showHistoricalPage(), cargarHistorialGlobal(), guardarHistorialComoPDF(), guardarHistorialComoExcel(), showPage1(), showPage2()
+// (Se mantienen exactamente igual que en tu versión anterior)
+
 
 // ================================================
 // FUNCION RENDER CAMPOS SEGÚN TIPO DE MINA
