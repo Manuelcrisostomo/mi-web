@@ -1,41 +1,73 @@
 // ================================================
-// AlertsView.js — Panel de alertas con barra moderna
+// AlertsView.js — Panel de alertas con navbar Bootstrap + modo oscuro/claro
 // ================================================
 import { db, ref, onValue } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
 
 export function showAlerts() {
   const root = document.getElementById("root");
-  root.innerHTML = `
-    <!-- NAVBAR MODERNA -->
-    <nav class="main-navbar">
-      <button data-view="user">🏠 Menú Principal</button>
-      <button data-view="devices" style="background-color:#007bff;">💡 Dispositivos</button>
-      <button data-view="alerts" style="background-color:#dc3545;">🚨 Alertas</button>
-      <button data-view="history" style="background-color:#ffc107;">📜 Historial</button>
-      <button data-view="pagina1" style="background-color:#6f42c1;">📄 Página 1</button>
-      <button data-view="pagina2" style="background-color:#20c997;">📄 Página 2</button>
-      <button data-view="usuarios" style="background-color:#495057;">👥 Usuarios</button>
-      <button data-view="graficos" style="background-color:#17a2b8;">📊 Gráficos</button>
-      <button data-view="geolocalizacion" style="background-color:#28a745;">📍 Mapa</button>
-      <button class="logout" style="background-color:#6c757d;">🚪 Cerrar Sesión</button>
-    </nav>
 
-    <!-- CONTENIDO -->
-    <div class="dashboard">
-      <h2>🚨 Alertas de Seguridad</h2>
-      <div id="alerts" class="card text-center">Cargando alertas...</div>
+  root.innerHTML = `
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-warning" href="#">⚙️ Minesafe 2</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavAlerts"
+        aria-controls="mainNavAlerts" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavAlerts">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><button class="nav-link btn-link" data-view="user">🏠 Menú Principal</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="devices">💡 Dispositivos</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="alerts">🚨 Alertas</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="history">📜 Historial</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="pagina1">📄 Página 1</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="pagina2">📄 Página 2</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="usuarios">👥 Usuarios</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="graficos">📊 Gráficos</button></li>
+          <li class="nav-item"><button class="nav-link btn-link" data-view="geolocalizacion">📍 Mapa</button></li>
+        </ul>
+        <div class="d-flex">
+          <button id="themeToggle" class="btn btn-warning btn-sm me-2">🌙</button>
+          <button class="btn btn-danger btn-sm logout">🔒 Cerrar Sesión</button>
+        </div>
+      </div>
     </div>
+  </nav>
+
+  <div class="container py-3">
+    <div class="dashboard">
+      <h2 class="fw-bold">🚨 Alertas de Seguridad</h2>
+      <div id="alerts" class="card text-center p-3">Cargando alertas...</div>
+    </div>
+  </div>
   `;
 
-  // --- Navegación ---
-  root.querySelectorAll(".main-navbar button[data-view]").forEach(btn => {
+  // ==================== NAVBAR NAVIGATION ====================
+  document.querySelectorAll("button[data-view]").forEach(btn => {
     btn.addEventListener("click", () => navigate(btn.dataset.view));
   });
 
-  root.querySelector(".logout").onclick = () => navigate("login");
+  // Logout
+  document.querySelector(".logout").onclick = async () => {
+    await auth.signOut();
+    navigate("login");
+  };
 
-  // --- Datos de alertas ---
+  // Tema oscuro/claro
+  const themeBtn = document.getElementById("themeToggle");
+  themeBtn.onclick = () => {
+    document.body.classList.toggle("dark-mode");
+    themeBtn.textContent = document.body.classList.contains("dark-mode") ? "🌞" : "🌙";
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+  };
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    themeBtn.textContent = "🌞";
+  }
+
+  // ==================== Datos de alertas ====================
   const deviceRef = ref(db, "dispositivos/device_38A839E81F84");
   onValue(deviceRef, (snapshot) => {
     const d = snapshot.val();
