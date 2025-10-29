@@ -21,7 +21,7 @@ export function renderNavbar() {
       <button data-view="geoempresa">🌍 Empresa</button>
       <button data-view="pagina1">📄 Pág. 1</button>
       <button data-view="pagina2">📄 Pág. 2</button>
-      <button data-view="admin">🛠️ Admin</button>
+      <button data-view="admin"> Admin</button>
       <button id="themeToggle" class="theme-toggle">🌙</button>
       <button id="logoutBtn" class="logout">🚪 Cerrar Sesión</button>
     </div>
