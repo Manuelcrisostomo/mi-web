@@ -6,6 +6,7 @@
 :root {
   --color-bg: #f8f9fa;
   --color-text: #111;
+  --color-text-alt: #ffeb3b; /* texto alternativo para títulos */
   --color-card: #ffffff;
   --color-border: #ddd;
   --color-shadow: rgba(0, 0, 0, 0.1);
@@ -23,7 +24,8 @@
 /* 🌙 MODO OSCURO */
 body.dark-mode {
   --color-bg: #121212;
-  --color-text: #e0e0e0;
+  --color-text: #f5f5f5; /* texto principal blanco */
+  --color-text-alt: #ffeb3b; /* títulos amarillos */
   --color-card: #1e1e1e;
   --color-border: #333;
   --color-shadow: rgba(255, 255, 255, 0.05);
@@ -125,7 +127,7 @@ header, footer {
 }
 
 .card h2, .card h3, .card h4 {
-  color: var(--color-text);
+  color: var(--color-text-alt);
   border-bottom: 2px solid var(--color-border);
   padding-bottom: 8px;
 }
@@ -206,6 +208,19 @@ button:hover {
   border-left: 4px solid #dc3545;
 }
 
+/* ALERTAS MODO OSCURO */
+body.dark-mode .alert-success {
+  background: #2b3a2b;
+  color: #c3e6cb;
+  border-left: 4px solid #28a745;
+}
+
+body.dark-mode .alert-danger {
+  background: #3a2b2b;
+  color: #f5b5b5;
+  border-left: 4px solid #dc3545;
+}
+
 /* ------------------ MAPA ------------------ */
 #map {
   width: 100%;
@@ -220,6 +235,18 @@ footer {
   color: var(--color-muted);
   font-size: 0.9rem;
   margin: 30px 0 10px;
+}
+
+/* TEXTOS EN MODO OSCURO */
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode label,
+body.dark-mode a,
+body.dark-mode li,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  color: var(--color-text);
 }
 
 /* ------------------ LAYOUT RESPONSIVO ------------------ */
