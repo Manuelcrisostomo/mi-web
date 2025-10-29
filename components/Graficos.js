@@ -7,9 +7,11 @@ export function showGraficos() {
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
     <div class="container-fluid">
       <a class="navbar-brand fw-bold text-warning" href="#">📊 Gráficos</a>
-      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navGraf">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navGraf"
+        aria-controls="navGraf" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navGraf">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><button class="nav-link btn-link" data-view="user">🏠 Inicio</button></li>
@@ -17,7 +19,10 @@ export function showGraficos() {
           <li class="nav-item"><button class="nav-link btn-link" data-view="usuarios">👥 Usuarios</button></li>
           <li class="nav-item"><button class="nav-link btn-link" data-view="geolocalizacion">📍 Mapa</button></li>
         </ul>
-        <button class="btn btn-danger btn-sm logout">🚪 Cerrar Sesión</button>
+        <div class="d-flex">
+          <button id="themeToggle" class="btn btn-warning btn-sm me-2">🌙</button>
+          <button class="btn btn-danger btn-sm logout">🚪 Cerrar Sesión</button>
+        </div>
       </div>
     </div>
   </nav>
@@ -31,6 +36,24 @@ export function showGraficos() {
   root.querySelectorAll("button[data-view]").forEach(btn =>
     btn.addEventListener("click", () => navigate(btn.dataset.view))
   );
+
+  // Logout
+  document.querySelector(".logout").onclick = async () => {
+    await auth.signOut();
+    navigate("login");
+  };
+
+  // Tema oscuro
+  const themeBtn = document.getElementById("themeToggle");
+  themeBtn.onclick = () => {
+    document.body.classList.toggle("dark-mode");
+    themeBtn.textContent = document.body.classList.contains("dark-mode") ? "🌞" : "🌙";
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+  };
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    themeBtn.textContent = "🌞";
+  }
 
   const ctx = document.getElementById("chart").getContext("2d");
   const chart = new Chart(ctx, {

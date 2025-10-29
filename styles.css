@@ -156,7 +156,7 @@ textarea:focus {
   box-shadow: var(--neon-glow);
 }
 
-/* ------------------ BOTONES ------------------ */
+/* ------------------ BOTONES GENERALES ------------------ */
 button {
   padding: 10px 16px;
   border: none;
@@ -166,26 +166,67 @@ button {
   transition: all 0.25s ease;
 }
 
-.btn-primary {
-  background-color: var(--color-primary);
-  color: #fff;
-}
-.btn-success {
-  background-color: var(--color-success);
-  color: #fff;
-}
-.btn-danger {
-  background-color: var(--color-danger);
-  color: #fff;
-}
-.btn-warning {
-  background-color: var(--color-warning);
-  color: #222;
-}
+.btn-primary { background-color: var(--color-primary); color: #fff; }
+.btn-success { background-color: var(--color-success); color: #fff; }
+.btn-danger  { background-color: var(--color-danger); color: #fff; }
+.btn-warning { background-color: var(--color-warning); color: #222; }
 
 button:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
+  box-shadow: var(--neon-glow);
+}
+
+/* ------------------ BOTONES DE ACCIONES EN DASHBOARD ------------------ */
+.actions button {
+  background-color: var(--color-primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}
+
+.actions button:hover {
+  background-color: var(--color-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--neon-glow);
+  filter: brightness(1.15);
+}
+
+.actions button:disabled {
+  background-color: #555;
+  color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Colores específicos de botones de acción */
+.actions #back { background-color: var(--color-muted); }
+.actions #refreshBtn { background-color: var(--color-success); }
+.actions #verHistorialBtn { background-color: var(--color-primary); }
+.actions #saveCurrentBtn { background-color: var(--color-warning); color: #222; }
+
+/* Botones de navegación extra */
+.actions #userFormBtn,
+.actions #tipoMinaBtn,
+.actions #geoEmpresaBtn,
+.actions #usuariosBtn,
+.actions #graficosBtn,
+.actions #geoBtn {
+  background-color: var(--color-primary);
+}
+
+/* Hover modo oscuro coherente */
+body.dark-mode .actions button {
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+body.dark-mode .actions button:hover {
   box-shadow: var(--neon-glow);
 }
 
