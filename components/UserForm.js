@@ -20,10 +20,7 @@ export function showUserForm() {
         <label>Dirección:</label>
         <input id="direccion" class="form-control mb-2" placeholder="Dirección" />
         <label>Rol:</label>
-        <select id="isAdmin" class="form-select mb-3">
-          <option value="false">Usuario Normal</option>
-          <option value="true">Administrador</option>
-        </select>
+        <p id="rolText" class="fw-bold mb-3">Cargando rol...</p>
         <button class="btn btn-success w-100 mb-2">💾 Guardar</button>
         <button type="button" id="backBtn" class="btn btn-secondary w-100">⬅️ Volver</button>
       </form>
@@ -41,7 +38,9 @@ export function showUserForm() {
       nombre.value = data.nombre || "";
       telefono.value = data.telefono || "";
       direccion.value = data.direccion || "";
-      isAdmin.value = data.isAdmin ? "true" : "false";
+      // Mostrar rol como texto
+      const rol = data.isAdmin ? "Administrador" : "Usuario";
+      document.getElementById("rolText").textContent = `Usted es usuario con rol: ${rol}`;
     });
 
     userForm.onsubmit = async (e) => {
@@ -50,7 +49,8 @@ export function showUserForm() {
         nombre: nombre.value.trim(),
         telefono: telefono.value.trim(),
         direccion: direccion.value.trim(),
-        isAdmin: isAdmin.value === "true"
+        // Mantener el rol actual, no se puede cambiar desde el formulario
+        isAdmin: document.getElementById("rolText").textContent.includes("Administrador")
       };
       await setDoc(userRef, datos, { merge: true });
       await update(ref(db, `usuarios/${user.uid}`), datos);
