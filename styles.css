@@ -204,3 +204,71 @@ body.dark-mode li, body.dark-mode input, body.dark-mode select, body.dark-mode t
 /* ================================================
    FIN DEL ESTILO ADMIN PANEL MINESAFE 2
    ================================================ */
+/* ================================================
+   🎌 ESTILO PÁGINA SECRETA ONE PIECE
+   ================================================ */
+.secret-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  color: var(--color-text);
+  text-align: center;
+  animation: fadeIn 1.8s ease;
+}
+
+.flag-container {
+  margin: 20px 0;
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.flag-anim {
+  max-width: 220px;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.6));
+  animation: float 4s ease-in-out infinite;
+}
+
+.secret-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-text-alt);
+  text-shadow: var(--neon-glow);
+  margin-top: 15px;
+  animation: glowText 2s ease-in-out infinite alternate;
+}
+
+.secret-text {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: var(--color-text);
+}
+
+.haki-type {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 20px;
+  color: var(--color-hover);
+  text-shadow: var(--neon-glow);
+}
+
+/* 🔥 Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(255,255,255,0.9)); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glowText {
+  0% { text-shadow: 0 0 8px var(--color-hover), 0 0 16px var(--color-hover); }
+  100% { text-shadow: 0 0 20px var(--color-hover), 0 0 40px var(--color-hover); }
+}

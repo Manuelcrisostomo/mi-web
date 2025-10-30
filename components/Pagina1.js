@@ -1,10 +1,13 @@
-// ================================================
-// Pagina1.js — Página 1 con navbar y botón volver
-// ================================================
+// Pagina1.js — Página 1 con navbar y botón volver + Haki One Piece
 import { navigate } from "../app.js";
 
 export function showPagina1() {
   const root = document.getElementById("root");
+
+  // Lista de Haki
+  const hakis = ["Haki del Rey", "Haki de Observación", "Haki Armadura"];
+  const elegido = hakis[Math.floor(Math.random() * hakis.length)];
+
   root.innerHTML = `
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
     <div class="container-fluid">
@@ -25,10 +28,13 @@ export function showPagina1() {
     </div>
   </nav>
 
-  <div class="container mt-4">
-    <h2>Página 1</h2>
-    <p>Ingresa texto aquí</p>
-    <button id="volverBtn" class="btn btn-secondary mt-2">⬅️ Volver</button>
+  <div class="secret-page">
+    <div class="flag-container">
+      <img src="assets/images/onepiece_banner.png" alt="One Piece" class="flag-anim">
+    </div>
+    <h2 class="secret-title">¡Felicidades!</h2>
+    <p class="secret-text">Has encontrado la página escondida. Por tu esfuerzo has obtenido el <span class="haki-type">${elegido}</span> 🗡️</p>
+    <button id="volverBtn" class="btn btn-secondary mt-3">⬅️ Volver</button>
   </div>
   `;
 
@@ -42,4 +48,9 @@ export function showPagina1() {
 
   // Botón volver
   document.getElementById("volverBtn").onclick = () => navigate("devices");
+
+  // Reproducir el audio del opening
+  const audio = new Audio("assets/sounds/one-piece-intro.mp3");
+  audio.volume = 0.7;
+  audio.play();
 }
