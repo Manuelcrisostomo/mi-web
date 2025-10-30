@@ -4,7 +4,12 @@
 import { db, ref, onValue, auth } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
 
-export function showUsuarios() {
+// Variable global para guardar la última vista
+let lastView = "user"; // por defecto al inicio
+
+export function showUsuarios(previousView = "user") {
+  lastView = previousView; // guardamos la vista anterior
+
   const root = document.getElementById("root");
   root.innerHTML = `
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
@@ -42,8 +47,8 @@ export function showUsuarios() {
     btn.addEventListener("click", () => navigate(btn.dataset.view))
   );
 
-  // Volver atrás al panel de Admin
-  document.getElementById("back").onclick = () => navigate("admin");
+  // Botón Volver → regresa a la última vista guardada
+  document.getElementById("back").onclick = () => navigate(lastView);
 
   // Logout
   document.querySelector(".logout").onclick = async () => {
