@@ -4,6 +4,7 @@
 
 import { db, ref, onValue, auth } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
+import { renderNavbar } from "./navbar.js"; // Importar navbar
 
 // Arreglo que almacena TODOS los datos guardados manualmente
 let savedData = [];
@@ -13,20 +14,48 @@ let savedData = [];
 // ================================================
 export function showHistoryManagerPage() {
   const root = document.getElementById("root");
-  root.innerHTML = `
-    <div class="dashboard">
-      <h2>Historial Manager</h2>
-      <div class="actions">
-        <button id="backBtn">⬅️ Volver</button>
-        <button id="refreshBtn">🔄 Actualizar datos</button>
-        <button id="saveManualBtn">💾 Guardar datos manualmente</button>
-      </div>
-      <div id="managerData" class="historialDetails">Cargando datos...</div>
-      <h3>Datos Guardados</h3>
-      <div id="savedDataContainer" class="historialDetails">No hay datos guardados aún.</div>
-    </div>
-  `;
+  root.innerHTML = "";
 
+  // Agregar navbar
+  const navbar = renderNavbar();
+  root.appendChild(navbar);
+
+  // Contenedor principal
+  const dashboard = document.createElement("div");
+  dashboard.className = "dashboard";
+  dashboard.innerHTML = `
+    <div class="mode-toggle-container">
+      <button id="themeToggle" class="theme-toggle">🌙</button>
+    </div>
+
+    <h2>Historial Manager</h2>
+    <div class="actions">
+      <button id="backBtn">⬅️ Volver</button>
+      <button id="refreshBtn">🔄 Actualizar datos</button>
+      <button id="saveManualBtn">💾 Guardar datos manualmente</button>
+    </div>
+
+    <div id="managerData" class="historialDetails">Cargando datos...</div>
+
+    <h3>Datos Guardados</h3>
+    <div id="savedDataContainer" class="historialDetails">No hay datos guardados aún.</div>
+  `;
+  root.appendChild(dashboard);
+
+  // 🌙 Alternar modo oscuro/claro
+  const themeToggle = document.getElementById("themeToggle");
+  themeToggle.onclick = () => {
+    document.body.classList.toggle("dark-mode");
+    const dark = document.body.classList.contains("dark-mode");
+    themeToggle.textContent = dark ? "🌞" : "🌙";
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  };
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    themeToggle.textContent = "🌞";
+  }
+
+  // Botones funcionales
   document.getElementById("backBtn").onclick = () => navigate("user");
   document.getElementById("refreshBtn").onclick = () => loadManagerData();
   document.getElementById("saveManualBtn").onclick = () => saveCurrentData();
@@ -52,7 +81,6 @@ function loadManagerData() {
       return;
     }
 
-    // Guardar datos actuales temporalmente
     currentDeviceData = {
       id: DEVICE_ID_DEFAULT,
       name: data.name || "Desconocido",
@@ -66,7 +94,6 @@ function loadManagerData() {
       fecha: new Date().toLocaleString("es-CL")
     };
 
-    // Mostrar datos actuales en pantalla
     container.innerHTML = `
       <p><b>ID:</b> ${currentDeviceData.id}</p>
       <p><b>Nombre:</b> ${currentDeviceData.name}</p>
@@ -88,12 +115,9 @@ function loadManagerData() {
 function saveCurrentData() {
   if (!currentDeviceData || !currentDeviceData.id) return;
 
-  // Agrega un nuevo registro al arreglo (sin borrar los anteriores)
   savedData.push({ ...currentDeviceData });
 
-  // Actualizar la vista de datos guardados
   const savedContainer = document.getElementById("savedDataContainer");
-
   savedContainer.innerHTML = savedData
     .map(
       (d, index) => `
