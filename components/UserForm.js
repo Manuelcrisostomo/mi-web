@@ -19,8 +19,7 @@ export function showUserForm() {
         <input id="telefono" class="form-control mb-2" placeholder="Teléfono" />
         <label>Dirección:</label>
         <input id="direccion" class="form-control mb-2" placeholder="Dirección" />
-        <label>Rol:</label>
-        <p id="rolText" class="fw-bold mb-3">Cargando rol...</p>
+    
         <button class="btn btn-success w-100 mb-2">💾 Guardar</button>
         <button type="button" id="backBtn" class="btn btn-secondary w-100">⬅️ Volver</button>
       </form>
