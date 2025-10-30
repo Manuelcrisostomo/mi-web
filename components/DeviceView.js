@@ -22,6 +22,15 @@ function renderNavbar() {
     <button onclick="navigate('graficos')">📊 Gráficos</button>
     <button onclick="navigate('geolocalizacion')">📍 Mapa</button>
   `;
+   // EVENTOS DEL NAVBAR
+  nav.querySelector("#navHome").onclick = () => showDevices();
+  nav.querySelector("#navUser").onclick = () => navigate("userform");
+  nav.querySelector("#navTipoMina").onclick = () => navigate("tipomina");
+  nav.querySelector("#navGeoEmpresa").onclick = () => navigate("geoempresa");
+  nav.querySelector("#navUsuarios").onclick = () => navigate("usuarios");
+  nav.querySelector("#navGraficos").onclick = () => navigate("graficos");
+  nav.querySelector("#navMapa").onclick = () => navigate("geolocalizacion");
+
   return nav;
 }
 
