@@ -6,21 +6,21 @@ import { db, ref, onValue, auth } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
 import { renderNavbar } from "./navbar.js"; // Importar navbar
 
-// Arreglo que almacena TODOS los datos guardados manualmente
 let savedData = [];
 
-// ================================================
-// Mostrar la nueva página del Historial Manager
-// ================================================
 export function showHistoryManagerPage() {
   const root = document.getElementById("root");
   root.innerHTML = "";
 
-  // Agregar navbar
-  const navbar = renderNavbar();
+  // ================================================
+  // Agregar navbar al inicio
+  // ================================================
+  const navbar = renderNavbar(); // Debe devolver un <nav>
   root.appendChild(navbar);
 
-  // Contenedor principal
+  // ================================================
+  // Contenedor principal del dashboard
+  // ================================================
   const dashboard = document.createElement("div");
   dashboard.className = "dashboard";
   dashboard.innerHTML = `
@@ -42,7 +42,7 @@ export function showHistoryManagerPage() {
   `;
   root.appendChild(dashboard);
 
-  // 🌙 Alternar modo oscuro/claro
+  // 🌙 Tema oscuro / claro
   const themeToggle = document.getElementById("themeToggle");
   themeToggle.onclick = () => {
     document.body.classList.toggle("dark-mode");
@@ -60,14 +60,14 @@ export function showHistoryManagerPage() {
   document.getElementById("refreshBtn").onclick = () => loadManagerData();
   document.getElementById("saveManualBtn").onclick = () => saveCurrentData();
 
-  // Carga inicial de los datos del dispositivo
+  // Carga inicial de datos
   loadManagerData();
 }
 
 // ================================================
-// Cargar datos actuales del dispositivo
+// Funciones auxiliares para cargar y guardar datos
 // ================================================
-let currentDeviceData = {}; // Guardará temporalmente los datos actuales del dispositivo
+let currentDeviceData = {};
 
 function loadManagerData() {
   const container = document.getElementById("managerData");
@@ -109,9 +109,6 @@ function loadManagerData() {
   });
 }
 
-// ================================================
-// Guardar datos manualmente sin reemplazar anteriores
-// ================================================
 function saveCurrentData() {
   if (!currentDeviceData || !currentDeviceData.id) return;
 
