@@ -1,5 +1,5 @@
 // ================================================
-// Navbar.js — Barra de navegación global reutilizable
+// Navbar.js — Barra de navegación tipo acordeón + responsive
 // ================================================
 import { auth } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
@@ -8,7 +8,11 @@ export function renderNavbar() {
   const nav = document.createElement("nav");
   nav.className = "main-navbar";
   nav.innerHTML = `
-    <div class="navbar-container">
+    <div class="navbar-header">
+      <span class="navbar-brand fw-bold text-warning">⚙️ Minesafe 2</span>
+      <button class="navbar-toggler" id="navbarToggle">☰</button>
+    </div>
+    <div class="navbar-links collapse">
       <button data-view="user">🏠 Panel</button>
       <button data-view="devices">💡 Dispositivos</button>
       <button data-view="alerts">🚨 Alertas</button>
@@ -27,9 +31,28 @@ export function renderNavbar() {
     </div>
   `;
 
-  // Navegación
+  const linksContainer = nav.querySelector(".navbar-links");
+  const toggleBtn = nav.querySelector("#navbarToggle");
+
+  // Toggle hamburguesa
+  toggleBtn.onclick = () => {
+    linksContainer.classList.toggle("collapse");
+  };
+
+  // Navegación de botones
   nav.querySelectorAll("button[data-view]").forEach((btn) => {
-    btn.addEventListener("click", () => navigate(btn.dataset.view));
+    btn.addEventListener("click", () => {
+      // Redirigir Admin a usuarios.js
+      if (btn.dataset.view === "admin") {
+        navigate("usuarios");
+      } else {
+        navigate(btn.dataset.view);
+      }
+      // Cerrar menu en móviles
+      if (!linksContainer.classList.contains("collapse")) {
+        linksContainer.classList.add("collapse");
+      }
+    });
   });
 
   // Logout
