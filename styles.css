@@ -272,3 +272,19 @@ body.dark-mode li, body.dark-mode input, body.dark-mode select, body.dark-mode t
   0% { text-shadow: 0 0 8px var(--color-hover), 0 0 16px var(--color-hover); }
   100% { text-shadow: 0 0 20px var(--color-hover), 0 0 40px var(--color-hover); }
 }
+/* ====================== Animación Mashle ====================== */
+.secret-page .flag-anim {
+  max-width: 220px;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.6));
+  animation: mashleFloat 4s ease-in-out infinite, mashlePulse 3s infinite ease-in-out;
+}
+
+@keyframes mashleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes mashlePulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 25px rgba(255,255,255,0.9)); }
+}

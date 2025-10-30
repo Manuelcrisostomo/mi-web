@@ -1,14 +1,23 @@
-// ================================================
-// Pagina2.js — Página 2 con navbar y botón volver
-// ================================================
+// Pagina2.js — Página secreta Mashle
 import { navigate } from "../app.js";
 
 export function showPagina2() {
   const root = document.getElementById("root");
+
+  // Lista de personajes de Mashle
+  const personajes = [
+    { nombre: "Mash Burnedead", imagen: "assets/images/mash.png" },
+    { nombre: "Lance Crown", imagen: "assets/images/lance.png" },
+    { nombre: "Roe Two", imagen: "assets/images/roe.png" }
+  ];
+
+  // Elegir personaje aleatorio
+  const elegido = personajes[Math.floor(Math.random() * personajes.length)];
+
   root.innerHTML = `
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
     <div class="container-fluid">
-      <a class="navbar-brand fw-bold text-warning" href="#">📄 Página 2</a>
+      <a class="navbar-brand fw-bold text-warning" href="#">📄 Página 2 - Mashle</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPage2">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -25,10 +34,16 @@ export function showPagina2() {
     </div>
   </nav>
 
-  <div class="container mt-4">
-    <h2>Página 2</h2>
-    <p>Ingresa texto aquí</p>
-    <button id="volverBtn" class="btn btn-secondary mt-2">⬅️ Volver</button>
+  <div class="secret-page">
+    <div class="flag-container">
+      <img src="${elegido.imagen}" alt="${elegido.nombre}" class="flag-anim">
+    </div>
+    <h2 class="secret-title">¡Felicidades!</h2>
+    <p class="secret-text">
+      Has encontrado la página secreta de Mashle. Tu personaje aleatorio es 
+      <span class="haki-type">${elegido.nombre}</span> 💥
+    </p>
+    <button id="volverBtn" class="btn btn-secondary mt-3">⬅️ Volver</button>
   </div>
   `;
 
@@ -42,4 +57,9 @@ export function showPagina2() {
 
   // Botón volver
   document.getElementById("volverBtn").onclick = () => navigate("devices");
+
+  // Reproducir el audio de Mashle
+  const audio = new Audio("https://www.myinstants.com/media/sounds/mashle-intro.mp3"); // enlace directo
+  audio.volume = 0.7;
+  audio.play();
 }
