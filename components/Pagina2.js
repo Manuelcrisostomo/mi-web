@@ -59,7 +59,7 @@ export function showPagina2() {
   document.getElementById("volverBtn").onclick = () => navigate("devices");
 
   // Reproducir el audio de Mashle
-  const audio = new Audio("https://www.myinstants.com/media/sounds/mashle-intro.mp3"); // enlace directo
+  const audio = new Audio("assets/sounds/mashle-magic-and-muscle-season-2-openning.mp3"); // enlace directo
   audio.volume = 0.7;
   audio.play();
 }
