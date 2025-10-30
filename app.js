@@ -1,4 +1,4 @@
-// ================================================
+/// ================================================
 // app.js — Navegación principal con navbar global estilizada
 // ================================================
 import { showLogin } from "./components/Login.js";
