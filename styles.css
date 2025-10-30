@@ -1,5 +1,5 @@
 /* ================================================
-   ESTILO ADMIN PANEL MINESAFE 2 — CLARO / OSCURO + EFECTO NEÓN + NAVBAR ACORDEÓN
+   ESTILO ADMIN PANEL MINESAFE 2 — CLARO / OSCURO + EFECTO NEÓN + NAVBAR ACORDEÓN + BOTÓN VOLVER
    ================================================ */
 
 /* ------------------ VARIABLES DE COLOR ------------------ */
@@ -116,6 +116,9 @@ header, footer {
 .navbar-links button[data-view="pagina2"] { background-image: linear-gradient(45deg, #28a745, #198754); }
 .navbar-links button[data-view="admin"] { background-image: linear-gradient(45deg, #dc3545, #a71d2a); }
 
+/* Botón volver atrás */
+.navbar-links button#back { background-image: linear-gradient(45deg, #6c757d, #495057); }
+
 /* Animación hover */
 .navbar-links button:hover {
   animation: gradientShift 3s ease infinite;
@@ -124,9 +127,9 @@ header, footer {
   filter: brightness(1.15);
 }
 
+/* Logout y toggle */
 .main-navbar .logout { background-color: var(--color-danger); }
 .main-navbar .logout:hover { box-shadow: 0 0 12px rgba(255, 99, 132, 0.8); transform: scale(1.07); }
-
 .theme-toggle { background: var(--color-warning); color: #222; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.3s; }
 .theme-toggle:hover { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); transform: rotate(15deg); }
 
@@ -149,71 +152,28 @@ header, footer {
 }
 
 .card:hover { box-shadow: var(--neon-glow); }
-
-.card h2, .card h3, .card h4 {
-  color: var(--color-text-alt);
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 8px;
-}
+.card h2, .card h3, .card h4 { color: var(--color-text-alt); border-bottom: 2px solid var(--color-border); padding-bottom: 8px; }
 
 /* ------------------ FORMULARIOS ------------------ */
 input, select, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-card);
-  color: var(--color-text);
-  font-size: 0.95rem;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
+  width: 100%; padding: 10px; margin-top: 8px;
+  border: 1px solid var(--color-border); border-radius: 6px;
+  background: var(--color-card); color: var(--color-text);
+  font-size: 0.95rem; box-sizing: border-box; transition: all 0.3s ease;
 }
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--neon-glow);
-}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--neon-glow); }
 
 /* ------------------ BOTONES GENERALES ------------------ */
-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
+button { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; }
 .btn-primary { background-color: var(--color-primary); color: #fff; }
 .btn-success { background-color: var(--color-success); color: #fff; }
 .btn-danger  { background-color: var(--color-danger); color: #fff; }
 .btn-warning { background-color: var(--color-warning); color: #222; }
-
 button:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--neon-glow); }
 
 /* ------------------ ACCIONES DASHBOARD ------------------ */
-.actions button {
-  position: relative;
-  overflow: hidden;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 600;
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background-size: 200% 200%;
-}
-
-.actions button:hover {
-  animation: gradientShift 3s ease infinite;
-  transform: translateY(-2px);
-  box-shadow: 0 0 12px rgba(255,255,255,0.6);
-  filter: brightness(1.15);
-}
-
+.actions button { position: relative; overflow: hidden; border: none; border-radius: 8px; color: #fff; font-weight: 600; padding: 10px 16px; cursor: pointer; transition: all 0.3s ease; background-size: 200% 200%; }
+.actions button:hover { animation: gradientShift 3s ease infinite; transform: translateY(-2px); box-shadow: 0 0 12px rgba(255,255,255,0.6); filter: brightness(1.15); }
 body.dark-mode .actions button { color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 body.dark-mode .actions button:hover { box-shadow: 0 0 15px rgba(255,255,255,0.5); filter: brightness(1.25); }
 
@@ -238,18 +198,8 @@ body.dark-mode li, body.dark-mode input, body.dark-mode select, body.dark-mode t
 
 /* ------------------ LAYOUT RESPONSIVO ------------------ */
 @media (max-width: 1024px) { .navbar-links { justify-content: space-around; } }
-
-@media (max-width: 768px) {
-  .navbar-links { flex-direction: column; gap: 6px; }
-  .navbar-links button { width: 100%; font-size: 1rem; }
-  .card { width: 92%; padding: 15px; }
-}
-
-@media (max-width: 480px) {
-  .navbar-links button { padding: 9px 12px; border-radius: 6px; font-size: 0.9rem; }
-  .card { width: 95%; margin: 10px auto; }
-  #map { height: 300px; }
-}
+@media (max-width: 768px) { .navbar-links { flex-direction: column; gap: 6px; } .navbar-links button { width: 100%; font-size: 1rem; } .card { width: 92%; padding: 15px; } }
+@media (max-width: 480px) { .navbar-links button { padding: 9px 12px; border-radius: 6px; font-size: 0.9rem; } .card { width: 95%; margin: 10px auto; } #map { height: 300px; } }
 
 /* ================================================
    FIN DEL ESTILO ADMIN PANEL MINESAFE 2

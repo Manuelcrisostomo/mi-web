@@ -1,7 +1,7 @@
 // ================================================
 // Usuarios.js — Lista de usuarios en Firebase con navbar desplegable
 // ================================================
-import { db, ref, onValue } from "../firebaseConfig.js";
+import { db, ref, onValue, auth } from "../firebaseConfig.js";
 import { navigate } from "../app.js";
 
 export function showUsuarios() {
@@ -23,6 +23,7 @@ export function showUsuarios() {
           <li class="nav-item"><button class="nav-link btn-link" data-view="geolocalizacion">📍 Mapa</button></li>
         </ul>
         <div class="d-flex">
+          <button id="back" class="btn btn-secondary btn-sm me-2">⬅️ Volver</button>
           <button id="themeToggle" class="btn btn-warning btn-sm me-2">🌙</button>
           <button class="btn btn-danger btn-sm logout">🚪 Cerrar Sesión</button>
         </div>
@@ -40,6 +41,9 @@ export function showUsuarios() {
   document.querySelectorAll("button[data-view]").forEach(btn =>
     btn.addEventListener("click", () => navigate(btn.dataset.view))
   );
+
+  // Volver atrás al panel de Admin
+  document.getElementById("back").onclick = () => navigate("admin");
 
   // Logout
   document.querySelector(".logout").onclick = async () => {
@@ -59,14 +63,14 @@ export function showUsuarios() {
     themeBtn.textContent = "🌞";
   }
 
-  // Carga de usuarios
+  // Carga dinámica de usuarios desde Firebase
   const usuariosRef = ref(db, "usuarios");
   onValue(usuariosRef, (snapshot) => {
     const data = snapshot.val();
     const cont = document.getElementById("usuariosList");
     if (!data) return (cont.innerHTML = "<p>No hay usuarios registrados.</p>");
     cont.innerHTML = Object.entries(data)
-      .map(([id, u]) => `<p><b>${u.nombre}</b> — ${u.email}</p>`)
+      .map(([id, u]) => `<p>👤 <b>${u.nombre}</b> — ${u.email}</p>`)
       .join("");
   });
 }
