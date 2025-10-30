@@ -24,8 +24,8 @@
 /* 🌙 MODO OSCURO */
 body.dark-mode {
   --color-bg: #121212;
-  --color-text: #f5f5f5; /* texto principal blanco */
-  --color-text-alt: #ffeb3b; /* títulos amarillos */
+  --color-text: #f5f5f5;
+  --color-text-alt: #ffeb3b;
   --color-card: #1e1e1e;
   --color-border: #333;
   --color-shadow: rgba(255, 255, 255, 0.05);
@@ -54,9 +54,9 @@ header, footer {
 
 /* ------------------ NAVBAR ------------------ */
 .main-navbar {
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 3px 6px var(--color-shadow);
+  background-color: #000; /* barra negra */
+  border-bottom: 1px solid #333;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
   padding: 10px 20px;
   display: flex;
   flex-wrap: wrap;
@@ -68,47 +68,53 @@ header, footer {
 }
 
 .main-navbar button {
+  position: relative;
+  overflow: hidden;
   border: none;
   border-radius: 8px;
   color: #fff;
   font-weight: 600;
-  cursor: pointer;
   padding: 10px 16px;
+  cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  background-size: 200% 200%;
 }
 
+/* Colores tipo gradiente para cada botón */
+.main-navbar button[data-view="user"] { background-image: linear-gradient(45deg, #007bff, #0056b3); }
+.main-navbar button[data-view="devices"] { background-image: linear-gradient(45deg, #28a745, #198754); }
+.main-navbar button[data-view="alerts"] { background-image: linear-gradient(45deg, #dc3545, #a71d2a); }
+.main-navbar button[data-view="usuarios"] { background-image: linear-gradient(45deg, #e83e8c, #c2175c); }
+.main-navbar button[data-view="graficos"] { background-image: linear-gradient(45deg, #20c997, #198754); }
+.main-navbar button[data-view="geolocalizacion"] { background-image: linear-gradient(45deg, #17a2b8, #117a8b); }
+.main-navbar button[data-view="history"] { background-image: linear-gradient(45deg, #ffc107, #e0a800); color: #222; }
+.main-navbar button[data-view="userform"] { background-image: linear-gradient(45deg, #fd7e14, #e8590c); }
+.main-navbar button[data-view="tipomina"] { background-image: linear-gradient(45deg, #6610f2, #520dc2); }
+.main-navbar button[data-view="geoempresa"] { background-image: linear-gradient(45deg, #e83e8c, #c2175c); }
+.main-navbar button[data-view="pagina1"] { background-image: linear-gradient(45deg, #007bff, #0056b3); }
+.main-navbar button[data-view="pagina2"] { background-image: linear-gradient(45deg, #28a745, #198754); }
+.main-navbar button[data-view="admin"] { background-image: linear-gradient(45deg, #dc3545, #a71d2a); }
+
+/* Animación de gradiente al pasar el mouse */
 .main-navbar button:hover {
+  animation: gradientShift 3s ease infinite;
   transform: scale(1.05);
-  box-shadow: var(--neon-glow);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
   filter: brightness(1.15);
 }
 
-.main-navbar .logout {
-  background-color: var(--color-danger);
-}
-.main-navbar .logout:hover {
-  box-shadow: 0 0 12px rgba(255, 99, 132, 0.8);
-  transform: scale(1.07);
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* Botón de cambio de tema */
-.theme-toggle {
-  background: var(--color-warning);
-  color: #222;
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  transition: all 0.3s;
-}
-.theme-toggle:hover {
-  box-shadow: 0 0 12px rgba(255, 193, 7, 0.8);
-  transform: rotate(15deg);
-}
+/* Logout y toggle siguen sus colores originales */
+.main-navbar .logout { background-color: var(--color-danger); }
+.main-navbar .logout:hover { box-shadow: 0 0 12px rgba(255, 99, 132, 0.8); transform: scale(1.07); }
+
+.theme-toggle { background: var(--color-warning); color: #222; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.3s; }
+.theme-toggle:hover { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); transform: rotate(15deg); }
 
 /* ------------------ CARDS ------------------ */
 .card, .dashboard {
@@ -133,9 +139,7 @@ header, footer {
 }
 
 /* ------------------ FORMULARIOS ------------------ */
-input,
-select,
-textarea {
+input, select, textarea {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
@@ -148,9 +152,7 @@ textarea {
   transition: all 0.3s ease;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--neon-glow);
@@ -191,19 +193,17 @@ button:hover {
   background-size: 200% 200%;
 }
 
-/* Colores específicos tipo rojo, verde, azul, naranja */
-.actions #back { background-image: linear-gradient(45deg, #6c757d, #495057); }       /* gris/neutral */
-.actions #refreshBtn { background-image: linear-gradient(45deg, #28a745, #198754); } /* verde */
-.actions #verHistorialBtn { background-image: linear-gradient(45deg, #007bff, #0056b3); } /* azul */
-.actions #saveCurrentBtn { background-image: linear-gradient(45deg, #ffc107, #e0a800); color: #222; } /* naranja */
-.actions #userFormBtn { background-image: linear-gradient(45deg, #17a2b8, #117a8b); } /* celeste */
-.actions #tipoMinaBtn { background-image: linear-gradient(45deg, #fd7e14, #e8590c); } /* naranja intenso */
-.actions #geoEmpresaBtn { background-image: linear-gradient(45deg, #6610f2, #520dc2); } /* morado */
-.actions #usuariosBtn { background-image: linear-gradient(45deg, #e83e8c, #c2175c); } /* rosa fuerte */
-.actions #graficosBtn { background-image: linear-gradient(45deg, #20c997, #198754); } /* verde secundario */
-.actions #geoBtn { background-image: linear-gradient(45deg, #007bff, #0056b3); } /* azul secundario */
+.actions #back { background-image: linear-gradient(45deg, #6c757d, #495057); }
+.actions #refreshBtn { background-image: linear-gradient(45deg, #28a745, #198754); }
+.actions #verHistorialBtn { background-image: linear-gradient(45deg, #007bff, #0056b3); }
+.actions #saveCurrentBtn { background-image: linear-gradient(45deg, #ffc107, #e0a800); color: #222; }
+.actions #userFormBtn { background-image: linear-gradient(45deg, #17a2b8, #117a8b); }
+.actions #tipoMinaBtn { background-image: linear-gradient(45deg, #fd7e14, #e8590c); }
+.actions #geoEmpresaBtn { background-image: linear-gradient(45deg, #6610f2, #520dc2); }
+.actions #usuariosBtn { background-image: linear-gradient(45deg, #e83e8c, #c2175c); }
+.actions #graficosBtn { background-image: linear-gradient(45deg, #20c997, #198754); }
+.actions #geoBtn { background-image: linear-gradient(45deg, #007bff, #0056b3); }
 
-/* Animación de gradiente al pasar el mouse */
 .actions button:hover {
   animation: gradientShift 3s ease infinite;
   transform: translateY(-2px);
@@ -211,13 +211,6 @@ button:hover {
   filter: brightness(1.15);
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Hover modo oscuro coherente */
 body.dark-mode .actions button {
   color: #fff;
   border: 1px solid rgba(255,255,255,0.2);
@@ -246,7 +239,6 @@ body.dark-mode .actions button:hover {
   border-left: 4px solid #dc3545;
 }
 
-/* ALERTAS MODO OSCURO */
 body.dark-mode .alert-success {
   background: #2b3a2b;
   color: #c3e6cb;
@@ -276,53 +268,25 @@ footer {
 }
 
 /* TEXTOS EN MODO OSCURO */
-body.dark-mode p,
-body.dark-mode span,
-body.dark-mode label,
-body.dark-mode a,
-body.dark-mode li,
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
+body.dark-mode p, body.dark-mode span, body.dark-mode label, body.dark-mode a, body.dark-mode li, body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
   color: var(--color-text);
 }
 
 /* ------------------ LAYOUT RESPONSIVO ------------------ */
 @media (max-width: 1024px) {
-  .main-navbar {
-    justify-content: space-around;
-  }
+  .main-navbar { justify-content: space-around; }
 }
 
 @media (max-width: 768px) {
-  .main-navbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-  }
-  .main-navbar button {
-    width: 100%;
-    font-size: 1rem;
-  }
-  .card {
-    width: 92%;
-    padding: 15px;
-  }
+  .main-navbar { flex-direction: column; align-items: stretch; gap: 6px; }
+  .main-navbar button { width: 100%; font-size: 1rem; }
+  .card { width: 92%; padding: 15px; }
 }
 
 @media (max-width: 480px) {
-  .main-navbar button {
-    padding: 9px 12px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-  }
-  .card {
-    width: 95%;
-    margin: 10px auto;
-  }
-  #map {
-    height: 300px;
-  }
+  .main-navbar button { padding: 9px 12px; border-radius: 6px; font-size: 0.9rem; }
+  .card { width: 95%; margin: 10px auto; }
+  #map { height: 300px; }
 }
 
 /* ================================================

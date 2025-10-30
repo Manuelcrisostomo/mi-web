@@ -31,44 +31,83 @@ export function showUserDashboard() {
   const root = document.getElementById("root");
 
   root.innerHTML = `
-    <!-- ============================================
-         BARRA DE NAVEGACIÓN GLOBAL
-         ============================================ -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="#">Minesafe 2</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+  <!-- ============================================
+       BARRA DE NAVEGACIÓN TIPO ACORDEÓN
+       ============================================ -->
+  <nav class="navbar navbar-dark bg-dark p-2">
+    <div class="container-fluid d-flex flex-column">
+      <a class="navbar-brand fw-bold mb-2" href="#">Minesafe 2</a>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <!-- 🔹 Inicio -->
-            <li class="nav-item"><a class="nav-link" id="navDashboard">🏠 Dashboard</a></li>
-            <!-- 🔹 Dispositivos -->
-            <li class="nav-item"><a class="nav-link" id="navDevices">💡 Dispositivos</a></li>
-            <!-- 🔹 NUEVO: Historial completo del dispositivo -->
-            <li class="nav-item"><a class="nav-link" id="navHistorialCompleto">📜 Historial Completo</a></li>
-            <!-- 🔹 NUEVO: Página de gestión de historiales -->
-            <li class="nav-item"><a class="nav-link" id="navHistorialManage">🗂️ Historial Manage</a></li>
-            <!-- 🔹 Formularios -->
-            <li class="nav-item"><a class="nav-link" id="navUserForm">👤 Datos Personales</a></li>
-            <li class="nav-item"><a class="nav-link" id="navTipoMina">⛏️ Tipo de Mina</a></li>
-            <li class="nav-item"><a class="nav-link" id="navGeoEmpresa">🌍 Geo / Empresa</a></li>
-            <!-- 🔹 Panel administrador -->
-            <li class="nav-item"><a class="nav-link" id="navAdmin">🛠️ Panel Admin</a></li>
-            <!-- 🔹 NUEVOS BOTONES AÑADIDOS -->
-            <li class="nav-item"><a class="nav-link" id="navUsuarios">👥 Usuarios</a></li>
-            <li class="nav-item"><a class="nav-link" id="navGraficos">📊 Gráficos</a></li>
-            <li class="nav-item"><a class="nav-link" id="navGeolocalizacion">📍 Mapa</a></li>
-          
-            </ul>
-
-          <!-- Botón de cierre de sesión -->
-          <button class="btn btn-outline-danger" id="logout">Cerrar Sesión</button>
+      <div class="accordion" id="navbarAccordion">
+        <!-- Dashboard -->
+        <div class="accordion-item bg-dark border-0">
+          <h2 class="accordion-header" id="headingDashboard">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDashboard">
+              🏠 Dashboard
+            </button>
+          </h2>
+          <div id="collapseDashboard" class="accordion-collapse collapse" data-bs-parent="#navbarAccordion">
+            <div class="accordion-body p-1">
+              <button class="btn btn-sm btn-outline-primary w-100 mb-1" id="navDashboard">Inicio</button>
+            </div>
+          </div>
         </div>
+
+        <!-- Dispositivos -->
+        <div class="accordion-item bg-dark border-0">
+          <h2 class="accordion-header" id="headingDevices">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDevices">
+              💡 Dispositivos
+            </button>
+          </h2>
+          <div id="collapseDevices" class="accordion-collapse collapse" data-bs-parent="#navbarAccordion">
+            <div class="accordion-body p-1">
+              <button class="btn btn-sm btn-outline-primary w-100 mb-1" id="navDevices">Ver Dispositivos</button>
+              <button class="btn btn-sm btn-outline-primary w-100 mb-1" id="navHistorialCompleto">Historial Completo</button>
+              <button class="btn btn-sm btn-outline-primary w-100 mb-1" id="navHistorialManage">Gestión de Historial</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formularios -->
+        <div class="accordion-item bg-dark border-0">
+          <h2 class="accordion-header" id="headingForms">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseForms">
+              👤 Formularios
+            </button>
+          </h2>
+          <div id="collapseForms" class="accordion-collapse collapse" data-bs-parent="#navbarAccordion">
+            <div class="accordion-body p-1">
+              <button class="btn btn-sm btn-outline-success w-100 mb-1" id="navUserForm">Datos Personales</button>
+              <button class="btn btn-sm btn-outline-success w-100 mb-1" id="navTipoMina">Tipo de Mina</button>
+              <button class="btn btn-sm btn-outline-success w-100 mb-1" id="navGeoEmpresa">Geo / Empresa</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin / Otros -->
+        <div class="accordion-item bg-dark border-0">
+          <h2 class="accordion-header" id="headingAdmin">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdmin">
+              🛠️ Administración
+            </button>
+          </h2>
+          <div id="collapseAdmin" class="accordion-collapse collapse" data-bs-parent="#navbarAccordion">
+            <div class="accordion-body p-1">
+              <button class="btn btn-sm btn-outline-warning w-100 mb-1" id="navAdmin">Panel Admin</button>
+              <button class="btn btn-sm btn-outline-warning w-100 mb-1" id="navUsuarios">Usuarios</button>
+              <button class="btn btn-sm btn-outline-warning w-100 mb-1" id="navGraficos">Gráficos</button>
+              <button class="btn btn-sm btn-outline-warning w-100 mb-1" id="navGeolocalizacion">Mapa</button>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </nav>
+
+      <!-- Botón de cierre de sesión -->
+      <button class="btn btn-danger mt-2 w-100" id="logout">Cerrar Sesión</button>
+  </nav>
+
 
     <!-- ============================================
          CONTENIDO PRINCIPAL DEL DASHBOARD
