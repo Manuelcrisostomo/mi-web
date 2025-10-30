@@ -1,4 +1,4 @@
-// DeviceView.js================================================
+// DeviceView.js================================================ 
 // Dispositivos y Historial con Firebase + Localización por tipo de mina
 // ================================================
 import { db, ref, onValue, set, auth, onAuthStateChanged } from "../firebaseConfig.js";
@@ -6,6 +6,24 @@ import { navigate } from "../app.js";
 import { showHistoryManagerPage } from "./historyManager.js";
 
 const DEVICE_ID_DEFAULT = "device_A4CB2F124B00";
+
+// ================================================
+// NAVBAR GLOBAL
+// ================================================
+function renderNavbar() {
+  const nav = document.createElement("nav");
+  nav.className = "main-navbar";
+  nav.innerHTML = `
+    <button onclick="navigate('user')">🏠 Inicio</button>
+    <button onclick="navigate('userform')">👤 Usuario</button>
+    <button onclick="navigate('tipomina')">⛏️ Tipo Mina</button>
+    <button onclick="navigate('geoempresa')">🌍 Geo/Empresa</button>
+    <button onclick="navigate('usuarios')">👥 Usuarios</button>
+    <button onclick="navigate('graficos')">📊 Gráficos</button>
+    <button onclick="navigate('geolocalizacion')">📍 Mapa</button>
+  `;
+  return nav;
+}
 
 // ================================================
 // INICIALIZACIÓN CON LOGIN
@@ -25,7 +43,10 @@ export function initDashboard() {
 // ================================================
 export function showDevices() {
   const root = document.getElementById("root");
-  root.innerHTML = `
+  root.innerHTML = "";                   // limpiar root
+  root.appendChild(renderNavbar());      // insertar navbar arriba del contenido
+
+  root.innerHTML += `
     <div class="dashboard">
       <h2>Dispositivo Asignado</h2>
       <div class="actions">
@@ -190,11 +211,14 @@ function guardarMedicionActual(deviceId) {
 }
 
 // ================================================
-// HISTORIAL COMPLETO DEL DISPOSITIVO
+// HISTORIAL COMPLETO DEL DISPOSITIVO CON NAVBAR
 // ================================================
 function showHistoricalPage(deviceId) {
   const root = document.getElementById("root");
-  root.innerHTML = `
+  root.innerHTML = "";                   // limpiar root
+  root.appendChild(renderNavbar());      // insertar navbar arriba
+
+  root.innerHTML += `
     <div class="dashboard">
       <h2>Historial Completo del Dispositivo</h2>
       <p><strong>ID:</strong> ${deviceId}</p>
@@ -235,7 +259,9 @@ function showHistoricalPage(deviceId) {
 // ================================================
 function showPage1(deviceId) {
   const root = document.getElementById("root");
-  root.innerHTML = `
+  root.innerHTML = "";
+  root.appendChild(renderNavbar());
+  root.innerHTML += `
     <div class="dashboard">
       <h2>Página 1 del Historial - ${deviceId}</h2>
       <button id="backToHistBtn">⬅️ Volver</button>
@@ -247,7 +273,9 @@ function showPage1(deviceId) {
 
 function showPage2(deviceId) {
   const root = document.getElementById("root");
-  root.innerHTML = `
+  root.innerHTML = "";
+  root.appendChild(renderNavbar());
+  root.innerHTML += `
     <div class="dashboard">
       <h2>Página 2 del Historial - ${deviceId}</h2>
       <button id="backToHistBtn2">⬅️ Volver</button>
