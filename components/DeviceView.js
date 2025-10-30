@@ -27,7 +27,12 @@ export function renderNavbar() {
 
   const buttons = nav.querySelectorAll("button");
   buttons.forEach(btn => {
-    btn.onclick = () => navigate(btn.dataset.view);
+    if (btn.dataset.view === "home") {
+      // Botón Inicio abre la página de dispositivos
+      btn.onclick = () => showDevices();
+    } else {
+      btn.onclick = () => navigate(btn.dataset.view);
+    }
   });
 
   return nav;

@@ -30,7 +30,7 @@ export function showPagina1() {
 
   <div class="secret-page">
     <div class="flag-container">
-      <img src="assets/images/onepiece_banner.png" alt="One Piece" class="flag-anim">
+      <img src="assets/images/wp2347895.jpg" alt="One Piece" class="flag-anim">
     </div>
     <h2 class="secret-title">¡Felicidades!</h2>
     <p class="secret-text">Has encontrado la página escondida. Por tu esfuerzo has obtenido el <span class="haki-type">${elegido}</span> 🗡️</p>
