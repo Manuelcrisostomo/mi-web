@@ -1,5 +1,5 @@
-// ================================================
-// UserForm.js — Datos personales del usuario
+// ================================================ 
+// UserForm.js — Datos personales del usuario (sin opción de rol) adaptado a modo oscuro
 // ================================================
 import { auth, db, firestore } from "../firebaseConfig.js";
 import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -19,14 +19,19 @@ export function showUserForm() {
         <input id="telefono" class="form-control mb-2" placeholder="Teléfono" />
         <label>Dirección:</label>
         <input id="direccion" class="form-control mb-2" placeholder="Dirección" />
-    
+        <label>Rol:</label>
+        <p id="rolText" class="fw-bold mb-3"></p>
         <button class="btn btn-success w-100 mb-2">💾 Guardar</button>
         <button type="button" id="backBtn" class="btn btn-secondary w-100">⬅️ Volver</button>
       </form>
     </div>
   `;
 
-  document.getElementById("backBtn").onclick = () => navigate("user");
+  const rolText = document.getElementById("rolText");
+  const backBtn = document.getElementById("backBtn");
+  const userForm = document.getElementById("userForm");
+
+  backBtn.onclick = () => navigate("user");
 
   onAuthStateChanged(auth, (user) => {
     if (!user) return navigate("login");
@@ -34,22 +39,25 @@ export function showUserForm() {
 
     onSnapshot(userRef, (snap) => {
       const data = snap.data() || {};
-      nombre.value = data.nombre || "";
-      telefono.value = data.telefono || "";
-      direccion.value = data.direccion || "";
-      // Mostrar rol como texto
+      document.getElementById("nombre").value = data.nombre || "";
+      document.getElementById("telefono").value = data.telefono || "";
+      document.getElementById("direccion").value = data.direccion || "";
+
+      // Mostrar rol como texto visible
       const rol = data.isAdmin ? "Administrador" : "Usuario";
-      document.getElementById("rolText").textContent = `Usted es usuario con rol: ${rol}`;
+      rolText.textContent = `Usted es usuario con rol: ${rol}`;
+
+      // Color dinámico según modo
+      rolText.style.color = document.body.classList.contains("dark-mode") ? "#fff" : "#111";
     });
 
     userForm.onsubmit = async (e) => {
       e.preventDefault();
       const datos = {
-        nombre: nombre.value.trim(),
-        telefono: telefono.value.trim(),
-        direccion: direccion.value.trim(),
-        // Mantener el rol actual, no se puede cambiar desde el formulario
-        isAdmin: document.getElementById("rolText").textContent.includes("Administrador")
+        nombre: document.getElementById("nombre").value.trim(),
+        telefono: document.getElementById("telefono").value.trim(),
+        direccion: document.getElementById("direccion").value.trim(),
+        isAdmin: rolText.textContent.includes("Administrador")
       };
       await setDoc(userRef, datos, { merge: true });
       await update(ref(db, `usuarios/${user.uid}`), datos);
