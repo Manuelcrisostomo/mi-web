@@ -1,5 +1,5 @@
 // ================================================ 
-// UserForm.js — Datos personales del usuario (sin opción de rol) adaptado a modo oscuro
+// UserForm.js — Datos personales del usuario con adaptación completa a modo oscuro
 // ================================================
 import { auth, db, firestore } from "../firebaseConfig.js";
 import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -30,6 +30,32 @@ export function showUserForm() {
   const rolText = document.getElementById("rolText");
   const backBtn = document.getElementById("backBtn");
   const userForm = document.getElementById("userForm");
+  const nombreInput = document.getElementById("nombre");
+  const telefonoInput = document.getElementById("telefono");
+  const direccionInput = document.getElementById("direccion");
+  const labels = userForm.querySelectorAll("label");
+
+  // Función para actualizar colores según modo
+  function actualizarColores() {
+    const dark = document.body.classList.contains("dark-mode");
+    const textColor = dark ? "#fff" : "#111";
+    const bgColor = dark ? "#333" : "#fff";
+
+    // Labels y rol
+    labels.forEach(label => label.style.color = textColor);
+    rolText.style.color = textColor;
+
+    // Inputs
+    [nombreInput, telefonoInput, direccionInput].forEach(input => {
+      input.style.color = textColor;
+      input.style.backgroundColor = bgColor;
+      input.style.borderColor = dark ? "#555" : "#ccc";
+      input.style.caretColor = textColor;
+    });
+  }
+
+  // Inicializar colores
+  actualizarColores();
 
   backBtn.onclick = () => navigate("user");
 
@@ -39,24 +65,21 @@ export function showUserForm() {
 
     onSnapshot(userRef, (snap) => {
       const data = snap.data() || {};
-      document.getElementById("nombre").value = data.nombre || "";
-      document.getElementById("telefono").value = data.telefono || "";
-      document.getElementById("direccion").value = data.direccion || "";
+      nombreInput.value = data.nombre || "";
+      telefonoInput.value = data.telefono || "";
+      direccionInput.value = data.direccion || "";
 
-      // Mostrar rol como texto visible
+      // Mostrar rol como texto
       const rol = data.isAdmin ? "Administrador" : "Usuario";
       rolText.textContent = `Usted es usuario con rol: ${rol}`;
-
-      // Color dinámico según modo
-      rolText.style.color = document.body.classList.contains("dark-mode") ? "#fff" : "#111";
     });
 
     userForm.onsubmit = async (e) => {
       e.preventDefault();
       const datos = {
-        nombre: document.getElementById("nombre").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        direccion: document.getElementById("direccion").value.trim(),
+        nombre: nombreInput.value.trim(),
+        telefono: telefonoInput.value.trim(),
+        direccion: direccionInput.value.trim(),
         isAdmin: rolText.textContent.includes("Administrador")
       };
       await setDoc(userRef, datos, { merge: true });
@@ -64,4 +87,8 @@ export function showUserForm() {
       alert("✅ Datos personales guardados correctamente");
     };
   });
+
+  // Detectar cambios de tema (si aplicas toggle dinámico)
+  const observer = new MutationObserver(actualizarColores);
+  observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 }
